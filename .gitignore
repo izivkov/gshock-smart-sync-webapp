@@ -1,0 +1,85 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn.lock
+
+# Build files
+/.next/
+/out/
+/.vercel/
+/.now/
+/build/
+/public/
+/.nuxt/
+
+# Runtime data
+db.json
+db.sqlite
+*.sqlite
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+
+# Dependency directories
+pnpm-debug.log
+pids
+logs
+.eslintcache
+
+# Visual Studio Code
+.vscode
+.project
+*.launch
+.c9/
+*.sublime-workspace
+
+# Local files
+.env.local
+.env.development
+.env.test
+.env.production
+.env
+.env*.local
+.env*.development
+.env*.test
+.env*.production
+
+# Testing
+/coverage
+
+# Output
+/dist/
+/.cache
+build
+
+# Yarn
+.pnp/
+.pnp.js
+.cache/
+.yarn/
+
+# Config files
+*.config.ts
+*.config.js
+.config/
+config/
+config.js
+config.ts
+
+# Other
+package-lock.json
+yarn.lock
