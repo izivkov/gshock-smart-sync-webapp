@@ -24,8 +24,7 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ checked }) => {
       }}
       circleProps={{
         className: "before:hidden left-0.5 border-none",
-      }}
-      defaultChecked />
+      }} />
   )
 }
 
