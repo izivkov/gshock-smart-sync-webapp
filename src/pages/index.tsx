@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import AppCard from '../pages/components/AppCard'
+import GShockAPI from '@/api/GShockAPI'
 
 function Home() {
 
@@ -40,12 +41,10 @@ function Home() {
             return
 
           case progressEvents.get("Disconnected"):
-            console.log(`Received [Connected] event`);
             navigateToHomePage();
             break;
 
           case progressEvents.get("Connected"):
-            console.log(`Received [Disconnected] event`);
             navigateToTimePage();
             break;
         }

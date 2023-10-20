@@ -1,8 +1,8 @@
 import { cachedIO } from "@io/CachedIO";
 import CasioIO from "@io/CasioIO";
 import Utils from "@utils/Utils";
-import { watchInfo } from "@api/Watchinfo";
-import WATCH_MODEL from "@api/Watchinfo";
+import { watchInfo } from "@/api/WatchInfo";
+import WATCH_MODEL from "@/api/WatchInfo";
 
 class WatchConditionValue {
     constructor(public batteryLevel: number, public temperature: number) { }

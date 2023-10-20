@@ -2,15 +2,15 @@
 
 import AppButton from "@components/AppButton";
 import { connection } from "@api/Connection";
-import { watchInfo } from "@api/Watchinfo";
+import { watchInfo } from "@/api/WatchInfo";
 import test from "@api/test";
 import React from "react";
 
 const ConnectButton: React.FC = () => {
 
-    function connect() {
+    const connect = () => {
         connection.start().then(() => {
-            watchInfo.setNameAndModel(connection.name)
+            // watchInfo.setNameAndModel(connection.name)
         })
     }
 
@@ -25,7 +25,7 @@ const ConnectButton: React.FC = () => {
 
     return (
         <div className="flex w-max gap-4">
-            <AppButton label="Pair Watch" onClick={connect} />
+            <AppButton label="Pair Watch" onClick={() => connect()} />
         </div >
     )
 }

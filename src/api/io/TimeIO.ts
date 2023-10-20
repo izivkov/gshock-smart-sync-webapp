@@ -1,5 +1,5 @@
 import CasioIO from "@io/CasioIO";
-import { watchInfo } from "@api/Watchinfo";
+import { watchInfo } from "@/api/WatchInfo";
 import DstWatchStateIO from "@io/DstWatchStateIO";
 import DstForWorldCitiesIO from "@io/DstForWorldCitiesIO";
 import WorldCitiesIO from "@io/WorldCitiesIO";

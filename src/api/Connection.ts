@@ -2,7 +2,7 @@
 
 import { CasioConstants } from '@api/CasioConstants';
 import { progressEvents } from '@api/ProgressEvents';
-import { watchInfo } from '@api/Watchinfo';
+import { watchInfo } from '@/api/WatchInfo';
 import { messageDispatcher } from '@api/MessageDispatcher';
 
 class Connection {
