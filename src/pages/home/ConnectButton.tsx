@@ -2,7 +2,6 @@
 
 import AppButton from "@components/AppButton";
 import { connection } from "@api/Connection";
-import { watchInfo } from "@/api/WatchInfo";
 import test from "@api/test";
 import React from "react";
 
@@ -10,7 +9,7 @@ const ConnectButton: React.FC = () => {
 
     const connect = () => {
         connection.start().then(() => {
-            // watchInfo.setNameAndModel(connection.name)
+            console.log("connected")
         })
     }
 
