@@ -12,15 +12,17 @@ import { useState, useEffect } from 'react'
 
 const defaultCustomCardStyle = {
     display: 'inline-block', // Makes the card inline-block
-    maxWidth: '80%', // Allows the card to expand up to its parent's width
+    maxWidth: '100%', // Allows the card to expand up to its parent's width
     margin: 10,
     paddingTop: 30,
     paddingBottom: 6,
+    paddingRight: 10,
     backgroundColor: '#fff',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
     border: "2px solid gray",
 };
 
+// inline-block bg-white p-4 rounded shadow-lg
 const classNameDefault = "mt-6 w-96"
 
 interface AppCardProps {

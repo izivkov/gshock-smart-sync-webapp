@@ -1,7 +1,5 @@
 "use client"
 
-import { ReactNode } from "react";
-
 import AppCard from "@components/AppCard";
 import AppText from "../components/AppText";
 import TimerInput from "./TimerInput";

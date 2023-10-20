@@ -1,24 +1,21 @@
 "use client"
 
 import AppCard from "@components/AppCard";
-import SetTimeButton from "./SetTimeButton";
 import AppText from "../components/AppText";
-import DigitalClock from "../components/DigitalClock";
 
-const TimeCard: React.FC = () => {
+const HomeTimeCard: React.FC = () => {
 
-    const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+    const homeTime = "TORONTO"
 
     const header = <div className="flex flex-row justify-between">
-        <AppText text="Set Time" variant='h5' /></div>
+        <AppText text="Home Time" variant='h5' /></div>
 
     const body = <div>
-        <div className="flex flex-row justify-between">
-            <DigitalClock />
-            <SetTimeButton label="Set Time" />
-        </div>
+
         <div>
-            <AppText text={`${timeZone}`} variant='lead' />
+            <div className="flex flex-row justify-center">
+                <AppText text={`${homeTime}`} variant='lead' />
+            </div>
         </div>
     </div>
 
@@ -31,4 +28,4 @@ const TimeCard: React.FC = () => {
     );
 }
 
-export default TimeCard;
+export default HomeTimeCard;
