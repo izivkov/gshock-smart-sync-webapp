@@ -15,12 +15,10 @@ const Alarms: React.FC = () => {
                 <AlarmCard number={3} />
                 <AlarmCard number={4} />
                 <AlarmCard number={5} />
+                <AppSwitch text="Signal (chime)" checked={true} />
             </div>
             <div className="flex gap-6 justify-end p-16 mr-10">
-                <div className=' gap-10 flex flex-col'>
-                    <AppSwitch text="Signal (chime)" checked={true} />
-                    <AppButton label="Send to Watch" onClick={() => alert("Send to Watch Clicked")} />
-                </div>
+                <AppButton label="Send to Watch" onClick={() => alert("Send to Watch Clicked")} />
             </div>
         </div>
     );

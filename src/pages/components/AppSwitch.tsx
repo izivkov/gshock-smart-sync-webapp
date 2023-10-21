@@ -18,7 +18,7 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ text, checked }) => {
   };
 
   return (
-    <div className="flex flex-row justify-between gap-6">
+    <div className="flex flex-row justify-between gap-6 items-center">
       <AppText text={text ? text : ""} />
       <Switch checked={switchState} onChange={toggleSwitch}
         ripple={false}
