@@ -2,12 +2,14 @@
 
 import { Switch } from "@material-tailwind/react";
 import { useState } from "react";
+import AppText from "./AppText";
 
 interface AppSwitchProps {
+  text?: string;
   checked: boolean;
 }
 
-const AppSwitch: React.FC<AppSwitchProps> = ({ checked }) => {
+const AppSwitch: React.FC<AppSwitchProps> = ({ text, checked }) => {
 
   const [switchState, setSwitchState] = useState(checked); // Set to true for checked or false for unchecked
 
@@ -16,15 +18,18 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ checked }) => {
   };
 
   return (
-    <Switch checked={switchState} onChange={toggleSwitch}
-      ripple={false}
-      className="h-full w-full checked:bg-[purple]"
-      containerProps={{
-        className: "w-11 h-6",
-      }}
-      circleProps={{
-        className: "before:hidden left-0.5 border-none",
-      }} />
+    <div className="flex flex-row justify-between gap-6">
+      <AppText text={text ? text : ""} />
+      <Switch checked={switchState} onChange={toggleSwitch}
+        ripple={false}
+        className="h-full w-full checked:bg-[purple]"
+        containerProps={{
+          className: "w-11 h-6",
+        }}
+        circleProps={{
+          className: "before:hidden left-0.5 border-none",
+        }} />
+    </div >
   )
 }
 

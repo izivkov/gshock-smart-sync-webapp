@@ -41,7 +41,6 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number }) => {
             <AppPeriod period="Daily" />
 
             <TimePickerDialog initialTime={alarmTime} open={dialogOpen} handleClose={handleCloseDialog} />
-
         </div>
         <div className="flex justify-end">
             <AppSwitch checked={true} />
