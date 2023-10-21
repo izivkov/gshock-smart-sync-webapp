@@ -1,16 +1,31 @@
 "use client"
 
+import React, { useState } from 'react';
 import AppCard from "@components/AppCard";
-import AppText from "../components/AppText";
+import AppText from "@components/AppText";
 import AlarmTime from "./AlarmTime";
-import AppPeriod from "../components/AppPeriod";
-import AppSwitch from "../components/AppSwitch";
+import AppPeriod from "@components/AppPeriod";
+import AppSwitch from "@components/AppSwitch";
+import TimePickerDialog from "../components/TimePickerDialog";
+import dayjs from 'dayjs';
 
 interface AlarmCardProps {
     number: 1 | 2 | 3 | 4 | 5;
 }
 
 const AlarmCard: React.FC<AlarmCardProps> = ({ number }) => {
+
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [alarmTime, setTime] = useState(dayjs('2023-01-01T03:10'));
+
+    const handleOpenDialog = () => {
+        setDialogOpen(true);
+    };
+
+    const handleCloseDialog = (time: any) => {
+        setDialogOpen(false);
+        setTime(time);
+    };
 
     const title = `Alarm ${number}`
 
@@ -20,10 +35,13 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number }) => {
 
     const body = <div className="flex flex-row items-center justify-between">
         <div className="flex gap-6 items-center">
-            <div onClick={() => alert("clicked")}>
-                <AlarmTime />
+            <div onClick={handleOpenDialog}>
+                <AlarmTime alarmTime={alarmTime} />
             </div>
             <AppPeriod period="Daily" />
+
+            <TimePickerDialog initialTime={alarmTime} open={dialogOpen} handleClose={handleCloseDialog} />
+
         </div>
         <div className="flex justify-end">
             <AppSwitch checked={true} />
