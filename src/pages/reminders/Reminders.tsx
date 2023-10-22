@@ -2,14 +2,21 @@
 
 import React from 'react';
 import withBottomMenu from '@components/withBottomMenu'
-import EventForm from './EventForm';
+import AppButton from '../components/AppButton';
+import ReminderCard from './ReminderCard';
 
 const Reminders: React.FC = () => {
     return (
-        <div>
-            <div className="flex min-h-screen flex-col justify-between p-24">
-                <h2>Reminders Page</h2>
-                <EventForm />
+        <div className='flex flex-col'>
+            <div className="inline-block bg-white p-4 gap-4 rounded shadow-lg grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 justify-items-center">
+                <ReminderCard number={1} description="Go to the gym" />
+                <ReminderCard number={2} description="Go to the gym" />
+                <ReminderCard number={3} description="Go to the gym" />
+                <ReminderCard number={4} description="Go to the gym" />
+                <ReminderCard number={5} description="Go to the gym" />
+            </div>
+            <div className="flex gap-6 justify-end p-16 mr-10">
+                <AppButton label="Send to Watch" onClick={() => alert("Send to Watch Clicked")} />
             </div>
         </div>
     );

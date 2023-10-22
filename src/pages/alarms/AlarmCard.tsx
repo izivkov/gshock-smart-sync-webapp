@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import AppCard from "@components/AppCard";
 import AppText from "@components/AppText";
 import AlarmTime from "./AlarmTime";
-import AppPeriod from "@components/AppPeriod";
+import AlarmPeriod from "./AlarmPeriod";
 import AppSwitch from "@components/AppSwitch";
 import TimePickerDialog from "../components/TimePickerDialog";
 import dayjs from 'dayjs';
@@ -38,7 +38,7 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number }) => {
             <div onClick={handleOpenDialog}>
                 <AlarmTime alarmTime={alarmTime} />
             </div>
-            <AppPeriod period="Daily" />
+            <AlarmPeriod period="Daily" />
 
             <TimePickerDialog initialTime={alarmTime} open={dialogOpen} handleClose={handleCloseDialog} />
         </div>
