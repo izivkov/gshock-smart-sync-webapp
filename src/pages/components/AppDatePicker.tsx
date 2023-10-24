@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { StaticTimePicker } from '@mui/x-date-pickers/StaticTimePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import AlarmTime from '../alarms/AlarmTime';
 
 interface TimePickerProps {
     onTimeSelected: (time: any) => void;
-    initialTime: Dayjs
+    initialDate: Dayjs
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, initialTime }) => {
+const AppDatePicker: React.FC<TimePickerProps> = ({ onTimeSelected, initialDate }) => {
     const [selectedTime, setSelectedTime] = useState(null);
 
     const handleTimeAccepted = (time: any) => {
@@ -23,12 +22,12 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, initialTime }) 
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} >
-            <StaticTimePicker defaultValue={dayjs('2023-01-01T00:00:00')}
-                value={initialTime}
+            <DatePicker defaultValue={dayjs('2023-01-01T00:00:00')}
+                value={initialDate}
                 onAccept={handleTimeAccepted}
             />
         </LocalizationProvider>
     );
 }
 
-export default TimePicker
+export default AppDatePicker

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog, DialogTitle, DialogContent, Button } from '@mui/material';
-import TimePicker from '@components/TimePicker';
+import AppTimePicker from '@/pages/components/AppTimePicker';
 import { Dayjs } from 'dayjs';
 
 interface TimePickerDialogProps {
@@ -14,7 +14,7 @@ const TimePickerDialog: React.FC<TimePickerDialogProps> = ({ open, handleClose, 
         <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Select Time</DialogTitle>
             <DialogContent>
-                <TimePicker initialTime={initialTime} onTimeSelected={time => handleClose(time)} />
+                <AppTimePicker initialTime={initialTime} onTimeSelected={time => handleClose(time)} />
             </DialogContent>
         </Dialog>
     );

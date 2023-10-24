@@ -6,7 +6,7 @@ import AppText from "@components/AppText";
 import AlarmTime from "./AlarmTime";
 import AlarmPeriod from "./AlarmPeriod";
 import AppSwitch from "@components/AppSwitch";
-import TimePickerDialog from "../components/TimePickerDialog";
+import TimePickerDialog from "./TimePickerDialog";
 import dayjs from 'dayjs';
 
 interface AlarmCardProps {

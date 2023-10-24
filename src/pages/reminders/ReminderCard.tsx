@@ -8,6 +8,7 @@ import Period from './Period';
 import AppCheckbox from '../components/AppCheckbox';
 import Frequency from './Frequency';
 import Event from '@model/Event';
+import ReminderEditDialog from './ReminderEditDialog';
 
 interface ReminderCardProps {
     description: string;
@@ -17,7 +18,7 @@ interface ReminderCardProps {
 const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [startDate, setStartDate] = useState(dayjs());
+    const [startDate, setStartDate] = useState(dayjs().add(1, 'month').add(1, 'day'));
     const [endDate, setEndDate] = useState(dayjs().add(1, 'day'));
 
     const handleOpenDialog = () => {
@@ -33,7 +34,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
     const day = startDate.day();
 
     // INZ TEST - get events from eatch instead
-    const jsonStr = {
+    const event = Event.createEvent({
         "time": {
             "enabled": true,
             "repeatPeriod": "WEEKLY",
@@ -52,8 +53,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
             ]
         },
         "title": "Pay Phodora"
-    }
-    const event = Event.createEvent(jsonStr);
+    });
     // End of test
 
     const title = `Reminder ${number}`
@@ -62,7 +62,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
         <AppText text={title} variant='h5' />
     </div>
 
-    const body = <div className='flex flex-row justify-between'>
+    const body = <div className='flex flex-row justify-between' onClick={handleOpenDialog}>
         <div className="flex flex-col justify-between">
             <AppText text={description} variant='h5' />
             <Period event={event} />
@@ -70,6 +70,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
         <div className="flex flex-col justify-between">
             <AppCheckbox checked={true} />
             <Frequency event={event} />
+            <ReminderEditDialog initialDate={startDate} open={dialogOpen} handleClose={handleCloseDialog} />
         </div>
     </div>
 
