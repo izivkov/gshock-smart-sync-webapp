@@ -51,7 +51,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                             <AppDatePicker open={open} label='End Date' initialDate={endDate} onTimeSelected={date => endDateSelected(date)} />
                         </div>
                         <div className="flex flex-row justify-between items-center gap-4">
-                            <AppCheckboxList checkBoxNames={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]} />
+                            <AppCheckboxList label='Repeat on' checkBoxNames={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]} />
                         </div>
                     </CardBody>
                     <CardFooter className="pt-0 flex flex-row justify-end">
