@@ -9,6 +9,7 @@ import AppCheckbox from '../components/AppCheckbox';
 import Frequency from './Frequency';
 import Event from '@model/Event';
 import ReminderEditDialog from './ReminderEditDialog';
+import ReminderData from './ReminderData';
 
 interface ReminderCardProps {
     description: string;
@@ -25,7 +26,8 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
         setDialogOpen(true);
     };
 
-    const handleCloseDialog = (time: any) => {
+    const handleCloseDialog = (reminderData: any) => {
+        alert(`handleCloseDialog: ${JSON.stringify(reminderData)}`);
         setDialogOpen(false);
     };
 
@@ -58,6 +60,20 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
 
     const title = `Reminder ${number}`
 
+    const reminderData: ReminderData = {
+        time: {
+            enabled: true,
+            startDate: { year: year, month: month, day: day },
+            endDate: { year: year, month: month, day: day },
+            repeatOption: "",
+            repeatPeriod: "Weekly",
+            daysOfWeek: [
+                "MONDAY"
+            ]
+        },
+        title: description
+    }
+
     const header = <div className="flex flex-row justify-between">
         <AppText text={title} variant='h5' />
     </div>
@@ -70,7 +86,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
         <div className="flex flex-col justify-between">
             <AppCheckbox checked={true} />
             <Frequency event={event} />
-            <ReminderEditDialog initialDate={startDate} open={dialogOpen} handleClose={handleCloseDialog} />
+            <ReminderEditDialog startDate={startDate} endDate={endDate} open={dialogOpen} handleClose={handleCloseDialog} reminderData={reminderData} />
         </div>
     </div>
 

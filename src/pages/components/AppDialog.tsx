@@ -8,13 +8,14 @@ interface AppDialogProps {
     onClose: (date: any) => void;
     children: ReactNode;
     title: string;
+    style?: React.CSSProperties;
 }
 
-const AppDialog: React.FC<AppDialogProps> = ({ open, onClose, title, children }) => {
+const AppDialog: React.FC<AppDialogProps> = ({ open, onClose, title, style, children }) => {
 
     return (
 
-        <Dialog size="xs" style={{ zIndex: 0 }} className="w-96"
+        <Dialog size="sm" style={style} className="flex flex-col justify-between items-start w-full gap-4 p-4 overflow-visible"
             title={title}
             open={open}
             handler={onClose}

@@ -4,28 +4,34 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-interface TimePickerProps {
+interface DatePickerProps {
     onTimeSelected: (time: any) => void;
     initialDate: Dayjs
+    label: string
+    open: boolean
 }
 
-const AppDatePicker: React.FC<TimePickerProps> = ({ onTimeSelected, initialDate }) => {
-    const [selectedTime, setSelectedTime] = useState(null);
+const AppDatePicker: React.FC<DatePickerProps> = ({ onTimeSelected, initialDate, label, open }) => {
+    const [selectedDate, setSelectedDate] = useState('');
 
-    const handleTimeAccepted = (time: any) => {
-        setSelectedTime(time);
-
-        if (onTimeSelected) {
-            onTimeSelected(time);
-        }
+    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedDate(event.target.value);
+        onTimeSelected(event.target.value);
     };
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs} >
-            <DatePicker defaultValue={dayjs('2023-01-01T00:00:00')}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <div className="flex flex-row justify-between items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700">{label}:</label>
+                <input onChange={handleDateChange} className="border-2 rounded-lg border-gray-300 focus:border-indigo-300" id="dateID" type="date" autoComplete="off" placeholder="MM/DD/YYYY" />
+
+                {/* <DatePicker
+                label={label} defaultValue={dayjs('2023-01-01T00:00:00')}
                 value={initialDate}
                 onAccept={handleTimeAccepted}
-            />
+            /> */}
+            </div>
+
         </LocalizationProvider>
     );
 }
