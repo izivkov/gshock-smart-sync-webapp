@@ -7,39 +7,39 @@ import AppText from './AppText';
 import AppCheckbox from './AppCheckbox';
 
 interface AppCheckboxListProps {
-    idAndValues: { id: string, displayValue: string }[];
+    displayValues: string[];
     label: string;
-    onChange: (selectedValues: Set<string>) => void;
+    onChange: (selected: number[]) => void;
 }
 
-const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ idAndValues, label, onChange }) => {
+const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label, onChange }) => {
 
-    const selectedSet: Set<string> = new Set();
+    const selected = new Set<number>()
 
-    const toggleCheckbox = (e: any) => {
-        if (e.checked) {
-            selectedSet.add(e.value);
+    const toggleCheckbox = (checked: boolean, index: number) => {
+        if (checked) {
+            selected.add(index);
         } else {
-            selectedSet.delete(e.value);
+            selected.delete(index);
         }
-        onChange(selectedSet)
+        onChange(Array.from(selected.values()));
     }
 
     return (
         <div>
             <AppText text={label} variant='paragraph' />
             <List className="flex flex-row inline-block">
-                {idAndValues.map((idAndValues: any, index: number) => (
+                {displayValues.map((displayValue: string, index: number) => (
                     <ListItem className="p-0" key={index}>
                         <label
-                            htmlFor={idAndValues.displayValue}
+                            htmlFor={displayValue}
                             className="flex w-full cursor-pointer items-center px-3 py-2"
                         >
                             <ListItemPrefix className="p-0 hover:before:opacity-0">
-                                <AppCheckbox id={idAndValues.id} text={""} checked={false} onChange={toggleCheckbox} />
+                                <AppCheckbox text={""} checked={false} index={index} onChange={toggleCheckbox} />
                             </ListItemPrefix>
                             <Typography color="blue-gray" className="font-medium">
-                                {idAndValues.displayValue}
+                                {displayValue}
                             </Typography>
                         </label>
                     </ListItem>

@@ -7,18 +7,18 @@ import AppText from "./AppText";
 interface AppCheckboxProps {
   text?: string;
   checked: boolean;
+  index: number;
   className?: string;
-  onChange: (status: { checked: boolean, value: string }) => void;
-  id: string;
+  onChange: (checked: boolean, index: number) => void;
 }
 
-const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onChange, id }) => {
+const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onChange, index }) => {
 
   const [checkboxState, setCheckboxState] = useState(checked);
 
   const toggleCheckbox = (e: any) => {
-    onChange({ checked: !checkboxState, value: e.target.id });
     setCheckboxState(!checkboxState);
+    onChange(e.target.checked, index);
   }
 
   const checkboxClass = className ? className : "p-0";
@@ -26,7 +26,7 @@ const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onC
   return (
     <div className="flex flex-row justify-between gap-0 items-center inline-block">
       <AppText text={text ? text : ""} />
-      <Checkbox color="purple" id={id} checked={checkboxState} className={checkboxClass} onChange={toggleCheckbox} containerProps={{
+      <Checkbox color="purple" checked={checkboxState} className={checkboxClass} onChange={toggleCheckbox} containerProps={{
         className: checkboxClass,
       }}
       />

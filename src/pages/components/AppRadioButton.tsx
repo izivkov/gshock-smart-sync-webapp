@@ -1,6 +1,7 @@
 "use client"
 
 import { Checkbox, Radio } from "@material-tailwind/react";
+import { on } from "events";
 import { useState } from "react";
 
 interface AppRadioButtonProps {
@@ -8,14 +9,17 @@ interface AppRadioButtonProps {
   label: string;
   checked?: boolean;
   className?: string;
+  onChange: (index: number, checked: boolean) => void;
+  index: number;
 }
 
-const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checked, className }) => {
+const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checked, className, onChange, index }) => {
 
   const [checkboxState, setCheckboxState] = useState(checked);
 
-  const toggleCheckbox = () => {
-    setCheckboxState(!checkboxState); // Toggle the state when the Switch is clicked.
+  const toggleCheckbox = (e: any) => {
+    setCheckboxState(e.target.checked);
+    onChange(index, e.target.checked);
   };
 
   const checkboxClass = className ? className : "hover:before:opacity-0 p-0";

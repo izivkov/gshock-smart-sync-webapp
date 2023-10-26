@@ -25,21 +25,21 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         endDate = startDate;
     }
 
+    type daysOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
     interface CheckboxValues {
-        value: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+        value: daysOfWeekType;
         displayValue: string;
     }
 
-    const idMap = new Map<string, CheckboxValues>();
-    idMap.set("MON", { value: "MONDAY", displayValue: "Mon" });
-    idMap.set("TUE", { value: "TUESDAY", displayValue: "Tue" });
-    idMap.set("WED", { value: "WEDNESDAY", displayValue: "Wed" });
-    idMap.set("THU", { value: "THURSDAY", displayValue: "Thu" });
-    idMap.set("FRI", { value: "FRIDAY", displayValue: "Fri" });
-    idMap.set("SAT", { value: "SATURDAY", displayValue: "Sat" });
-    idMap.set("SUN", { value: "SUNDAY", displayValue: "Sun" });
-
-    const idAndValues = Array.from(idMap.entries()).map(([key, value]) => ({ id: key, displayValue: value.displayValue }))
+    const checkBoxes: CheckboxValues[] = [
+        { value: "MONDAY", displayValue: "Mon" },
+        { value: "TUESDAY", displayValue: "Tue" },
+        { value: "WEDNESDAY", displayValue: "Wed" },
+        { value: "THURSDAY", displayValue: "Thu" },
+        { value: "FRIDAY", displayValue: "Fri" },
+        { value: "SATURDAY", displayValue: "Sat" },
+        { value: "SUNDAY", displayValue: "Sun" }
+    ]
 
     const options = [
         'Does not repeat', 'Weekly', 'Monthly', 'Yearly'
@@ -61,18 +61,18 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         reminderData.time.occurrences = (e.target.value);
     }
 
-    function daysOfWeekSelected(selected: Set<string>): void {
+    function daysOfWeekSelected(selected: number[]): void {
         reminderData.time.daysOfWeek = [];
 
-        for (const item of Array.from(selected.values())) {
-            if (idMap.has(item as string)) {
-                const itemValue = idMap.get(item);
-                if (itemValue) {
-                    reminderData.time.daysOfWeek.push(itemValue.value);
-                }
-            }
-        }
+        const newValues: string[] = selected.map(index => checkBoxes[index].value)
+        newValues.forEach((value: string) => {
+            reminderData.time.daysOfWeek.push(value);
+        })
     }
+
+    const onEndsSelected = ((index: number, checked: boolean) => {
+        console.log(`onEndsSelected: ${index}, ${checked}`);
+    })
 
     return (
         <div>
@@ -82,7 +82,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                     <CardHeader className="flex flex-row justify-between" children={undefined} />
                     <CardBody className="flex flex-col gap-4">
                         <AppInput label='Title' className="w-full" />
-                        <AppSelect label='Frequency' value={options[0]} items={options} className="w-72" onSelected={handleSelectFrequency} />
+                        <AppSelect label='Frequency' value={options[0]} items={options} className="w-full" onSelected={handleSelectFrequency} />
                         <div className="flex flex-row justify-between items-center gap-4">
                             <AppDatePicker open={open} label='Start Date' initialDate={startDate} onTimeSelected={date => startDateSelected(date)} />
                             <AppDatePicker open={open} label='End Date' initialDate={endDate} onTimeSelected={date => endDateSelected(date)} />
@@ -90,20 +90,22 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
 
                         <div className="flex flex-row justify-start gap-2">
                             <div className="border-r border-gray-400 p-4">
-                                <AppRadioButtonList label='End on' radioButtons={[
+                                <AppRadioButtonList label='End on' onChange={onEndsSelected} radioButtons={[
 
                                     <AppText text="Never" variant='paragraph' />,
+
                                     <div className='flex flex-row gap-2 items-center'>
                                         <AppText text="On" variant='paragraph' />
                                         <AppDatePicker label={""} onTimeSelected={endDateSelected} initialDate={dayjs()} open={false} />
                                     </div>,
+
                                     <div className='flex flex-row gap-2 items-center'>
                                         <AppText text="After" variant='paragraph' />
                                         <AppInput type="number" label='Occurences' onChange={onOccurencesChange} />
                                     </div>]} />
                             </div>
                             <div className="">
-                                <AppCheckboxList label='Repeat on' idAndValues={idAndValues} onChange={daysOfWeekSelected} />
+                                <AppCheckboxList label='Repeat on' displayValues={checkBoxes.map(checkBox => checkBox.displayValue)} onChange={daysOfWeekSelected} />
                             </div>
                         </div>
                     </CardBody>
