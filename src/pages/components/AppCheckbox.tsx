@@ -9,15 +9,15 @@ interface AppCheckboxProps {
   checked: boolean;
   className?: string;
   onChange: (status: { checked: boolean, value: string }) => void;
-  value: string;
+  id: string;
 }
 
-const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onChange, value }) => {
+const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onChange, id }) => {
 
   const [checkboxState, setCheckboxState] = useState(checked);
 
   const toggleCheckbox = (e: any) => {
-    onChange({ checked: !checkboxState, value: value });
+    onChange({ checked: !checkboxState, value: e.target.id });
     setCheckboxState(!checkboxState);
   }
 
@@ -26,7 +26,7 @@ const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onC
   return (
     <div className="flex flex-row justify-between gap-0 items-center inline-block">
       <AppText text={text ? text : ""} />
-      <Checkbox color="purple" checked={checkboxState} className={checkboxClass} onChange={toggleCheckbox} containerProps={{
+      <Checkbox color="purple" id={id} checked={checkboxState} className={checkboxClass} onChange={toggleCheckbox} containerProps={{
         className: checkboxClass,
       }}
       />
@@ -36,9 +36,3 @@ const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onC
 
 export default AppCheckbox;
 
-interface CheckboxValueObject {
-  value: string;
-  displayValue: string;
-}
-
-export type { CheckboxValueObject }

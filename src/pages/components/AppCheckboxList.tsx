@@ -5,15 +5,14 @@ import React, { Component } from 'react';
 import { Checkbox, List, ListItem, ListItemPrefix, Typography } from "@material-tailwind/react";
 import AppText from './AppText';
 import AppCheckbox from './AppCheckbox';
-import { CheckboxValueObject } from '@components/AppCheckbox';
 
 interface AppCheckboxListProps {
-    checkBoxValues: CheckboxValueObject[];
+    idAndValues: { id: string, value: string }[];
     label: string;
     onChange: (selectedValues: Set<string>) => void;
 }
 
-const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ checkBoxValues, label, onChange }) => {
+const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ idAndValues, label, onChange }) => {
 
     const selectedSet: Set<string> = new Set();
 
@@ -30,17 +29,17 @@ const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ checkBoxValues, label
         <div>
             <AppText text={label} variant='paragraph' />
             <List className="flex flex-row inline-block">
-                {checkBoxValues.map((checkBoxValue: CheckboxValueObject, index: number) => (
+                {idAndValues.map((idAndValues: any, index: number) => (
                     <ListItem className="p-0" key={index}>
                         <label
-                            htmlFor={checkBoxValue.displayValue}
+                            htmlFor={idAndValues.displayValue}
                             className="flex w-full cursor-pointer items-center px-3 py-2"
                         >
                             <ListItemPrefix className="p-0 hover:before:opacity-0">
-                                <AppCheckbox value={checkBoxValue.value} text={""} checked={false} onChange={toggleCheckbox} />
+                                <AppCheckbox id={idAndValues.id} text={""} checked={false} onChange={toggleCheckbox} />
                             </ListItemPrefix>
                             <Typography color="blue-gray" className="font-medium">
-                                {checkBoxValue.displayValue}
+                                {idAndValues.displayValue}
                             </Typography>
                         </label>
                     </ListItem>

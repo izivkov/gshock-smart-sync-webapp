@@ -26,6 +26,22 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         endDate = startDate;
     }
 
+    interface CheckboxValues {
+        value: string;
+        displayValue: string;
+    }
+
+    const idMap = new Map<string, CheckboxValues>();
+    idMap.set("MON", { value: "MONDAY", displayValue: "Mon" });
+    idMap.set("TUE", { value: "TUESDAY", displayValue: "Tue" });
+    idMap.set("WED", { value: "WEDNESDAY", displayValue: "Wed" });
+    idMap.set("THU", { value: "THURSDAY", displayValue: "Thu" });
+    idMap.set("FRI", { value: "FRIDAY", displayValue: "Fri" });
+    idMap.set("SAT", { value: "SATURDAY", displayValue: "Sat" });
+    idMap.set("SUN", { value: "SUNDAY", displayValue: "Sun" });
+
+    const idAndValues = Array.from(idMap.entries()).map(([key, value]) => ({ id: key, displayValue: value.displayValue }))
+
     const options = [
         'Does not repeat', 'Weekly', 'Monthly', 'Yearly'
     ]
@@ -50,19 +66,14 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         reminderData.time.daysOfWeek = [];
 
         for (const item of Array.from(selected.values())) {
-            reminderData.time.daysOfWeek.push(item)
+            if (idMap.has(item as string)) {
+                const itemValue = idMap.get(item);
+                if (itemValue) {
+                    reminderData.time.daysOfWeek.push(itemValue.value);
+                }
+            }
         }
     }
-
-    const checkBoxValues: CheckboxValueObject[] = [
-        { value: "MONDAY", displayValue: "Mon" },
-        { value: "TUESDAY", displayValue: "Tue" },
-        { value: "WEDNESDAY", displayValue: "Wed" },
-        { value: "THURSDAY", displayValue: "Thu" },
-        { value: "FRIDAY", displayValue: "Fri" },
-        { value: "SATURDAY", displayValue: "Sat" },
-        { value: "SUNDAY", displayValue: "Sun" }
-    ]
 
     return (
         <div>
@@ -93,7 +104,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                                     </div>]} />
                             </div>
                             <div className="">
-                                <AppCheckboxList label='Repeat on' checkBoxValues={checkBoxValues} onChange={daysOfWeekSelected} />
+                                <AppCheckboxList label='Repeat on' idAndValues={idAndValues} onChange={daysOfWeekSelected} />
                             </div>
                         </div>
                     </CardBody>
