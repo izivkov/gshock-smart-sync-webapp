@@ -10,7 +10,6 @@ import AppCheckboxList from '../components/AppCheckboxList';
 import AppRadioButtonList from '../components/AppRadioButtonList';
 import AppText from '../components/AppText';
 import AppInput from '../components/AppInput';
-import { CheckboxValueObject } from '@components/AppCheckbox';
 
 interface ReminderEditDialogProps {
     open: boolean;
@@ -27,7 +26,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     }
 
     interface CheckboxValues {
-        value: string;
+        value: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
         displayValue: string;
     }
 
@@ -82,8 +81,8 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                 <Card className="mx-auto w-full max-w-1xl">
                     <CardHeader className="flex flex-row justify-between" children={undefined} />
                     <CardBody className="flex flex-col gap-4">
-                        <AppInput label='Title' />
-                        <AppSelect label='Frequency' value={options[0]} items={options} onSelected={handleSelectFrequency} />
+                        <AppInput label='Title' className="w-full" />
+                        <AppSelect label='Frequency' value={options[0]} items={options} className="w-72" onSelected={handleSelectFrequency} />
                         <div className="flex flex-row justify-between items-center gap-4">
                             <AppDatePicker open={open} label='Start Date' initialDate={startDate} onTimeSelected={date => startDateSelected(date)} />
                             <AppDatePicker open={open} label='End Date' initialDate={endDate} onTimeSelected={date => endDateSelected(date)} />

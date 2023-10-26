@@ -7,7 +7,7 @@ import AppText from './AppText';
 import AppCheckbox from './AppCheckbox';
 
 interface AppCheckboxListProps {
-    idAndValues: { id: string, value: string }[];
+    idAndValues: { id: string, displayValue: string }[];
     label: string;
     onChange: (selectedValues: Set<string>) => void;
 }

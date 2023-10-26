@@ -22,14 +22,8 @@ const AppDatePicker: React.FC<DatePickerProps> = ({ onTimeSelected, initialDate,
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <div className="flex flex-row justify-between items-center gap-2">
-                <label className="block text-sm font-medium text-gray-700">{label}:</label>
+                <label className="block text-sm font-medium text-gray-700">{label}</label>
                 <input onChange={handleDateChange} className="border-2 rounded-lg border-gray-300 focus:border-indigo-300" id="dateID" type="date" autoComplete="off" placeholder="MM/DD/YYYY" />
-
-                {/* <DatePicker
-                label={label} defaultValue={dayjs('2023-01-01T00:00:00')}
-                value={initialDate}
-                onAccept={handleTimeAccepted}
-            /> */}
             </div>
 
         </LocalizationProvider>

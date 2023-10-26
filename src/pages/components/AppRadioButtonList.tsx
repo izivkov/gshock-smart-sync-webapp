@@ -3,9 +3,6 @@
 import { List, ListItem, ListItemPrefix, Radio, Typography } from "@material-tailwind/react";
 import AppText from './AppText';
 import AppRadioButton from './AppRadioButton';
-import AppDatePicker from "./AppDatePicker";
-import dayjs, { Dayjs } from "dayjs";
-import { Component } from "react";
 
 interface AppRadioButtonListProps {
     radioButtons: React.JSX.Element[];
@@ -29,15 +26,6 @@ const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, l
                                     className="hover:before:opacity-0" label={""} />
                             </ListItemPrefix>
                             {radioButton}
-                            {/* <Typography
-                                color="blue-gray"
-                                className="font-medium text-blue-gray-400"
-                            >
-                                {radioButtonName}
-                            </Typography>
-                            <AppDatePicker label={""} onTimeSelected={function (time: any): void {
-                                throw new Error("Function not implemented.");
-                            }} initialDate={dayjs()} open={false} /> */}
                         </label>
                     </ListItem>
                 ))}

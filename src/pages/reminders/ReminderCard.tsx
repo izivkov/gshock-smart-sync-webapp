@@ -5,8 +5,6 @@ import AppCard from "@components/AppCard";
 import AppText from "@components/AppText";
 import dayjs from 'dayjs';
 import Period from './Period';
-import AppCheckbox from '../components/AppCheckbox';
-import Frequency from './Frequency';
 import Event from '@model/Event';
 import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData from './ReminderData';
@@ -69,7 +67,8 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
             repeatPeriod: "Weekly",
             daysOfWeek: [
                 "MONDAY"
-            ]
+            ],
+            occurrences: 1
         },
         title: description
     }
@@ -84,8 +83,6 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
             <Period event={event} />
         </div>
         <div className="flex flex-col justify-between">
-            <AppCheckbox checked={true} />
-            <Frequency event={event} />
             <ReminderEditDialog startDate={startDate} endDate={endDate} open={dialogOpen} handleClose={handleCloseDialog} reminderData={reminderData} />
         </div>
     </div>
