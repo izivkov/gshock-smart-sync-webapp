@@ -15,10 +15,10 @@ interface ReminderData {
         },
         repeatOption: string,
         repeatPeriod: string,
+        occurrences: number,
 
-        daysOfWeek: [
-            "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
-        ]
+        daysOfWeek: string[]
+        // "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
     },
     title: string,
 }
