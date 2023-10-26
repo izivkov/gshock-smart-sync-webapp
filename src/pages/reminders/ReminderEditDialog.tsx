@@ -10,6 +10,7 @@ import AppCheckboxList from '../components/AppCheckboxList';
 import AppRadioButtonList from '../components/AppRadioButtonList';
 import AppText from '../components/AppText';
 import AppInput from '../components/AppInput';
+import { CheckboxValueObject } from '@components/AppCheckbox';
 
 interface ReminderEditDialogProps {
     open: boolean;
@@ -53,7 +54,15 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         }
     }
 
-    const checkBoxNames = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
+    const checkBoxValues: CheckboxValueObject[] = [
+        { value: "MONDAY", displayValue: "Mon" },
+        { value: "TUESDAY", displayValue: "Tue" },
+        { value: "WEDNESDAY", displayValue: "Wed" },
+        { value: "THURSDAY", displayValue: "Thu" },
+        { value: "FRIDAY", displayValue: "Fri" },
+        { value: "SATURDAY", displayValue: "Sat" },
+        { value: "SUNDAY", displayValue: "Sun" }
+    ]
 
     return (
         <div>
@@ -84,7 +93,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                                     </div>]} />
                             </div>
                             <div className="">
-                                <AppCheckboxList label='Repeat on' checkBoxNames={checkBoxNames} onChange={daysOfWeekSelected} />
+                                <AppCheckboxList label='Repeat on' checkBoxValues={checkBoxValues} onChange={daysOfWeekSelected} />
                             </div>
                         </div>
                     </CardBody>

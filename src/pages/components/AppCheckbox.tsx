@@ -8,25 +8,25 @@ interface AppCheckboxProps {
   text?: string;
   checked: boolean;
   className?: string;
-  onChange: (e: any) => void;
-  id: string;
+  onChange: (status: { checked: boolean, value: string }) => void;
+  value: string;
 }
 
-const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onChange, id }) => {
+const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onChange, value }) => {
 
   const [checkboxState, setCheckboxState] = useState(checked);
 
   const toggleCheckbox = (e: any) => {
-    setCheckboxState(!checkboxState); // Toggle the state when the Switch is clicked.
-    onChange(e);
-  };
+    onChange({ checked: !checkboxState, value: value });
+    setCheckboxState(!checkboxState);
+  }
 
   const checkboxClass = className ? className : "p-0";
 
   return (
-    <div className="flex flex-row justify-between gap-0 items-center">
+    <div className="flex flex-row justify-between gap-0 items-center inline-block">
       <AppText text={text ? text : ""} />
-      <Checkbox color="purple" id={id} checked={checkboxState} className={checkboxClass} onChange={toggleCheckbox} containerProps={{
+      <Checkbox color="purple" checked={checkboxState} className={checkboxClass} onChange={toggleCheckbox} containerProps={{
         className: checkboxClass,
       }}
       />
@@ -35,3 +35,10 @@ const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onC
 }
 
 export default AppCheckbox;
+
+interface CheckboxValueObject {
+  value: string;
+  displayValue: string;
+}
+
+export type { CheckboxValueObject }
