@@ -25,7 +25,7 @@ const AppSelect: React.FC<AppSelectProps> = ({ label, items, value, className, o
   return (
     <Select variant="outlined" onChange={handleChange} className={className} label={label} value={selectedOption}>
       {items.map((item, index) => (
-        <Option value={item}>{item}</Option>
+        <Option key={index} value={item}>{item}</Option>
       ))}
     </Select>
   )

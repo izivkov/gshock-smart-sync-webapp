@@ -7,18 +7,16 @@ import { useState } from "react";
 interface AppRadioButtonProps {
   name: string;
   label: string;
-  checked?: boolean;
+  checked: boolean;
   className?: string;
   onChange: (index: number, checked: boolean) => void;
   index: number;
+  disaabled?: boolean
 }
 
-const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checked, className, onChange, index }) => {
-
-  const [checkboxState, setCheckboxState] = useState(checked);
+const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checked, className, onChange, index, disaabled }) => {
 
   const toggleCheckbox = (e: any) => {
-    setCheckboxState(e.target.checked);
     onChange(index, e.target.checked);
   };
 
@@ -36,6 +34,7 @@ const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checked, c
       label={label}
       onChange={toggleCheckbox}
       defaultChecked={checked}
+      disabled={disaabled}
     />
   )
 }

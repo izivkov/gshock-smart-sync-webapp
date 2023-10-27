@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import AppDialog from '../components/AppDialog';
 import AppDatePicker from '../components/AppDatePicker';
@@ -20,6 +20,9 @@ interface ReminderEditDialogProps {
 }
 
 const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClose, startDate, endDate, reminderData }) => {
+
+
+    const [endOnIndex, setOnIndex] = useState(0);
 
     if (!endDate) {
         endDate = startDate;
@@ -51,27 +54,28 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
 
     const endDateSelected = (endDate: Dayjs) => {
         reminderData.time.endDate = { year: dayjs(startDate).year(), month: dayjs(startDate).format("MMMM"), day: dayjs(startDate).date() };
+        setOnIndex(1)
     };
 
-    const handleSelectFrequency = (e: string) => {
-        reminderData.time.repeatOption = (e)
+    const handleSelectFrequency = (frequency: string) => {
+        reminderData.time.repeatOption = (frequency)
     }
 
-    function onOccurencesChange(e: any): void {
-        reminderData.time.occurrences = (e.target.value);
+    function onOccurencesChange(value: string): void {
+        const num = parseInt(value, 10); // The second argument is the radix (base), typically 10 for decimal numbers
+        if (!isNaN(num)) {
+            reminderData.time.occurrences = num;
+            setOnIndex(2)
+        }
     }
 
     function daysOfWeekSelected(selected: number[]): void {
         reminderData.time.daysOfWeek = [];
-
-        const newValues: string[] = selected.map(index => checkBoxes[index].value)
-        newValues.forEach((value: string) => {
-            reminderData.time.daysOfWeek.push(value);
-        })
+        reminderData.time.daysOfWeek.push(...selected.map(index => checkBoxes[index].value))
     }
 
     const onEndsSelected = ((index: number, checked: boolean) => {
-        console.log(`onEndsSelected: ${index}, ${checked}`);
+        setOnIndex(index)
     })
 
     return (
@@ -79,9 +83,9 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
             <AppDialog open={open} onClose={() => handleClose(reminderData)} title="Edit Reminder">
 
                 <Card className="mx-auto w-full max-w-1xl">
-                    <CardHeader className="flex flex-row justify-between" children={undefined} />
+                    <CardHeader className="flex flex-row justify-between" children={<></>} />
                     <CardBody className="flex flex-col gap-4">
-                        <AppInput label='Title' className="w-full" />
+                        <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full" />
                         <AppSelect label='Frequency' value={options[0]} items={options} className="w-full" onSelected={handleSelectFrequency} />
                         <div className="flex flex-row justify-between items-center gap-4">
                             <AppDatePicker open={open} label='Start Date' initialDate={startDate} onTimeSelected={date => startDateSelected(date)} />
@@ -90,18 +94,18 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
 
                         <div className="flex flex-row justify-start gap-2">
                             <div className="border-r border-gray-400 p-4">
-                                <AppRadioButtonList label='End on' onChange={onEndsSelected} radioButtons={[
+                                <AppRadioButtonList checkedIndex={endOnIndex} label='End on' onChange={onEndsSelected} radioButtons={[
 
-                                    <AppText text="Never" variant='paragraph' />,
+                                    <AppText disabled={endOnIndex != 0} text="Never" variant='paragraph' />,
 
                                     <div className='flex flex-row gap-2 items-center'>
                                         <AppText text="On" variant='paragraph' />
-                                        <AppDatePicker label={""} onTimeSelected={endDateSelected} initialDate={dayjs()} open={false} />
+                                        <AppDatePicker disabled={endOnIndex != 1} label={""} onTimeSelected={endDateSelected} initialDate={dayjs()} open={false} />
                                     </div>,
 
                                     <div className='flex flex-row gap-2 items-center'>
                                         <AppText text="After" variant='paragraph' />
-                                        <AppInput type="number" label='Occurences' onChange={onOccurencesChange} />
+                                        <AppInput disabled={endOnIndex != 2} type="number" label='Occurences' onChange={onOccurencesChange} />
                                     </div>]} />
                             </div>
                             <div className="">

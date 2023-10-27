@@ -9,9 +9,10 @@ interface DatePickerProps {
     initialDate: Dayjs
     label: string
     open: boolean
+    disabled?: boolean
 }
 
-const AppDatePicker: React.FC<DatePickerProps> = ({ onTimeSelected, initialDate, label, open }) => {
+const AppDatePicker: React.FC<DatePickerProps> = ({ onTimeSelected, initialDate, label, open, disabled }) => {
     const [selectedDate, setSelectedDate] = useState('');
 
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +24,7 @@ const AppDatePicker: React.FC<DatePickerProps> = ({ onTimeSelected, initialDate,
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <div className="flex flex-row justify-between items-center gap-2">
                 <label className="block text-sm font-medium text-gray-700">{label}</label>
-                <input onChange={handleDateChange} className="border-2 rounded-lg border-gray-300 focus:border-indigo-300" id="dateID" type="date" autoComplete="off" placeholder="MM/DD/YYYY" />
+                <input disabled={disabled} onChange={handleDateChange} className="border-2 rounded-lg border-gray-300 focus:border-indigo-300" id="dateID" type="date" autoComplete="off" placeholder="MM/DD/YYYY" />
             </div>
 
         </LocalizationProvider>
