@@ -20,14 +20,14 @@ const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checked, c
     onChange(index, e.target.checked);
   };
 
-  const checkboxClass = className ? className : "hover:before:opacity-0 p-0";
+  const rasioButtonClass = className ? className : "hover:before:opacity-0 p-0";
 
   return (
     <Radio
       name="vertical-list"
       id="vertical-list-react"
       ripple={false}
-      className={checkboxClass}
+      className={rasioButtonClass}
       containerProps={{
         className: "p-0",
       }}

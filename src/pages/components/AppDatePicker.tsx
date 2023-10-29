@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 interface DatePickerProps {
-    onTimeSelected: (time: any) => void;
+    onDateSelected: (time: Dayjs) => void;
     initialDate: Dayjs
     label: string
     open: boolean
     disabled?: boolean
 }
 
-const AppDatePicker: React.FC<DatePickerProps> = ({ onTimeSelected, initialDate, label, open, disabled }) => {
-    const [selectedDate, setSelectedDate] = useState('');
+const AppDatePicker: React.FC<DatePickerProps> = ({ onDateSelected, initialDate, label, open, disabled }) => {
+    const [selectedDate, setSelectedDate] = useState(initialDate.year() + '-' + initialDate.format("MM") + '-' + initialDate.format("DD"));
+
+    useEffect(() => {
+        const date = initialDate.year() + '-' + initialDate.format("MM") + '-' + initialDate.format("DD");
+        setSelectedDate(date);
+    }, [initialDate]);
 
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedDate(event.target.value);
-        onTimeSelected(event.target.value);
+        const date = event.target.value;
+        setSelectedDate(date);
+        onDateSelected(dayjs(date, { format: 'YYYY-MM-DD' }));
     };
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <div className="flex flex-row justify-between items-center gap-2">
-                <label className="block text-sm font-medium text-gray-700">{label}</label>
-                <input disabled={disabled} onChange={handleDateChange} className="border-2 rounded-lg border-gray-300 focus:border-indigo-300" id="dateID" type="date" autoComplete="off" placeholder="MM/DD/YYYY" />
-            </div>
-
-        </LocalizationProvider>
+        <div className="flex flex-row justify-between items-center gap-2">
+            <label className="block text-sm font-medium text-gray-700">{label}</label>
+            <input disabled={disabled} onChange={handleDateChange}
+                className="p-2 border border-gray-100 rounded-md w-full focus:ring focus:ring-blue-100"
+                id="dateID" type="date" autoComplete="off" placeholder="MM/DD/YYYY" value={selectedDate} />
+        </div>
     );
 }
 

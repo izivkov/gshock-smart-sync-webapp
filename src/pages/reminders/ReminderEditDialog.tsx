@@ -15,18 +15,16 @@ interface ReminderEditDialogProps {
     open: boolean;
     handleClose: (returnData: any) => void;
     startDate: Dayjs;
-    endDate?: Dayjs;
+    endDate?: Dayjs | null;
     reminderData: ReminderData;
 }
 
 const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClose, startDate, endDate, reminderData }) => {
 
-
     const [endOnIndex, setOnIndex] = useState(0);
-
-    if (!endDate) {
-        endDate = startDate;
-    }
+    const [repeatEventsVisible, setRepeatEventsVisible] = useState(false);
+    const [weeklyEventsVisible, setWeeklyEventsVisible] = useState(false);
+    const [error, setError] = useState({ state: false, message: "" });
 
     type daysOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
     interface CheckboxValues {
@@ -49,23 +47,60 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     ]
 
     const startDateSelected = (startDate: Dayjs) => {
-        reminderData.time.startDate = { year: dayjs(startDate).year(), month: dayjs(startDate).format("MMMM"), day: dayjs(startDate).date() };
+        reminderData.time.startDate = fromDayJsDate(startDate);
+        if (!reminderData.time.endDate) {
+            reminderData.time.endDate = { year: startDate.year(), month: startDate.format("MMMM"), day: startDate.date() };
+        }
     };
 
     const endDateSelected = (endDate: Dayjs) => {
-        reminderData.time.endDate = { year: dayjs(startDate).year(), month: dayjs(startDate).format("MMMM"), day: dayjs(startDate).date() };
         setOnIndex(1)
+
+        const startDate = toDayJsDate(reminderData.time.startDate);
+        if (endDate < startDate) {
+            setError({ state: true, message: "End date must be after start date" })
+            reminderData.time.endDate = fromDayJsDate(startDate);
+            setError({ state: true, message: "Error: End date must be same or after start date" })
+        } else {
+            setError({ state: false, message: "" })
+            reminderData.time.endDate = fromDayJsDate(endDate)
+        }
     };
 
+    const toDayJsDate = (date: { year: number, month: string, day: number } | null): Dayjs => {
+        if (!date) {
+            return dayjs();
+        }
+
+        const { year, month, day } = date;
+
+        const dateString = `${year}-${month}-${day}`;
+        const dayjsDate = dayjs(dateString, { format: 'YYYY-MMMM-DD' });
+
+        return dayjsDate;
+    }
+
+    const fromDayJsDate = (date: Dayjs): { year: number, month: string, day: number } => {
+        const dayjsDate = dayjs(date);
+        return { year: dayjsDate.year(), month: dayjsDate.format("MMMM"), day: dayjsDate.date() }
+    }
+
     const handleSelectFrequency = (frequency: string) => {
-        reminderData.time.repeatOption = (frequency)
+        reminderData.time.repeatPeriod = (frequency)
+        if (reminderData.time.repeatPeriod !== "Does not repeat") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
+        if (reminderData.time.repeatPeriod === "Weekly") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
     }
 
     function onOccurencesChange(value: string): void {
-        const num = parseInt(value, 10); // The second argument is the radix (base), typically 10 for decimal numbers
-        if (!isNaN(num)) {
+        const num = parseInt(value, 10);
+        if (!isNaN(num) && num > 0) {
             reminderData.time.occurrences = num;
+            reminderData.time.endDate = null
             setOnIndex(2)
+            setError({ state: false, message: "" })
+        } else {
+            reminderData.time.occurrences = 1
+            setError({ state: true, message: "Please enter a number greater than 0" })
         }
     }
 
@@ -78,6 +113,17 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         setOnIndex(index)
     })
 
+
+    const onSave = (reminderData: any) => {
+        if (!reminderData.title || reminderData.title == "") {
+            reminderData.title = "No Title"
+        }
+        if (!reminderData.time.endDate) {
+            reminderData.time.endDate = reminderData.time.startDate
+        }
+        handleClose(reminderData)
+    }
+
     return (
         <div>
             <AppDialog open={open} onClose={() => handleClose(reminderData)} title="Edit Reminder">
@@ -88,19 +134,18 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                         <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full" />
                         <AppSelect label='Frequency' value={options[0]} items={options} className="w-full" onSelected={handleSelectFrequency} />
                         <div className="flex flex-row justify-between items-center gap-4">
-                            <AppDatePicker open={open} label='Start Date' initialDate={startDate} onTimeSelected={date => startDateSelected(date)} />
-                            <AppDatePicker open={open} label='End Date' initialDate={endDate} onTimeSelected={date => endDateSelected(date)} />
+                            <AppDatePicker open={open} label='Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
                         </div>
 
-                        <div className="flex flex-row justify-start gap-2">
-                            <div className="border-r border-gray-400 p-4">
+                        {repeatEventsVisible && <div className="flex flex-row justify-start gap-2" >
+                            <div className={weeklyEventsVisible ? "border-r border-gray-400 p-4" : ""}>
                                 <AppRadioButtonList checkedIndex={endOnIndex} label='End on' onChange={onEndsSelected} radioButtons={[
 
                                     <AppText disabled={endOnIndex != 0} text="Never" variant='paragraph' />,
 
                                     <div className='flex flex-row gap-2 items-center'>
                                         <AppText text="On" variant='paragraph' />
-                                        <AppDatePicker disabled={endOnIndex != 1} label={""} onTimeSelected={endDateSelected} initialDate={dayjs()} open={false} />
+                                        <AppDatePicker disabled={endOnIndex != 1} label={""} onDateSelected={endDateSelected} initialDate={startDate} open={false} />
                                     </div>,
 
                                     <div className='flex flex-row gap-2 items-center'>
@@ -108,14 +153,20 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                                         <AppInput disabled={endOnIndex != 2} type="number" label='Occurences' onChange={onOccurencesChange} />
                                     </div>]} />
                             </div>
-                            <div className="">
+                            {weeklyEventsVisible && <div className="">
                                 <AppCheckboxList label='Repeat on' displayValues={checkBoxes.map(checkBox => checkBox.displayValue)} onChange={daysOfWeekSelected} />
-                            </div>
+                            </div>}
                         </div>
+                        }
                     </CardBody>
-                    <CardFooter className="pt-0 flex flex-row justify-end">
-                        <AppDialogButton label="Calcel" onClick={() => handleClose(null)} />
-                        <AppDialogButton label="Save" onClick={() => handleClose(reminderData)} />
+                    <CardFooter className="pt-0 flex flex-col justify-start">
+                        {error && <div className="text-red-500">
+                            <AppText text={error.message} variant='paragraph' />
+                        </div>}
+                        <div className="pt-0 flex flex-row justify-end">
+                            <AppDialogButton label="Calcel" onClick={() => handleClose(null)} />
+                            <AppDialogButton label="Save" onClick={() => onSave(reminderData)} />
+                        </div>
                     </CardFooter>
                 </Card>
             </AppDialog>

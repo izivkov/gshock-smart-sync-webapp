@@ -10,15 +10,14 @@ import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData from './ReminderData';
 
 interface ReminderCardProps {
-    description: string;
     number: 1 | 2 | 3 | 4 | 5;
 }
 
-const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
+const ReminderCard: React.FC<ReminderCardProps> = ({ number }) => {
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [startDate, setStartDate] = useState(dayjs().add(1, 'month').add(1, 'day'));
-    const [endDate, setEndDate] = useState(dayjs().add(1, 'day'));
+    const [startDate, setStartDate] = useState(dayjs());
+    const [endDate, setEndDate] = useState(null);
 
     const handleOpenDialog = () => {
         setDialogOpen(true);
@@ -62,15 +61,12 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
         time: {
             enabled: true,
             startDate: { year: year, month: month, day: day },
-            endDate: { year: year, month: month, day: day },
-            repeatOption: "",
-            repeatPeriod: "Weekly",
-            daysOfWeek: [
-                "MONDAY"
-            ],
+            endDate: { year: year, month: month, day: day } || null,
+            repeatPeriod: "Never",
+            daysOfWeek: [],
             occurrences: 1
         },
-        title: description
+        title: "Test Reminder"
     }
 
     const header = <div className="flex flex-row justify-between">
@@ -79,7 +75,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, description }) => {
 
     const body = <div className='flex flex-row justify-between' onClick={handleOpenDialog}>
         <div className="flex flex-col justify-between">
-            <AppText text={description} variant='h5' />
+            <AppText text={""} variant='h5' />
             <Period event={event} />
         </div>
         <div className="flex flex-col justify-between">

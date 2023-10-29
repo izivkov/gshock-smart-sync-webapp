@@ -12,8 +12,7 @@ interface ReminderData {
             "year": number,
             "month": string,
             "day": number
-        },
-        repeatOption: string,
+        } | null,
         repeatPeriod: string,
         occurrences: number,
 
