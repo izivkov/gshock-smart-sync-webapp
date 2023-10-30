@@ -5,7 +5,7 @@ import { Dialog, DialogBody, DialogFooter, DialogHeader } from "@material-tailwi
 
 interface AppDialogProps {
     open: boolean;
-    onClose: (date: any) => void;
+    onClose: () => void;
     children: ReactNode;
     title: string;
     style?: React.CSSProperties;
@@ -13,8 +13,16 @@ interface AppDialogProps {
 
 const AppDialog: React.FC<AppDialogProps> = ({ open, onClose, title, style, children }) => {
 
-    return (
+    const [isOpen, setOpen] = React.useState(open);
 
+    const handleOpen = () => {
+        setOpen(!isOpen);
+        if (!isOpen) {
+            onClose();
+        }
+    }
+
+    return (
         <Dialog size="sm" style={style} className="flex flex-col justify-between items-start w-full gap-4 p-4 overflow-visible"
             title={title}
             open={open}

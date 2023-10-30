@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AppCard from "@components/AppCard";
 import AppText from "@components/AppText";
 import dayjs from 'dayjs';
@@ -8,6 +8,7 @@ import Period from './Period';
 import Event from '@model/Event';
 import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData from './ReminderData';
+import Edit from '@mui/icons-material/Edit';
 
 interface ReminderCardProps {
     number: 1 | 2 | 3 | 4 | 5;
@@ -24,7 +25,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number }) => {
     };
 
     const handleCloseDialog = (reminderData: any) => {
-        alert(`handleCloseDialog: ${JSON.stringify(reminderData)}`);
+        // alert(`handleCloseDialog: ${JSON.stringify(reminderData)}`);
         setDialogOpen(false);
     };
 
@@ -69,11 +70,12 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number }) => {
         title: "Test Reminder"
     }
 
-    const header = <div className="flex flex-row justify-between">
+    const header = <div className="flex flex-row w-full justify-between items-center pl-4 gap-20">
         <AppText text={title} variant='h5' />
+        <Edit className="cursor-pointer" onClick={handleOpenDialog} />
     </div>
 
-    const body = <div className='flex flex-row justify-between' onClick={handleOpenDialog}>
+    const body = <div className='flex flex-row justify-between'>
         <div className="flex flex-col justify-between">
             <AppText text={""} variant='h5' />
             <Period event={event} />
@@ -86,7 +88,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number }) => {
     const footer = <></>
 
     return (
-        <AppCard header={header} body={body} footer={footer} className="mt-6 w-96" classNameHeader="h-10 pl-6 flex flex-row text-center items-center"
+        <AppCard header={header} body={body} footer={footer} className="mt-10" classNameHeader="w-96 h-10 flex flex-row text-center items-center"
             classNameBody="bg-white" classNameFooter="bg-gray-400 w-96 h-0 pt-0 p-0" />
     );
 }

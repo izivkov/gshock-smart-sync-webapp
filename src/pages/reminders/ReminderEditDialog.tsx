@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import AppDialog from '../components/AppDialog';
 import AppDatePicker from '../components/AppDatePicker';
@@ -25,6 +25,11 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const [repeatEventsVisible, setRepeatEventsVisible] = useState(false);
     const [weeklyEventsVisible, setWeeklyEventsVisible] = useState(false);
     const [error, setError] = useState({ state: false, message: "" });
+    const [dialogOpen, setDislogOpen] = React.useState(open);
+
+    useEffect(() => {
+        setDislogOpen(open)
+    }, [open]);
 
     type daysOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
     interface CheckboxValues {
@@ -126,7 +131,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
 
     return (
         <div>
-            <AppDialog open={open} onClose={() => handleClose(reminderData)} title="Edit Reminder">
+            <AppDialog open={dialogOpen} onClose={() => handleClose(reminderData)} title="Edit Reminder">
 
                 <Card className="mx-auto w-full max-w-1xl">
                     <CardHeader className="flex flex-row justify-between" children={<></>} />
