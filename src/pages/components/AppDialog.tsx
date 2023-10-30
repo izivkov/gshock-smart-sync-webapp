@@ -2,6 +2,7 @@
 
 import React, { ReactNode } from "react";
 import { Dialog, DialogBody, DialogFooter, DialogHeader } from "@material-tailwind/react";
+import { Edit } from "@mui/icons-material";
 
 interface AppDialogProps {
     open: boolean;
@@ -32,7 +33,9 @@ const AppDialog: React.FC<AppDialogProps> = ({ open, onClose, title, style, chil
                 unmount: { scale: 0.9, y: -100 },
             }
             }>
-            <DialogHeader>{title}</DialogHeader>
+            <DialogHeader>
+                {title}
+            </DialogHeader>
             {children}
 
         </Dialog >

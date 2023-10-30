@@ -8,6 +8,7 @@ import AlarmPeriod from "./AlarmPeriod";
 import AppSwitch from "@components/AppSwitch";
 import TimePickerDialog from "./TimePickerDialog";
 import dayjs from 'dayjs';
+import { Edit } from '@mui/icons-material';
 
 interface AlarmCardProps {
     number: 1 | 2 | 3 | 4 | 5;
@@ -29,13 +30,14 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number }) => {
 
     const title = `Alarm ${number}`
 
-    const header = <div className="flex flex-row justify-between">
+    const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
         <AppText text={title} variant='h5' />
+        <Edit className="cursor-pointer" onClick={() => handleOpenDialog()} />
     </div>
 
     const body = <div className="flex flex-row items-center justify-between">
         <div className="flex gap-6 items-center">
-            <div onClick={handleOpenDialog}>
+            <div>
                 <AlarmTime alarmTime={alarmTime} />
             </div>
             <AlarmPeriod period="Daily" />
@@ -50,7 +52,7 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number }) => {
     const footer = <></>
 
     return (
-        <AppCard header={header} body={body} footer={footer} className="mt-6 w-96" classNameHeader="h-10 pl-6 flex flex-row text-center items-center"
+        <AppCard header={header} body={body} footer={footer} className="mt-10" classNameHeader="w-96 h-10 flex flex-row text-center items-center"
             classNameBody="bg-white" classNameFooter="bg-gray-400 w-96 h-0 pt-0 p-0" />
     );
 }

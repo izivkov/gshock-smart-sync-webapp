@@ -9,6 +9,7 @@ import Event from '@model/Event';
 import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData from './ReminderData';
 import Edit from '@mui/icons-material/Edit';
+import AppCheckbox from '../components/AppCheckbox';
 
 interface ReminderCardProps {
     number: 1 | 2 | 3 | 4 | 5;
@@ -39,20 +40,20 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number }) => {
             "enabled": true,
             "repeatPeriod": "WEEKLY",
             "startDate": {
-                "year": 2024,
+                "year": 2023,
                 "month": "SEPTEMBER",
                 "day": 7
             },
             "endDate": {
                 "year": 2023,
-                "month": "SEPTEMBER",
-                "day": 7
+                "month": "DECEMBER",
+                "day": 23
             },
             "daysOfWeek": [
-                "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"
+                "THURSDAY", "FRIDAY", "SATURDAY"
             ]
         },
-        "title": "Pay Phodora"
+        "title": "Dentist Appointment",
     });
     // End of test
 
@@ -70,22 +71,26 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number }) => {
         title: "Test Reminder"
     }
 
-    const header = <div className="flex flex-row w-full justify-between items-center pl-4 gap-20">
+    const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
         <AppText text={title} variant='h5' />
         <Edit className="cursor-pointer" onClick={handleOpenDialog} />
     </div>
 
-    const body = <div className='flex flex-row justify-between'>
-        <div className="flex flex-col justify-between">
-            <AppText text={""} variant='h5' />
-            <Period event={event} />
+    const body =
+        <div className='flex flex-row w-full justify-between items-center'>
+            <div className="flex flex-col justify-between">
+                <AppText text={event.title} variant='h5' />
+                <Period event={event} />
+            </div>
+            <div>
+                <AppCheckbox checked={event.enabled} onChange={(e: any) => event.enabled = e.target.checked} />
+            </div>
         </div>
-        <div className="flex flex-col justify-between">
+
+    const footer =
+        <div className="flex w-0">
             <ReminderEditDialog startDate={startDate} endDate={endDate} open={dialogOpen} handleClose={handleCloseDialog} reminderData={reminderData} />
         </div>
-    </div>
-
-    const footer = <></>
 
     return (
         <AppCard header={header} body={body} footer={footer} className="mt-10" classNameHeader="w-96 h-10 flex flex-row text-center items-center"
