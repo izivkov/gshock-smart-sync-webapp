@@ -144,7 +144,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
 
                         {repeatEventsVisible && <div className="flex flex-row justify-start gap-2" >
                             <div className={weeklyEventsVisible ? "border-r border-gray-400 p-4" : ""}>
-                                <AppRadioButtonList checkedIndex={endOnIndex} label='End on' onChange={onEndsSelected} radioButtons={[
+                                <AppRadioButtonList checkedIndex={endOnIndex} label='End on' orientation="vertical" onChange={onEndsSelected} radioButtons={[
 
                                     <AppText disabled={endOnIndex != 0} text="Never" variant='paragraph' />,
 

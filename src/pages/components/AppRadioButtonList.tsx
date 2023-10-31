@@ -10,37 +10,34 @@ interface AppRadioButtonListProps {
     label: string;
     onChange: (index: number, checked: boolean) => void;
     checkedIndex: number;
-    className?: string
+    orientation: "horizontal" | "vertical";
 }
 
-const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, label, onChange, checkedIndex, className }) => {
+const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, label, onChange, checkedIndex, orientation }) => {
 
-    const radioButtonClass = className ? `${className}` : "flex flex-row inline-block"
+    const radioButtonClass = orientation === "vertical" ? "flex flex-col inline-block" : "flex flex-row"
 
     return (
-        <div>
+        <div className="flex flex-col justify-between">
             <AppText text={label} variant='h6' />
             <List className={radioButtonClass}>
                 {radioButtons.map((radioButton, index) => (
                     <ListItem key={index} className="p-0">
-                        <label
-                            htmlFor={label} //"vertical-list-react"
-                            className="flex w-full cursor-pointer items-center px-3 py-2"
-                        >
-                            <ListItemPrefix className="mr-3">
-                                <AppRadioButton
-                                    name="vertical-list"
-                                    className="hover:before:opacity-0"
-                                    label={""}
-                                    index={index}
-                                    checked={index === checkedIndex}
-                                    onChange={onChange} />
-                            </ListItemPrefix>
-                            {radioButton}
-                        </label>
+                        <ListItemPrefix className="mr-3">
+                            <RadioButtinGroup />
+                            < AppRadioButton
+                                name="vertical-list"
+                                className="hover:before:opacity-0"
+                                label={""}
+                                index={index}
+                                checked={index === checkedIndex}
+                                onChange={onChange} />
+                        </ListItemPrefix>
+                        {radioButton}
                     </ListItem>
-                ))}
-            </List>
+                ))
+                }
+            </List >
         </div >
     )
 }
