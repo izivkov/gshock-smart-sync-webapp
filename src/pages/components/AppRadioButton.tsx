@@ -24,8 +24,7 @@ const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checked, c
 
   return (
     <Radio
-      name="vertical-list"
-      id="vertical-list-react"
+      name={name}
       ripple={false}
       className={rasioButtonClass}
       containerProps={{

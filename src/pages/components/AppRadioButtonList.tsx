@@ -11,9 +11,10 @@ interface AppRadioButtonListProps {
     onChange: (index: number, checked: boolean) => void;
     checkedIndex: number;
     orientation: "horizontal" | "vertical";
+    name: string
 }
 
-const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, label, onChange, checkedIndex, orientation }) => {
+const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, label, onChange, checkedIndex, orientation, name }) => {
 
     const radioButtonClass = orientation === "vertical" ? "flex flex-col inline-block" : "flex flex-row"
 
@@ -24,9 +25,8 @@ const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, l
                 {radioButtons.map((radioButton, index) => (
                     <ListItem key={index} className="p-0">
                         <ListItemPrefix className="mr-3">
-                            <RadioButtinGroup />
                             < AppRadioButton
-                                name="vertical-list"
+                                name={name}
                                 className="hover:before:opacity-0"
                                 label={""}
                                 index={index}

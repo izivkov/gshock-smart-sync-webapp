@@ -15,18 +15,20 @@ const LocaleCard: React.FC<LocaleCardProps> = ({ }) => {
         <AppText text="Locale" variant='h5' />
     </div>
 
-    const languageOptions = [
+    type languageType = "English" | "French" | "German" | "Italian" | "Spanish" | "Rusian"
+
+    const languageOptions: languageType[] = [
         'English', 'French', 'German', 'Italian', 'Spanish', 'Rusian'
     ]
 
     const body =
         <div className="flex flex-col w-full justify-between items-center">
             <div className='flex flex-col w-full justify-between'>
-                <AppRadioButtonList checkedIndex={1} label='Time Format' orientation="horizontal" onChange={() => { }} radioButtons={[
+                <AppRadioButtonList checkedIndex={1} label='Time Format' name="timeFormat" orientation="horizontal" onChange={() => { }} radioButtons={[
                     <AppText text="12h" variant='paragraph' />,
                     <AppText text="24h" variant='paragraph' />
                 ]} />
-                <AppRadioButtonList checkedIndex={0} label='Date Format' orientation="horizontal" onChange={() => { }} radioButtons={[
+                <AppRadioButtonList checkedIndex={0} label='Date Format' name="dateFormat" orientation="horizontal" onChange={() => { }} radioButtons={[
                     <AppText text="MM:DD" variant='paragraph' />,
                     <AppText text="DD:MM" variant='paragraph' />
                 ]} />
