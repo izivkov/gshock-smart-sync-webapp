@@ -10,18 +10,21 @@ interface AppRadioButtonListProps {
     label: string;
     onChange: (index: number, checked: boolean) => void;
     checkedIndex: number;
+    className?: string
 }
 
-const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, label, onChange, checkedIndex }) => {
+const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, label, onChange, checkedIndex, className }) => {
+
+    const radioButtonClass = className ? `${className}` : "flex flex-row inline-block"
 
     return (
         <div>
-            <AppText text={label} variant='paragraph' />
-            <List className="flex flex-row inline-block">
+            <AppText text={label} variant='h6' />
+            <List className={radioButtonClass}>
                 {radioButtons.map((radioButton, index) => (
                     <ListItem key={index} className="p-0">
                         <label
-                            htmlFor="vertical-list-react"
+                            htmlFor={label} //"vertical-list-react"
                             className="flex w-full cursor-pointer items-center px-3 py-2"
                         >
                             <ListItemPrefix className="mr-3">

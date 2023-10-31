@@ -10,9 +10,10 @@ interface AppCheckboxListProps {
     displayValues: string[];
     label: string;
     onChange: (selected: number[]) => void;
+    className?: string
 }
 
-const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label, onChange }) => {
+const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label, onChange, className }) => {
 
     const selected = new Set<number>()
 
@@ -25,10 +26,12 @@ const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label,
         onChange(Array.from(selected.values()));
     }
 
+    const checkboxClass = className ? `${className}` : "flex inline-block"
+
     return (
         <div>
-            <AppText text={label} variant='paragraph' />
-            <List className="flex flex-row inline-block">
+            <AppText text={label} variant='h6' />
+            <List className={className}>
                 {displayValues.map((displayValue: string, index: number) => (
                     <ListItem className="p-0" key={index}>
                         <label

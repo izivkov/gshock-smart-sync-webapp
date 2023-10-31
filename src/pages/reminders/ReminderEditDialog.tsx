@@ -139,7 +139,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                         <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full" />
                         <AppSelect label='Frequency' value={options[0]} items={options} className="w-full" onSelected={handleSelectFrequency} />
                         <div className="flex flex-row justify-between items-center gap-4">
-                            <AppDatePicker open={open} label='Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
+                            <AppDatePicker open={open} label='Start Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
                         </div>
 
                         {repeatEventsVisible && <div className="flex flex-row justify-start gap-2" >

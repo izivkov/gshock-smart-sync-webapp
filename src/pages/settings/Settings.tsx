@@ -2,13 +2,17 @@
 
 import React from 'react';
 import withBottomMenu from '@components/withBottomMenu'
+import AppButton from '../components/AppButton';
+import LocaleCard from './LocaleCard';
 
 const Settings: React.FC = () => {
     return (
-        <div>
-            <div className="flex min-h-screen flex-col justify-between p-24">
-                <h2>Settings Page</h2>
-                <p>Welcome to the Settings Page</p>
+        <div className='flex flex-col'>
+            <div className="inline-block bg-white p-4 gap-4 rounded shadow-lg grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 justify-items-center">
+                <LocaleCard />
+            </div>
+            <div className="flex gap-6 justify-end p-16 mr-10">
+                <AppButton label="Send to Watch" onClick={() => alert("Send to Watch Clicked")} />
             </div>
         </div>
     );

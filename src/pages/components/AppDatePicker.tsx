@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
+import AppText from './AppText';
 
 interface DatePickerProps {
     onDateSelected: (time: Dayjs) => void;
@@ -25,7 +26,7 @@ const AppDatePicker: React.FC<DatePickerProps> = ({ onDateSelected, initialDate,
 
     return (
         <div className="flex flex-row justify-between items-center gap-2">
-            <label className="block text-sm font-medium text-gray-700">{label}</label>
+            <label className="text-md font-bold font-large text-gray-700">{label}</label>
             <input disabled={disabled} onChange={handleDateChange}
                 className="p-2 border border-gray-100 rounded-md w-full focus:ring focus:ring-blue-100"
                 id="dateID" type="date" autoComplete="off" placeholder="MM/DD/YYYY" value={selectedDate} />
