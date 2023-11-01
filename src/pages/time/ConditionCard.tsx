@@ -10,7 +10,7 @@ const ConditionCard: React.FC = () => {
     const temperature = 24;
 
     const header = <div className="flex flex-row justify-between">
-        <AppText text="Condition" variant='h5' />
+        <AppText text="Watch Condition" variant='h5' />
     </div>
 
     const body = <div>

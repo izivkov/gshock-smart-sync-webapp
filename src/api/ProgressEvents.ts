@@ -1,5 +1,12 @@
+import { EventAvailable } from "@mui/icons-material";
 import { BehaviorSubject, asyncScheduler, Observable, ObservableInput } from "rxjs";
-import { tap, catchError, observeOn } from "rxjs/operators";
+import { tap, catchError, observeOn, filter } from "rxjs/operators";
+import { EventEmitter } from "stream";
+
+export interface EventAction {
+    label: string;
+    action: (event: Events) => void;
+}
 
 class ProgressEvents {
     public subscriber: Subscriber;
@@ -80,10 +87,56 @@ class Subscriber {
         this.subscribers.add(name);
 
         progressEvents.connectionEventsFlowable.pipe(
+            // filter((event) => 1 === 1),
             observeOn(asyncScheduler),
             tap(onNextStr),
             catchError(onError)
-        ).subscribe((v) => console.info(v), onError);
+        ).subscribe({
+            next: (v) => console.log(v),
+            error: (e) => console.error(e),
+            complete: () => console.info('complete')
+        });
+    }
+
+    runEventActions(name: string, eventActions: EventAction[]): void {
+        if (this.subscribers.has(name)) {
+            return;
+        }
+
+        this.subscribers.add(name);
+
+        const runActions = () => {
+            for (const eventAction of eventActions) {
+                const event = progressEvents.get(eventAction.label);
+                if (event) {
+                    eventAction.action(event)
+                }
+            }
+        }
+
+        const eventInActions = (event: Events, eventActions: EventAction[]): boolean => {
+            for (const eventAction of eventActions) {
+                const event = progressEvents.get(eventAction.label);
+                if (event) {
+                    return true
+                }
+            }
+
+            return false
+        }
+
+        progressEvents.connectionEventsFlowable.pipe(
+            filter((event) => eventInActions(event, eventActions)),
+            observeOn(asyncScheduler),
+            tap(runActions),
+            catchError(() => {
+                return new Observable();
+            })
+        ).subscribe({
+            next: (v) => console.log(v),
+            error: (e) => console.error(e),
+            complete: () => console.info('complete')
+        });
     }
 
     stop(name: string): void {

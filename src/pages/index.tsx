@@ -6,6 +6,7 @@ import CopyToClipboardComponent from '@components/CopyToClipboardComponent'
 import React, { useEffect } from 'react'
 import { progressEvents } from "@api/ProgressEvents"
 import { useRouter } from 'next/navigation';
+import { EventAction } from "@api/ProgressEvents";
 
 import {
   Typography,
@@ -32,28 +33,14 @@ function Home() {
     name={'G Shock GW-B5600BC-1B'}
     width={200} />
 
+  const actions: EventAction[] = [
+    { label: "Disconnected", action: navigateToHomePage },
+    { label: "Connected", action: navigateToTimePage },
+  ]
+
   useEffect(() => {
-    (() => {
-      progressEvents.subscriber.start(WatchImage.name, (event) => {
-        switch (event) {
-          case null:
-          case undefined:
-            return
-
-          case progressEvents.get("Disconnected"):
-            navigateToHomePage();
-            break;
-
-          case progressEvents.get("Connected"):
-            navigateToTimePage();
-            break;
-        }
-      }, (error: any): any => {
-        console.log("Got error on subscribe:", error);
-        error.stack && console.error(error.stack);
-      })
-    })()
-  }, [])
+    progressEvents.subscriber.runEventActions(WatchImage.name, actions);
+  }, []);
 
   const textBody =
     <div>
