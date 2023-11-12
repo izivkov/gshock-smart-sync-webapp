@@ -1,18 +1,21 @@
 "use client"
 
-import React, { useState, ChangeEvent } from 'react';
-import { Input } from '@material-tailwind/react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 
-interface Time {
+interface TimerInputParams {
     hours: string;
     minutes: string;
     seconds: string;
 }
 
-const TimerInput: React.FC = () => {
-    const [time, setTime] = useState<Time>({ hours: '', minutes: '', seconds: '' });
+const TimerInput: React.FC<TimerInputParams> = ({ hours, minutes, seconds }) => {
+    const [time, setTime] = useState({ hours: "00", minutes: "00", seconds: "00" });
 
-    const handleInputChangeMinuteSeconds = (e: ChangeEvent<HTMLInputElement>, field: keyof Time) => {
+    useEffect(() => {
+        setTime({ hours: hours, minutes: minutes, seconds: seconds });
+    }, [time]);
+
+    const handleInputChangeMinuteSeconds = (e: ChangeEvent<HTMLInputElement>, field: keyof TimerInputParams) => {
         const value = e.target.value;
 
         if (!value) {
@@ -26,7 +29,7 @@ const TimerInput: React.FC = () => {
         }
     };
 
-    const handleInputChangeHours = (e: ChangeEvent<HTMLInputElement>, field: keyof Time) => {
+    const handleInputChangeHours = (e: ChangeEvent<HTMLInputElement>, field: keyof TimerInputParams) => {
         const value = e.target.value;
 
         if (!value) {

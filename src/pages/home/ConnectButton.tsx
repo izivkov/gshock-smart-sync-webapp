@@ -4,13 +4,13 @@ import AppButton from "@components/AppButton";
 import { connection } from "@api/Connection";
 import test from "@api/test";
 import React from "react";
+import GShockAPI from "@/api/GShockAPI";
 
 const ConnectButton: React.FC = () => {
 
-    const connect = () => {
-        connection.start().then(() => {
-            console.log("connected")
-        })
+    async function connect() {
+        await connection.start()
+        await GShockAPI.init()
     }
 
     const processData = (data: any) => {

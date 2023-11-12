@@ -25,10 +25,10 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const [repeatEventsVisible, setRepeatEventsVisible] = useState(false);
     const [weeklyEventsVisible, setWeeklyEventsVisible] = useState(false);
     const [error, setError] = useState({ state: false, message: "" });
-    const [dialogOpen, setDislogOpen] = React.useState(open);
+    const [dialogOpen, setDialogOpen] = React.useState(open);
 
     useEffect(() => {
-        setDislogOpen(open)
+        setDialogOpen(open)
     }, [open]);
 
     type daysOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";

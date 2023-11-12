@@ -3,11 +3,20 @@
 import AppCard from "@components/AppCard";
 import AppText from "../components/AppText";
 import BatteryLevel from "./BatteryLevel";
+import { useEffect, useState } from "react";
+import GShockAPI from "@/api/GShockAPI";
 
 const ConditionCard: React.FC = () => {
 
-    const batteryLevel = 11;
-    const temperature = 24;
+    const [batteryLevel, setBatteryLevel] = useState<string>("");
+    const [temperature, setTemperature] = useState<string>("");
+
+    useEffect(() => {
+        (async () => {
+            setTemperature((await GShockAPI.getWatchTemperature()).toString());
+            setBatteryLevel((await GShockAPI.getBatteryLevel()).toString());
+        })()
+    }, []);
 
     const header = <div className="flex flex-row justify-between">
         <AppText text="Watch Condition" variant='h5' />
@@ -16,7 +25,7 @@ const ConditionCard: React.FC = () => {
     const body = <div>
         <div className="space-y-4">
             <div className="flex flex-row justify-center">
-                <BatteryLevel level={batteryLevel} />
+                <BatteryLevel level={Number(batteryLevel)} />
             </div>
             <div className="flex flex-row justify-center top-4">
                 <AppText text={`${temperature}ºC`} variant='h4' />

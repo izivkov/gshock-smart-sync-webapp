@@ -3,7 +3,6 @@
 import { List, ListItem, ListItemPrefix, Radio, Typography } from "@material-tailwind/react";
 import AppText from './AppText';
 import AppRadioButton from './AppRadioButton';
-import { useState } from "react";
 
 interface AppRadioButtonListProps {
     radioButtons: React.JSX.Element[];

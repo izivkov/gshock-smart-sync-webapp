@@ -39,7 +39,7 @@ function Home() {
   ]
 
   useEffect(() => {
-    progressEvents.subscriber.runEventActions(WatchImage.name, actions);
+    progressEvents.runEventActions(WatchImage.name, actions);
   }, []);
 
   const textBody =

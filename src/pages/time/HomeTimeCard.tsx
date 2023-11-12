@@ -1,11 +1,19 @@
 "use client"
 
+import GShockAPI from "@/api/GShockAPI";
 import AppCard from "@components/AppCard";
-import AppText from "../components/AppText";
+import AppText from "@components/AppText";
+import { useEffect, useState } from "react";
 
 const HomeTimeCard: React.FC = () => {
 
-    const homeTime = "TORONTO"
+    const [homeTime, setHomeTime] = useState<string>("");
+
+    useEffect(() => {
+        (async () => {
+            setHomeTime(await GShockAPI.getHomeTime());
+        })()
+    }, []);
 
     const header = <div className="flex flex-row justify-between">
         <AppText text="Home Time" variant='h5' /></div>

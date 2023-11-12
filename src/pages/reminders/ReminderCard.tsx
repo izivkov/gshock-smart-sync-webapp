@@ -26,7 +26,6 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number }) => {
     };
 
     const handleCloseDialog = (reminderData: any) => {
-        // alert(`handleCloseDialog: ${JSON.stringify(reminderData)}`);
         setDialogOpen(false);
     };
 
