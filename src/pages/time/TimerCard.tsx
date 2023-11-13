@@ -6,11 +6,10 @@ import TimerInput from "./TimerInput";
 import SetTimerButton from "./SetTimerButton";
 import { useEffect, useState } from "react";
 import GShockAPI from "@/api/GShockAPI";
-import { async } from "rxjs";
 
 const TimerCard: React.FC = () => {
 
-    const [timerValue, setTimerValue] = useState<{ hours: string, minutes: string, seconds: string }>({ hours: "", minutes: "", seconds: "" });
+    const [timerValue, setTimerValue] = useState<{ hours: number, minutes: number, seconds: number }>({ hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
         (async () => {
@@ -19,12 +18,18 @@ const TimerCard: React.FC = () => {
         })()
     }, []);
 
+    const handleInputChange = (value: { hours: number, minutes: number, seconds: number }) => {
+        console.log(value);
+        setTimerValue(value);
+    }
+
     const header = <div className="flex flex-row justify-between">
         <AppText text="Timer" variant='h5' />
     </div>
 
     const body = <div className="flex flex-row justify-between">
-        <TimerInput hours={timerValue.hours} minutes={timerValue.minutes} seconds={timerValue.seconds} /><SetTimerButton label="Set Timer" />
+        <TimerInput initialValue={timerValue} onUpdate={handleInputChange} />
+        <SetTimerButton timerValue={timerValue} label="Set Timer" />
     </div>
 
     const footer = <></>
