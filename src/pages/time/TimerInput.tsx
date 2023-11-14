@@ -24,34 +24,6 @@ const TimerInput: React.FC<TimerInputParams> = ({ initialValue, onUpdate }) => {
         setSeconds(initialValue.seconds);
     }, [initialValue]);
 
-    // const handleInputChangeMinuteSeconds = (e: ChangeEvent<HTMLInputElement>, field: keyof TimerInputParams) => {
-    //     const value = e.target.value;
-
-    //     if (!value) {
-    //         setTime({ ...time, [field]: '' + value });
-    //         return
-    //     }
-
-    //     // Input validation: Allow only two digits and numeric characters
-    //     if (/^([0-5]?[0-9])$/.test(value)) {
-    //         setTime({ ...time, [field]: value });
-    //     }
-    // };
-
-    // const handleHoursChangeXXX = (e: ChangeEvent<HTMLInputElement>, field: keyof TimerInputParams) => {
-    //     const value = e.target.value;
-
-    //     if (!value) {
-    //         setTime({ ...time, [field]: '' + value });
-    //         return
-    //     }
-
-    //     // Input validation: Allow only two digits and numeric characters
-    //     if (/^([0-2]?[0-23])$/.test(value)) {
-    //         setTime({ ...time, [field]: value });
-    //     }
-    // };
-
     const handleHoursChange = (e: ChangeEvent<HTMLInputElement>) => {
         const newHours = parseInt(e.target.value) || 0;
         if (newHours >= 0 && newHours <= 23) {

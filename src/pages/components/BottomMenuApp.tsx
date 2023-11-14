@@ -21,7 +21,6 @@ const BottomMenuApp: React.FC<BottomMenuProps> = ({ props }) => {
                 <div onClick={() => router.push('/time/Time')}>
                     <MenuItemApp title="Time" description="Manage your time" icon={<TimeIcon />} />
                 </div>
-
                 <div onClick={() => router.push('/alarms/Alarms')}>
                     <MenuItemApp title="Alarms" description="Manage your alarms" icon={<AlarmsIcon />} />
                 </div>

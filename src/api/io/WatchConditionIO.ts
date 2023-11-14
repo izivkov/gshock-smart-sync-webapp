@@ -18,7 +18,7 @@ const WatchConditionDecoder = {
 
         if (bytes.length >= 2) {
             const batteryLevelLowerLimit =
-                watchInfo.model === WATCH_MODEL.GA ? 15 : 13;
+                watchInfo.model === WATCH_MODEL.GA ? 15 : 9;
             const batteryLevelUpperLimit =
                 watchInfo.model === WATCH_MODEL.GA ? 20 : 19;
             const multiplier = Math.floor(100 / (batteryLevelUpperLimit - batteryLevelLowerLimit));

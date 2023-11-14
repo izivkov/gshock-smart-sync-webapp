@@ -4,6 +4,7 @@ const test = {
     run: async (): Promise<void> => {
         await GShockAPI.init();
 
+        /*
         const name: string = await GShockAPI.getWatchName();
         console.log("Watch Name:", name);
 
@@ -26,10 +27,12 @@ const test = {
         console.log("Temperature:", temperature);
 
         await GShockAPI.setTime();
+        */
 
         const alarms: any[] = await GShockAPI.getAlarms();
         console.log("Alarms:", alarms);
 
+        /*
         alarms[3].minute = 23;
 
         await GShockAPI.setAlarms(alarms);
@@ -59,6 +62,7 @@ const test = {
         console.log("Is Action Button Pressed:", GShockAPI.isActionButtonPressed());
         console.log("Is Normal Button Pressed:", GShockAPI.isNormalButtonPressed());
         console.log("Is Auto Time Started:", GShockAPI.isAutoTimeStarted());
+        */
 
         console.log("End of tests\n");
     },

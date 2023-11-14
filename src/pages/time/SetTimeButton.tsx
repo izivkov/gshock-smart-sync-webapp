@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import AppButton from '@components/AppButton';
 import { progressEvents } from '@api/ProgressEvents';
+import GShockAPI from '@/api/GShockAPI';
 
 interface SetTimeButtonProps {
     label: string;
@@ -11,7 +12,7 @@ interface SetTimeButtonProps {
 const SetTimeButtonProps: React.FC<SetTimeButtonProps> = ({ label }) => {
 
     const setTime: () => void = () => {
-        alert("Set Time Clicked")
+        GShockAPI.setTime()
         progressEvents.onNext("HomeTimeUpdated")
     }
 

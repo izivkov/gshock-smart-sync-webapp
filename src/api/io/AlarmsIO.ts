@@ -42,7 +42,7 @@ const AlarmsIO = {
             if (Alarm.alarms.length > 1) {
                 const deferred = cachedIO.resultQueue.dequeue(key);
                 if (deferred) {
-                    deferred(data);
+                    deferred(Alarm.alarms);
                 }
             }
         });

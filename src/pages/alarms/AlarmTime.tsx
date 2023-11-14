@@ -1,6 +1,6 @@
 "use client"
 
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import React, { useState, useEffect } from 'react';
 
 interface AlarmTimeProps {
@@ -9,9 +9,15 @@ interface AlarmTimeProps {
 
 const AlarmTime: React.FC<AlarmTimeProps> = ({ alarmTime }) => {
 
+    const [time, setTime] = useState(alarmTime);
+
+    useEffect(() => {
+        setTime(alarmTime);
+    }, [alarmTime]);
+
     return (
         <div className="text-4xl font-semibold text-center" suppressHydrationWarning>
-            {alarmTime.format('h:mm A')}
+            {time.format('h:mm A')}
         </div>
     );
 };

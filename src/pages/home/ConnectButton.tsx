@@ -9,8 +9,10 @@ import GShockAPI from "@/api/GShockAPI";
 const ConnectButton: React.FC = () => {
 
     async function connect() {
-        await connection.start()
-        await GShockAPI.init()
+        // await connection.start()
+        // await GShockAPI.init()
+
+        await runTest()
     }
 
     const processData = (data: any) => {
