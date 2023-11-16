@@ -14,7 +14,7 @@ const TimePickerDialog: React.FC<TimePickerDialogProps> = ({ open, handleClose, 
         <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Select Time</DialogTitle>
             <DialogContent>
-                <AppTimePicker initialTime={initialTime} onTimeSelected={time => handleClose(time)} />
+                <AppTimePicker initialTime={initialTime} onTimeSelected={time => handleClose(time)} onCancel={() => handleClose(null)} />
             </DialogContent>
         </Dialog>
     );

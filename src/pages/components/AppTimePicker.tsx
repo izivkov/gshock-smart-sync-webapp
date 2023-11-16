@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { StaticTimePicker } from '@mui/x-date-pickers/StaticTimePicker';
@@ -6,10 +6,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 interface AppTimePickerProps {
     onTimeSelected: (time: any) => void;
+    onCancel: () => void;
     initialTime: Dayjs
 }
 
-const AppTimePicker: React.FC<AppTimePickerProps> = ({ onTimeSelected, initialTime }) => {
+const AppTimePicker: React.FC<AppTimePickerProps> = ({ onTimeSelected, onCancel, initialTime }) => {
     const [selectedTime, setSelectedTime] = useState(null);
 
     const handleTimeAccepted = (time: any) => {
@@ -20,11 +21,21 @@ const AppTimePicker: React.FC<AppTimePickerProps> = ({ onTimeSelected, initialTi
         }
     };
 
+    const handleChange = (time: any) => {
+        setSelectedTime(time);
+    };
+
+    const onClose = () => {
+        onCancel();
+    }
+
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} >
             <StaticTimePicker defaultValue={dayjs('2023-01-01T00:00:00')}
                 value={initialTime}
+                onClose={onClose}
                 onAccept={handleTimeAccepted}
+                onChange={handleChange}
             />
         </LocalizationProvider>
     );

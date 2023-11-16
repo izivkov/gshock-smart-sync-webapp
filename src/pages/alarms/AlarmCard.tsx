@@ -45,7 +45,9 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm }) => {
 
     const handleCloseDialog = (time: any) => {
         setDialogOpen(false);
-        setTime(time);
+        if (time) {
+            setTime(time);
+        }
     };
 
     const title = `Alarm ${number}`;
