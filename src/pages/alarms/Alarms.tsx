@@ -33,6 +33,22 @@ const Alarms: React.FC = () => {
         })()
     }, [alarms]);
 
+    const sendToWatch = async () => {
+        console.log(`Setting alarms: ${alarms}`);
+        await GShockAPI.setAlarms(alarms);
+    }
+
+    // update the alarms array
+    const onChange = (
+        alarmnumber: 1 | 2 | 3 | 4 | 5,
+        alarm: {
+            hour: number,
+            minute: number,
+            hourlyChime: boolean,
+            enabled: boolean
+        }) => {
+        alarms[alarmnumber - 1] = alarm;
+    }
 
     if (!alarms || alarms.length === 0) {
         return <div>No alarms</div>;
@@ -41,13 +57,13 @@ const Alarms: React.FC = () => {
         <div className='flex flex-col'>
             <div className="inline-block bg-white p-4 gap-4 rounded shadow-lg grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 justify-items-center">
                 {alarms.map((alarm, index) => (
-                    <AlarmCard key={index} number={(index + 1) as 1 | 2 | 3 | 4 | 5} alarm={alarm} />
+                    <AlarmCard key={index} number={(index + 1) as 1 | 2 | 3 | 4 | 5} alarm={alarm} onChange={onChange} />
                 ))}
 
-                <AppSwitch text="Signal (chime)" checked={true} />
+                <AppSwitch text="Signal (chime)" checked={alarms[0].hourlyChime} />
             </div>
             <div className="flex gap-6 justify-end p-16 mr-10">
-                <AppButton label="Send to Watch" onClick={() => alert("Send to Watch Clicked")} />
+                <AppButton label="Send to Watch" onClick={sendToWatch} />
             </div>
         </div >
     );

@@ -20,9 +20,10 @@ interface Alarm {
 interface AlarmCardProps {
     number: 1 | 2 | 3 | 4 | 5;
     alarm: Alarm;
+    onChange: (alarmNumber: 1 | 2 | 3 | 4 | 5, alarm: Alarm) => void
 }
 
-const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm }) => {
+const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm, onChange }) => {
 
     const [hour, setHour] = useState(alarm.hour);
     const [minute, setMinute] = useState(alarm.minute);
@@ -47,6 +48,15 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm }) => {
         setDialogOpen(false);
         if (time) {
             setTime(time);
+
+            alarm = {
+                hour: time.hour(),
+                minute: time.minute(),
+                hourlyChime: hourlyChime,
+                enabled: enabled
+            }
+
+            onChange(number, alarm)
         }
     };
 
@@ -63,11 +73,10 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm }) => {
                 <AlarmTime alarmTime={time} />
             </div>
             <AlarmPeriod period="Daily" />
-
             <TimePickerDialog initialTime={time} open={dialogOpen} handleClose={handleCloseDialog} />
         </div>
         <div className="flex justify-end">
-            <AppSwitch checked={true} />
+            <AppSwitch checked={alarm.enabled} />
         </div>
     </div >
 

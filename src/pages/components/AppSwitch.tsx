@@ -1,7 +1,7 @@
 "use client"
 
 import { Switch } from "@material-tailwind/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppText from "./AppText";
 
 interface AppSwitchProps {
@@ -11,7 +11,11 @@ interface AppSwitchProps {
 
 const AppSwitch: React.FC<AppSwitchProps> = ({ text, checked }) => {
 
-  const [switchState, setSwitchState] = useState(checked); // Set to true for checked or false for unchecked
+  const [switchState, setSwitchState] = useState<boolean>(checked); // Set to true for checked or false for unchecked
+
+  useEffect(() => {
+    setSwitchState(checked);
+  }, [checked]);
 
   const toggleSwitch = () => {
     setSwitchState(!switchState); // Toggle the state when the Switch is clicked.
@@ -20,7 +24,9 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ text, checked }) => {
   return (
     <div className="flex flex-row justify-between gap-6 items-center">
       <AppText text={text ? text : ""} />
-      <Switch checked={switchState} onChange={toggleSwitch}
+      <Switch
+        checked={switchState}
+        onChange={toggleSwitch}
         ripple={false}
         className="h-full w-full checked:bg-[purple]"
         containerProps={{
