@@ -50,6 +50,11 @@ const Alarms: React.FC = () => {
         alarms[alarmnumber - 1] = alarm;
     }
 
+    const onSignalChange = (checked: boolean) => {
+        alarms[0].hourlyChime = checked
+        setAlarms(alarms);
+    }
+
     if (!alarms || alarms.length === 0) {
         return <div>No alarms</div>;
     }
@@ -60,7 +65,7 @@ const Alarms: React.FC = () => {
                     <AlarmCard key={index} number={(index + 1) as 1 | 2 | 3 | 4 | 5} alarm={alarm} onChange={onChange} />
                 ))}
 
-                <AppSwitch text="Signal (chime)" checked={alarms[0].hourlyChime} />
+                <AppSwitch text="Signal (chime)" checked={alarms[0].hourlyChime} onChange={onSignalChange} />
             </div>
             <div className="flex gap-6 justify-end p-16 mr-10">
                 <AppButton label="Send to Watch" onClick={sendToWatch} />

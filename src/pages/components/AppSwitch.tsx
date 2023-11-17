@@ -7,9 +7,10 @@ import AppText from "./AppText";
 interface AppSwitchProps {
   text?: string;
   checked: boolean;
+  onChange: (checked: boolean) => void;
 }
 
-const AppSwitch: React.FC<AppSwitchProps> = ({ text, checked }) => {
+const AppSwitch: React.FC<AppSwitchProps> = ({ text, checked, onChange }) => {
 
   const [switchState, setSwitchState] = useState<boolean>(checked); // Set to true for checked or false for unchecked
 
@@ -19,6 +20,7 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ text, checked }) => {
 
   const toggleSwitch = () => {
     setSwitchState(!switchState); // Toggle the state when the Switch is clicked.
+    onChange(!switchState);
   };
 
   return (
