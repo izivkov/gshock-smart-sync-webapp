@@ -1,24 +1,28 @@
 import exp from "constants"
 
-interface ReminderData {
-    time: {
-        enabled: boolean,
-        startDate: {
-            "year": number,
-            "month": string,
-            "day": number
-        },
-        endDate: {
-            "year": number,
-            "month": string,
-            "day": number
-        } | null,
-        repeatPeriod: string,
-        occurrences: number,
+export type dayOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+export type repeatPeriodType = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "NEVER";
 
-        daysOfWeek: string[]
-        // "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
+interface ReminderData {
+
+    daysOfWeek: dayOfWeekType[],
+    enabled: boolean,
+    endDate: {
+        "year": number,
+        "month": string,
+        "day": number
+    } | null,
+
+    startDate: {
+        "year": number,
+        "month": string,
+        "day": number
     },
+
+    incompatible: boolean,
+    repeatPeriod: repeatPeriodType,
+    occurrences: number,
+    selected: boolean,
     title: string,
 }
 

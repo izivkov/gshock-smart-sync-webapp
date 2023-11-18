@@ -1,7 +1,7 @@
 "use client"
 
 import { Checkbox } from "@material-tailwind/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppText from "./AppText";
 
 interface AppCheckboxProps {
@@ -15,6 +15,10 @@ interface AppCheckboxProps {
 const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onChange, index }) => {
 
   const [checkboxState, setCheckboxState] = useState(checked);
+
+  useEffect(() => {
+    setCheckboxState(checked);
+  }, [checked]);
 
   const toggleCheckbox = (e: any) => {
     setCheckboxState(!checkboxState);

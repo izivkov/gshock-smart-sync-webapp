@@ -6,12 +6,11 @@ import AlarmCard, { Alarm } from './AlarmCard';
 import AppSwitch from '@components/AppSwitch';
 import AppButton from '@components/AppButton';
 import GShockAPI from '@/api/GShockAPI';
-import dayjs, { Dayjs } from 'dayjs';
 
 const Alarms: React.FC = () => {
 
-    const formattedString = dayjs().format('YYYY-MM-DD HH:mm:ss');
     const initialized = useRef(false)
+
     const [alarms, setAlarms] = useState<{
         hour: number, minute: number, hourlyChime: boolean, enabled: boolean // Alarm
     }[]>([

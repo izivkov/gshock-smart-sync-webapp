@@ -13,13 +13,31 @@ import AppCheckbox from '../components/AppCheckbox';
 
 interface ReminderCardProps {
     number: 1 | 2 | 3 | 4 | 5;
+    reminder: ReminderData;
 }
 
-const ReminderCard: React.FC<ReminderCardProps> = ({ number }) => {
+const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
+
+    const createEndDate = (reminder: ReminderData): { year: number, month: string, day: number } => {
+        return reminder.endDate ? reminder.endDate : reminder.startDate;
+    }
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [startDate, setStartDate] = useState(dayjs());
-    const [endDate, setEndDate] = useState(null);
+    const [startDate, setStartDate] = useState(reminder.startDate);
+    const [endDate, setEndDate] = useState(createEndDate(reminder));
+    const [title, setTitle] = useState(reminder.title);
+    const [repeatPeriod, setRepeatPeriod] = useState(reminder.repeatPeriod);
+    const [enabled, setEnabled] = useState(reminder.enabled);
+    const [daysOfWeek, setDaysOfWeek] = useState(reminder.daysOfWeek);
+
+    useEffect(() => {
+        setStartDate(reminder.startDate);
+        setEndDate(createEndDate(reminder));
+        setTitle(reminder.title);
+        setRepeatPeriod(reminder.repeatPeriod);
+        setEnabled(reminder.enabled);
+        setDaysOfWeek(reminder.daysOfWeek);
+    }, [reminder]);
 
     const handleOpenDialog = () => {
         setDialogOpen(true);
@@ -29,66 +47,39 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number }) => {
         setDialogOpen(false);
     };
 
-    const year = startDate.year();
-    const month = startDate.format("MMMM");
-    const day = startDate.day();
-
-    // INZ TEST - get events from eatch instead
-    const event = Event.createEvent({
-        "time": {
-            "enabled": true,
-            "repeatPeriod": "WEEKLY",
-            "startDate": {
-                "year": 2023,
-                "month": "SEPTEMBER",
-                "day": 7
-            },
-            "endDate": {
-                "year": 2023,
-                "month": "DECEMBER",
-                "day": 23
-            },
-            "daysOfWeek": [
-                "THURSDAY", "FRIDAY", "SATURDAY"
-            ]
-        },
-        "title": "Dentist Appointment",
-    });
-    // End of test
-
-    const title = `Reminder ${number}`
-
-    const reminderData: ReminderData = {
-        time: {
-            enabled: true,
-            startDate: { year: year, month: month, day: day },
-            endDate: { year: year, month: month, day: day } || null,
-            repeatPeriod: "Never",
-            daysOfWeek: [],
-            occurrences: 1
-        },
-        title: "Test Reminder"
-    }
+    const event = new Event(
+        title,
+        startDate,
+        endDate,
+        reminder.repeatPeriod,
+        reminder.daysOfWeek,
+        reminder.enabled,
+        reminder.incompatible,
+        reminder.selected
+    )
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
         <AppText text={title} variant='h5' />
         <Edit className="cursor-pointer" onClick={handleOpenDialog} />
     </div>
 
+    const toDayjsDate = ({ year, month, day }: { year: number, month: string, day: number }): dayjs.Dayjs => {
+        return dayjs(`${year}-${month}-${day}`);
+    }
+
     const body =
         <div className='flex flex-row w-full justify-between items-center'>
             <div className="flex flex-col justify-between">
-                <AppText text={event.title} variant='h5' />
                 <Period event={event} />
             </div>
             <div>
-                <AppCheckbox checked={event.enabled} onChange={(e: any) => event.enabled = e.target.checked} />
+                <AppCheckbox checked={enabled} onChange={(e: any) => setEnabled(e.target.checked)} />
             </div>
         </div>
 
     const footer =
         <div className="flex w-0">
-            <ReminderEditDialog startDate={startDate} endDate={endDate} open={dialogOpen} handleClose={handleCloseDialog} reminderData={reminderData} />
+            <ReminderEditDialog startDate={toDayjsDate(startDate)} endDate={toDayjsDate(endDate)} open={dialogOpen} handleClose={handleCloseDialog} reminderData={reminder} />
         </div>
 
     return (
