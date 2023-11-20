@@ -16,7 +16,6 @@ class Event {
     daysOfWeek: string[];
     enabled: boolean;
     incompatible: boolean;
-    selected: boolean;
 
     constructor(
         title: string,
@@ -26,7 +25,6 @@ class Event {
         daysOfWeek: string[],
         enabled: boolean,
         incompatible: boolean,
-        selected: boolean
     ) {
         this.title = title;
         this.startDate = startDate;
@@ -40,7 +38,6 @@ class Event {
         this.daysOfWeek = daysOfWeek;
         this.enabled = enabled;
         this.incompatible = incompatible;
-        this.selected = selected;
     }
 
     static createEvent(json: any): Event {
@@ -136,7 +133,6 @@ class Event {
         const weekDays = timeObj.daysOfWeek;
         const enabled = timeObj.enabled || false;
         const incompatible = timeObj.incompatible || false;
-        const selected = timeObj.selected || true; // false
         const repeatPeriod = stringToRepeatPeriod(timeObj.repeatPeriod);
 
         return new Event(
@@ -155,7 +151,6 @@ class Event {
             getArrayListFromJSONArray(weekDays),
             enabled,
             incompatible,
-            selected
         );
     }
 
@@ -272,7 +267,7 @@ class Event {
             this.endDate
         )}, repeatPeriod='${this.repeatPeriod}', daysOfWeek=${JSON.stringify(
             this.daysOfWeek
-        )}, enabled=${this.enabled}, incompatible=${this.incompatible}, selected=${this.selected})`;
+        )}, enabled=${this.enabled}, incompatible=${this.incompatible})`;
     }
 }
 

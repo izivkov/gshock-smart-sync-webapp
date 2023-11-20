@@ -22,7 +22,7 @@ interface ReminderData {
     incompatible: boolean,
     repeatPeriod: repeatPeriodType,
     occurrences: number,
-    selected: boolean,
+
     title: string,
 }
 

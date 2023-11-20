@@ -6,7 +6,6 @@ import AppButton from '../components/AppButton';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
 import ReminderData, { repeatPeriodType } from './ReminderData';
-import MODERN_BROWSERSLIST_TARGET from 'next/dist/shared/lib/modern-browserslist-target';
 
 const Reminders: React.FC = () => {
 
@@ -20,7 +19,6 @@ const Reminders: React.FC = () => {
         incompatible: false,
         repeatPeriod: 'NEVER' as repeatPeriodType,
         occurrences: 0,
-        selected: false,
         title: ''
     }
     const initialReminders = Array.from({ length: 5 }, () => ({ ...reminderInit }));

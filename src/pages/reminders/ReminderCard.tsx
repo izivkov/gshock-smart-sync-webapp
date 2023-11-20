@@ -9,7 +9,7 @@ import Event from '@model/Event';
 import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData from './ReminderData';
 import Edit from '@mui/icons-material/Edit';
-import AppCheckbox from '../components/AppCheckbox';
+import AppSwitch from '../components/AppSwitch';
 
 interface ReminderCardProps {
     number: 1 | 2 | 3 | 4 | 5;
@@ -29,6 +29,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
     const [repeatPeriod, setRepeatPeriod] = useState(reminder.repeatPeriod);
     const [enabled, setEnabled] = useState(reminder.enabled);
     const [daysOfWeek, setDaysOfWeek] = useState(reminder.daysOfWeek);
+    const [frequency, setFrequency] = useState("");
 
     useEffect(() => {
         setStartDate(reminder.startDate);
@@ -37,6 +38,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
         setRepeatPeriod(reminder.repeatPeriod);
         setEnabled(reminder.enabled);
         setDaysOfWeek(reminder.daysOfWeek);
+        setFrequency(event.getFrequencyFormatted());
     }, [reminder]);
 
     const handleOpenDialog = () => {
@@ -55,7 +57,6 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
         reminder.daysOfWeek,
         reminder.enabled,
         reminder.incompatible,
-        reminder.selected
     )
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
@@ -72,8 +73,11 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
             <div className="flex flex-col justify-between">
                 <Period event={event} />
             </div>
-            <div>
-                <AppCheckbox checked={enabled} onChange={(e: any) => setEnabled(e.target.checked)} />
+            <div className='flex flex-col justify-between items-end'>
+                <AppSwitch checked={enabled} onChange={setEnabled} />
+                <div className="pt-2 pr-2">
+                    <AppText text={frequency} />
+                </div>
             </div>
         </div>
 

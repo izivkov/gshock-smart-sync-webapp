@@ -1,6 +1,7 @@
 "use client"
 
 import { Typography } from "@material-tailwind/react";
+import { useEffect, useState } from "react";
 
 interface TextProps {
   text: string;
@@ -9,8 +10,14 @@ interface TextProps {
 }
 
 const AppText: React.FC<TextProps> = ({ text, variant = 'lead', disabled }) => {
+  const [textValue, setTextValue] = useState(text);
+
+  useEffect(() => {
+    setTextValue(text);
+  }, [text]);
+
   return (
-    <Typography disabled={disabled} variant={variant}>{text}</Typography>
+    <Typography disabled={disabled} variant={variant}>{textValue}</Typography>
   )
 }
 

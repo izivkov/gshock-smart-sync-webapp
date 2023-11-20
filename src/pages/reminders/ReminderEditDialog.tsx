@@ -3,7 +3,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import AppDialog from '../components/AppDialog';
 import AppDatePicker from '../components/AppDatePicker';
 import AppSelect from '../components/AppSelect';
-import ReminderData from './ReminderData';
+import ReminderData, { repeatPeriodType } from './ReminderData';
 import { Card, CardBody, CardFooter, CardHeader, Checkbox, DialogHeader, Input, Typography } from '@material-tailwind/react';
 import AppDialogButton from '../components/AppDialogButton';
 import AppCheckboxList from '../components/AppCheckboxList';
@@ -52,23 +52,23 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     ]
 
     const startDateSelected = (startDate: Dayjs) => {
-        reminderData.time.startDate = fromDayJsDate(startDate);
-        if (!reminderData.time.endDate) {
-            reminderData.time.endDate = { year: startDate.year(), month: startDate.format("MMMM"), day: startDate.date() };
+        reminderData.startDate = fromDayJsDate(startDate);
+        if (!reminderData.endDate) {
+            reminderData.endDate = { year: startDate.year(), month: startDate.format("MMMM"), day: startDate.date() };
         }
     };
 
     const endDateSelected = (endDate: Dayjs) => {
         setOnIndex(1)
 
-        const startDate = toDayJsDate(reminderData.time.startDate);
+        const startDate = toDayJsDate(reminderData.startDate);
         if (endDate < startDate) {
             setError({ state: true, message: "End date must be after start date" })
-            reminderData.time.endDate = fromDayJsDate(startDate);
+            reminderData.endDate = fromDayJsDate(startDate);
             setError({ state: true, message: "Error: End date must be same or after start date" })
         } else {
             setError({ state: false, message: "" })
-            reminderData.time.endDate = fromDayJsDate(endDate)
+            reminderData.endDate = fromDayJsDate(endDate)
         }
     };
 
@@ -90,28 +90,28 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         return { year: dayjsDate.year(), month: dayjsDate.format("MMMM"), day: dayjsDate.date() }
     }
 
-    const handleSelectFrequency = (frequency: string) => {
-        reminderData.time.repeatPeriod = (frequency)
-        if (reminderData.time.repeatPeriod !== "Does not repeat") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
-        if (reminderData.time.repeatPeriod === "Weekly") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
+    const handleSelectFrequency = (frequency: repeatPeriodType) => {
+        reminderData.repeatPeriod = (frequency)
+        if (reminderData.repeatPeriod !== "NEVER") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
+        if (reminderData.repeatPeriod === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
     }
 
     function onOccurencesChange(value: string): void {
         const num = parseInt(value, 10);
         if (!isNaN(num) && num > 0) {
-            reminderData.time.occurrences = num;
-            reminderData.time.endDate = null
+            reminderData.occurrences = num;
+            reminderData.endDate = null
             setOnIndex(2)
             setError({ state: false, message: "" })
         } else {
-            reminderData.time.occurrences = 1
+            reminderData.occurrences = 1
             setError({ state: true, message: "Please enter a number greater than 0" })
         }
     }
 
     function daysOfWeekSelected(selected: number[]): void {
-        reminderData.time.daysOfWeek = [];
-        reminderData.time.daysOfWeek.push(...selected.map(index => checkBoxes[index].value))
+        reminderData.daysOfWeek = [];
+        reminderData.daysOfWeek.push(...selected.map(index => checkBoxes[index].value))
     }
 
     const onEndsSelected = ((index: number, checked: boolean) => {
@@ -123,8 +123,8 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         if (!reminderData.title || reminderData.title == "") {
             reminderData.title = "No Title"
         }
-        if (!reminderData.time.endDate) {
-            reminderData.time.endDate = reminderData.time.startDate
+        if (!reminderData.endDate) {
+            reminderData.endDate = reminderData.startDate
         }
         handleClose(reminderData)
     }
