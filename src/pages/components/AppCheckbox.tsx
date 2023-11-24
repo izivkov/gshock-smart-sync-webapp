@@ -7,7 +7,7 @@ import AppText from "./AppText";
 interface AppCheckboxProps {
   text?: string;
   checked: boolean;
-  index?: number;
+  index: number;
   className?: string;
   onChange: (checked: boolean, index: number) => void;
 }
@@ -22,9 +22,7 @@ const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onC
 
   const toggleCheckbox = (e: any) => {
     setCheckboxState(!checkboxState);
-    if (index) {
-      onChange(e.target.checked, index);
-    }
+    onChange(e.target.checked, index);
   }
 
   const checkboxClass = className ? className : "p-0";

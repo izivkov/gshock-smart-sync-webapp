@@ -1,6 +1,6 @@
 "use client"
 
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 
 import { Checkbox, List, ListItem, ListItemPrefix, Typography } from "@material-tailwind/react";
 import AppText from './AppText';
@@ -9,21 +9,28 @@ import AppCheckbox from './AppCheckbox';
 interface AppCheckboxListProps {
     displayValues: string[];
     label: string;
-    onChange: (selected: number[]) => void;
+    preSelected: string[]
+    onChange: (selected: string[]) => void;
     className?: string
 }
 
-const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label, onChange, className }) => {
+const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label, onChange, className, preSelected }) => {
 
-    const selected = new Set<number>()
+    const [daysOfWeek, setDaysOfWeek] = useState(preSelected);
+    const [selectedSet, setSelectedSet] = useState(new Set<string>(preSelected));
+
+    useEffect(() => {
+        setDaysOfWeek(preSelected)
+        setSelectedSet(new Set<string>(preSelected))
+    }, [preSelected]);
 
     const toggleCheckbox = (checked: boolean, index: number) => {
         if (checked) {
-            selected.add(index);
+            selectedSet.add(displayValues[index]);
         } else {
-            selected.delete(index);
+            selectedSet.delete(displayValues[index]);
         }
-        onChange(Array.from(selected.values()));
+        onChange(Array.from(selectedSet.values()));
     }
 
     const checkboxClass = className ? `${className}` : "flex inline-block"
@@ -39,7 +46,7 @@ const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label,
                             className="flex w-full cursor-pointer items-center px-3 py-2"
                         >
                             <ListItemPrefix className="p-0 hover:before:opacity-0">
-                                <AppCheckbox text={""} checked={false} index={index} onChange={toggleCheckbox} />
+                                <AppCheckbox text={""} checked={daysOfWeek.includes(displayValue)} index={index} onChange={toggleCheckbox} />
                             </ListItemPrefix>
                             <Typography color="blue-gray" className="font-medium">
                                 {displayValue}

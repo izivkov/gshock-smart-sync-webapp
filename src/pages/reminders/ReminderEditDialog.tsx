@@ -26,10 +26,34 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const [weeklyEventsVisible, setWeeklyEventsVisible] = useState(false);
     const [error, setError] = useState({ state: false, message: "" });
     const [dialogOpen, setDialogOpen] = React.useState(open);
+    const [frequency, setFrequency] = React.useState("");
 
     useEffect(() => {
         setDialogOpen(open)
     }, [open]);
+
+    useEffect(() => {
+        condigureDialog(reminderData);
+    }, [reminderData]);
+
+    const condigureDialog = (reminderData: ReminderData) => {
+        if (reminderData.endDate) {
+            setOnIndex(1)
+        } else {
+            setOnIndex(0)
+        }
+        if (reminderData.repeatPeriod !== "NEVER") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
+        if (reminderData.repeatPeriod === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
+
+        const forDisplay = (value: repeatPeriodType) => {
+            if (value === "NEVER") { return "Does not repeat" }
+            if (value === "WEEKLY") { return "Weekly" }
+            if (value === "MONTHLY") { return "Monthly" }
+            if (value === "YEARLY") { return "Yearly" }
+        }
+
+        setFrequency(forDisplay(reminderData.repeatPeriod))
+    }
 
     type daysOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
     interface CheckboxValues {
@@ -109,9 +133,21 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         }
     }
 
-    function daysOfWeekSelected(selected: number[]): void {
-        reminderData.daysOfWeek = [];
-        reminderData.daysOfWeek.push(...selected.map(index => checkBoxes[index].value))
+    function daysOfWeekSelected(selected: string[]): void {
+        function getValuesByDisplayValues(displayValues: string[]): daysOfWeekType[] {
+            const values: daysOfWeekType[] = [];
+
+            displayValues.forEach(displayValue => {
+                const foundCheckBox = checkBoxes.find(checkBox => checkBox.displayValue === displayValue);
+                if (foundCheckBox) {
+                    values.push(foundCheckBox.value);
+                }
+            });
+
+            return values;
+        }
+
+        reminderData.daysOfWeek = getValuesByDisplayValues(selected)
     }
 
     const onEndsSelected = ((index: number, checked: boolean) => {
@@ -129,6 +165,24 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         handleClose(reminderData)
     }
 
+    const lookupDisplayValues = (values: string[]): string[] => {
+        const displayValues: string[] = [];
+
+        values.forEach(value => {
+            const foundCheckbox = checkBoxes.find(cb => cb.value === value);
+            if (foundCheckbox) {
+                displayValues.push(foundCheckbox.displayValue);
+            } else {
+                // If no matching value is found, you can handle it here.
+                // For example, pushing a default value or throwing an error.
+                displayValues.push("N/A");
+                // throw new Error(`Display value not found for ${value}`);
+            }
+        });
+
+        return displayValues;
+    }
+
     return (
         <div>
             <AppDialog open={dialogOpen} onClose={() => handleClose(reminderData)} title="Edit Reminder">
@@ -137,7 +191,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                     <CardHeader className="flex flex-row justify-between" children={<></>} />
                     <CardBody className="flex flex-col gap-4">
                         <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full" />
-                        <AppSelect label='Frequency' value={options[0]} items={options} className="w-full" onSelected={handleSelectFrequency} />
+                        <AppSelect label='Frequency' value={frequency} items={options} className="w-full" onSelected={handleSelectFrequency} />
                         <div className="flex flex-row justify-between items-center gap-4">
                             <AppDatePicker open={open} label='Start Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
                         </div>
@@ -159,7 +213,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                                     </div>]} />
                             </div>
                             {weeklyEventsVisible && <div className="">
-                                <AppCheckboxList label='Repeat on' displayValues={checkBoxes.map(checkBox => checkBox.displayValue)} onChange={daysOfWeekSelected} />
+                                <AppCheckboxList label='Repeat on' displayValues={checkBoxes.map(checkBox => checkBox.displayValue)} preSelected={lookupDisplayValues(reminderData.daysOfWeek)} onChange={daysOfWeekSelected} />
                             </div>}
                         </div>
                         }
