@@ -10,16 +10,16 @@ import AppCheckboxList from '../components/AppCheckboxList';
 import AppRadioButtonList from '../components/AppRadioButtonList';
 import AppText from '../components/AppText';
 import AppInput from '../components/AppInput';
+import { fromDayJsDate, toDayJsDate } from './Reminders';
 
 interface ReminderEditDialogProps {
     open: boolean;
     handleClose: (returnData: any) => void;
     startDate: Dayjs;
-    endDate?: Dayjs | null;
     reminderData: ReminderData;
 }
 
-const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClose, startDate, endDate, reminderData }) => {
+const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClose, startDate, reminderData }) => {
 
     const [endOnIndex, setOnIndex] = useState(0);
     const [repeatEventsVisible, setRepeatEventsVisible] = useState(false);
@@ -36,21 +36,40 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         condigureDialog(reminderData);
     }, [reminderData]);
 
+
+    const displayMap: Record<repeatPeriodType, string> = {
+        "NEVER": "Does not repeat",
+        "DAILY": "Daily",
+        "WEEKLY": "Weekly",
+        "MONTHLY": "Monthly",
+        "YEARLY": "Yearly"
+    };
+
+    const forDisplay = (value: repeatPeriodType): string => {
+        return displayMap[value] || "Does not repeat";
+    };
+
+    const getRepeatPeriodType = (str: string): repeatPeriodType | null => {
+        const reverseMap: Record<string, repeatPeriodType> = Object.entries(displayMap)
+            .reduce((acc, [key, value]) => {
+                acc[value] = key as repeatPeriodType;
+                return acc;
+            }, {} as Record<string, repeatPeriodType>);
+
+        return reverseMap[str] || null;
+    };
+
     const condigureDialog = (reminderData: ReminderData) => {
-        if (reminderData.endDate) {
+        const start = toDayJsDate(reminderData.startDate);
+        const end = toDayJsDate(reminderData.endDate);
+
+        if (reminderData.endDate && !end.isSame(start)) {
             setOnIndex(1)
         } else {
             setOnIndex(0)
         }
         if (reminderData.repeatPeriod !== "NEVER") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
         if (reminderData.repeatPeriod === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
-
-        const forDisplay = (value: repeatPeriodType) => {
-            if (value === "NEVER") { return "Does not repeat" }
-            if (value === "WEEKLY") { return "Weekly" }
-            if (value === "MONTHLY") { return "Monthly" }
-            if (value === "YEARLY") { return "Yearly" }
-        }
 
         setFrequency(forDisplay(reminderData.repeatPeriod))
     }
@@ -96,26 +115,8 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         }
     };
 
-    const toDayJsDate = (date: { year: number, month: string, day: number } | null): Dayjs => {
-        if (!date) {
-            return dayjs();
-        }
-
-        const { year, month, day } = date;
-
-        const dateString = `${year}-${month}-${day}`;
-        const dayjsDate = dayjs(dateString, { format: 'YYYY-MMMM-DD' });
-
-        return dayjsDate;
-    }
-
-    const fromDayJsDate = (date: Dayjs): { year: number, month: string, day: number } => {
-        const dayjsDate = dayjs(date);
-        return { year: dayjsDate.year(), month: dayjsDate.format("MMMM"), day: dayjsDate.date() }
-    }
-
-    const handleSelectFrequency = (frequency: repeatPeriodType) => {
-        reminderData.repeatPeriod = (frequency)
+    const handleSelectFrequency = (frequency: string) => {
+        reminderData.repeatPeriod = getRepeatPeriodType(frequency) || "NEVER"
         if (reminderData.repeatPeriod !== "NEVER") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
         if (reminderData.repeatPeriod === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
     }
@@ -153,7 +154,6 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const onEndsSelected = ((index: number, checked: boolean) => {
         setOnIndex(index)
     })
-
 
     const onSave = (reminderData: any) => {
         if (!reminderData.title || reminderData.title == "") {
@@ -234,3 +234,4 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
 };
 
 export default ReminderEditDialog;
+

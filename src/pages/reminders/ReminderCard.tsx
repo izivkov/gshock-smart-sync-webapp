@@ -10,6 +10,8 @@ import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData from './ReminderData';
 import Edit from '@mui/icons-material/Edit';
 import AppSwitch from '../components/AppSwitch';
+import { start } from 'repl';
+import { toDayJsDate } from './Reminders';
 
 interface ReminderCardProps {
     number: 1 | 2 | 3 | 4 | 5;
@@ -45,7 +47,30 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
         setDialogOpen(true);
     };
 
-    const handleCloseDialog = (reminderData: any) => {
+    const handleCloseDialog = (reminderData: ReminderData) => {
+        setStartDate(reminderData.startDate);
+        setRepeatPeriod(reminderData.repeatPeriod);
+
+        if (reminderData.repeatPeriod === "NEVER") {
+            setEndDate(reminderData.startDate);
+        } else {
+            setEndDate(reminderData.endDate as { year: number, month: string, day: number });
+        }
+
+        const start = toDayJsDate(reminderData.startDate);
+        const end = toDayJsDate(reminderData.endDate);
+
+        if (!reminderData.endDate || end <= start) {
+            setEndDate(reminderData.startDate);
+        }
+        setTitle(reminderData.title);
+        setEnabled(reminderData.enabled);
+        setDaysOfWeek(reminderData.daysOfWeek);
+
+        event.update(reminderData)
+
+        setFrequency(event.getFrequencyFormatted());
+
         setDialogOpen(false);
     };
 
@@ -83,7 +108,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
 
     const footer =
         <div className="flex w-0">
-            <ReminderEditDialog startDate={toDayjsDate(startDate)} endDate={toDayjsDate(endDate)} open={dialogOpen} handleClose={handleCloseDialog} reminderData={reminder} />
+            <ReminderEditDialog startDate={toDayjsDate(startDate)} open={dialogOpen} handleClose={handleCloseDialog} reminderData={reminder} />
         </div>
 
     return (

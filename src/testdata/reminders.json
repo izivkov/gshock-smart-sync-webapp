@@ -1,0 +1,91 @@
+[
+    {
+        "title": "Weekly Reminder",
+        "startDate": {
+            "year": 2023,
+            "month": "NOVEMBER",
+            "day": 22
+        },
+        "endDate": {
+            "year": 2023,
+            "month": "NOVEMBER",
+            "day": 22
+        },
+        "repeatPeriod": "WEEKLY",
+        "daysOfWeek": [
+            "MONDAY",
+            "WEDNESDAY",
+            "FRIDAY"
+        ],
+        "enabled": true,
+        "incompatible": false
+    },
+    {
+        "title": "Monthly Reminder",
+        "startDate": {
+            "year": 2023,
+            "month": "NOVEMBER",
+            "day": 22
+        },
+        "endDate": {
+            "year": 2023,
+            "month": "NOVEMBER",
+            "day": 22
+        },
+        "repeatPeriod": "MONTHLY",
+        "daysOfWeek": [],
+        "enabled": true,
+        "incompatible": false
+    },
+    {
+        "title": "Yearly Reminder",
+        "startDate": {
+            "year": 2023,
+            "month": "DECEMBER",
+            "day": 2
+        },
+        "endDate": {
+            "year": 2026,
+            "month": "DECEMBER",
+            "day": 2
+        },
+        "repeatPeriod": "YEARLY",
+        "daysOfWeek": [],
+        "enabled": true,
+        "incompatible": false
+    },
+    {
+        "title": "Check HSBC dividen",
+        "startDate": {
+            "year": 2023,
+            "month": "DECEMBER",
+            "day": 17
+        },
+        "endDate": {
+            "year": 2023,
+            "month": "DECEMBER",
+            "day": 17
+        },
+        "repeatPeriod": "NEVER",
+        "daysOfWeek": [],
+        "enabled": true,
+        "incompatible": false
+    },
+    {
+        "title": "Dr. Phan",
+        "startDate": {
+            "year": 2024,
+            "month": "JANUARY",
+            "day": 2
+        },
+        "endDate": {
+            "year": 2024,
+            "month": "JANUARY",
+            "day": 2
+        },
+        "repeatPeriod": "NEVER",
+        "daysOfWeek": [],
+        "enabled": true,
+        "incompatible": false
+    }
+]

@@ -11,10 +11,11 @@ interface AppInputProps {
   className?: string;
   initialValue?: string;
   size?: size;
+  style?: React.CSSProperties
   disabled?: boolean
 }
 
-const AppInput: React.FC<AppInputProps> = ({ label, type, onChange, className, initialValue, size, disabled }) => {
+const AppInput: React.FC<AppInputProps> = ({ label, type, onChange, className, initialValue, size, disabled, style }) => {
   const [inputText, setInputText] = useState(initialValue);
   const [disabledState, setDisabled] = useState(disabled);
 
@@ -38,9 +39,10 @@ const AppInput: React.FC<AppInputProps> = ({ label, type, onChange, className, i
     }
   };
 
+
   return (
     <div className={className}>
-      <Input disabled={disabledState} size={size} type={type} label={label} onChange={onChangeValue} value={inputText} />
+      <Input disabled={disabledState} size={size} style={style} type={type} label={label} onChange={onChangeValue} value={inputText} />
     </div>
   )
 }

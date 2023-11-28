@@ -1,3 +1,4 @@
+import ReminderData from "@/pages/reminders/ReminderData";
 import Utils from "@utils/Utils";
 
 class Event {
@@ -104,7 +105,7 @@ class Event {
             }
         }
 
-        function stringToRepeatPeriod(repeatPeriodStr: string): string {
+        const stringToRepeatPeriod = (repeatPeriodStr: string): string => {
             if (!repeatPeriodStr) {
                 return "NEVER";
             }
@@ -152,6 +153,16 @@ class Event {
             enabled,
             incompatible,
         );
+    }
+
+    update(reminder: ReminderData): void {
+        this.title = reminder.title;
+        this.startDate = reminder.startDate;
+        this.endDate = reminder.endDate ? reminder.endDate : reminder.startDate;
+        this.repeatPeriod = reminder.repeatPeriod;
+        this.daysOfWeek = reminder.daysOfWeek;
+        this.enabled = reminder.enabled;
+        this.incompatible = reminder.incompatible;
     }
 
     getPeriodFormatted(): string {

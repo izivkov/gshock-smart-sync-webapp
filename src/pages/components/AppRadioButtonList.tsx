@@ -22,7 +22,7 @@ const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, l
             <AppText text={label} variant='h6' />
             <List className={radioButtonClass}>
                 {radioButtons.map((radioButton, index) => (
-                    <ListItem key={index} className="p-0 justify-end">
+                    <ListItem key={index} className="p-0 justify-start">
                         <ListItemPrefix className="gap-0">
                             <AppRadioButton
                                 name={name}
