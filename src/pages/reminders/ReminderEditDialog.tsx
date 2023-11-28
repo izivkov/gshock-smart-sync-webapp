@@ -24,6 +24,8 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const [endOnIndex, setOnIndex] = useState(0);
     const [repeatEventsVisible, setRepeatEventsVisible] = useState(false);
     const [weeklyEventsVisible, setWeeklyEventsVisible] = useState(false);
+    const [endDateVisible, setEndDateVisible] = useState(false);
+    const [endDate, setEndDate] = useState(reminderData.endDate ? toDayJsDate(reminderData.endDate) : startDate);
     const [error, setError] = useState({ state: false, message: "" });
     const [dialogOpen, setDialogOpen] = React.useState(open);
     const [frequency, setFrequency] = React.useState("");
@@ -72,6 +74,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         if (reminderData.repeatPeriod === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
 
         setFrequency(forDisplay(reminderData.repeatPeriod))
+        setEndDate(toDayJsDate(reminderData.endDate));
     }
 
     type daysOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
@@ -125,11 +128,12 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         const num = parseInt(value, 10);
         if (!isNaN(num) && num > 0) {
             reminderData.occurrences = num;
-            reminderData.endDate = null
+            reminderData.endDate = { year: startDate.year(), month: startDate.format("MMMM"), day: startDate.date() }
             setOnIndex(2)
             setError({ state: false, message: "" })
+            setEndDateVisible(false)
         } else {
-            reminderData.occurrences = 1
+            reminderData.occurrences = 0
             setError({ state: true, message: "Please enter a number greater than 0" })
         }
     }
@@ -195,6 +199,9 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                         <div className="flex flex-row justify-between items-center gap-4">
                             <AppDatePicker open={open} label='Start Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
                         </div>
+                        {endDateVisible && <div className="flex flex-row justify-between items-center gap-4">
+                            <AppDatePicker open={open} label='End Date' initialDate={endDate} onDateSelected={date => endDateSelected(date)} />
+                        </div>}
 
                         {repeatEventsVisible && <div className="flex flex-row justify-start gap-2" >
                             <div className={weeklyEventsVisible ? "border-r border-gray-400 p-4" : ""}>

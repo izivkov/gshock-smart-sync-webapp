@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dayjs } from 'dayjs';
 import Event from '@/model/Event';
 
@@ -8,7 +8,11 @@ interface DateDisplayProps {
 
 const Period: React.FC<DateDisplayProps> = ({ event }) => {
 
-    const formattedDate = event.getPeriodFormatted();
+    const [formattedDate, setFormattedDate] = useState(event.getPeriodFormatted());
+
+    useEffect(() => {
+        setFormattedDate(event.getPeriodFormatted());
+    }, [event]);
 
     return (
         <div className="text-lg text-gray-700">

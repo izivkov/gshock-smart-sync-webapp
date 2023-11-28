@@ -1,5 +1,7 @@
 import ReminderData from "@/pages/reminders/ReminderData";
 import Utils from "@utils/Utils";
+import dayjs, { Dayjs } from "dayjs";
+import { eventNames } from "process";
 
 class Event {
     title: string;
@@ -163,6 +165,107 @@ class Event {
         this.daysOfWeek = reminder.daysOfWeek;
         this.enabled = reminder.enabled;
         this.incompatible = reminder.incompatible;
+    }
+
+    calculateEndDateFromOccurences(
+        numberOfPeriods: number,
+        startDate: { year: number; month: string; day: number },
+        repeatPeriod: string,
+        daysOfWeek: string[]
+    ): { year: number; month: string; day: number } {
+
+        const toDayJsDate = (date: { year: number, month: string, day: number } | null): Dayjs => {
+            if (!date) {
+                return dayjs();
+            }
+
+            const { year, month, day } = date;
+
+            const dateString = `${year}-${month}-${day}`;
+            const dayjsDate = dayjs(dateString, { format: 'YYYY-MMMM-DD' });
+
+            return dayjsDate;
+        }
+
+        const fromDayJsDate = (date: Dayjs): { year: number, month: string, day: number } => {
+            const dayjsDate = dayjs(date);
+            return { year: dayjsDate.year(), month: dayjsDate.format("MMMM"), day: dayjsDate.date() }
+        }
+
+        function calculateEndDateForWeekly(
+            startDate: Dayjs,
+            daysOfWeek: string[],
+            n: number
+        ): Dayjs {
+            let endDate: Dayjs = dayjs(startDate);
+
+            if (daysOfWeek.length === 0) {
+                return endDate;
+            }
+
+            const daysOfWeekLocalDay: string[] = daysOfWeek.map((day) => {
+                switch (day) {
+                    case "MONDAY":
+                        return 'Monday';
+                    case "TUESDAY":
+                        return 'Tuesday';
+                    case "WEDNESDAY":
+                        return 'Wednesday';
+                    case "THURSDAY":
+                        return 'Thursday';
+                    case "FRIDAY":
+                        return 'Friday';
+                    case "SATURDAY":
+                        return 'Saturday';
+                    case "SUNDAY":
+                        return 'Sunday';
+                    default:
+                        return '';
+                }
+            });
+
+            let count = 0;
+            while (count < n) {
+                endDate = endDate.add(1, 'day');
+                if (daysOfWeekLocalDay.includes(endDate.format('dddd'))) {
+                    count++;
+                }
+            }
+
+            return endDate;
+        }
+
+        var endDate = toDayJsDate(startDate);
+
+        if (numberOfPeriods > 0) {
+            switch (repeatPeriod) {
+                case "DAILY": {
+                    endDate.add(numberOfPeriods, "day");
+                    break;
+                }
+                case "WEEKLY": {
+                    endDate = calculateEndDateForWeekly(
+                        toDayJsDate(startDate),
+                        daysOfWeek,
+                        numberOfPeriods
+                    )
+
+                    break;
+                }
+                case "MONTHLY": {
+                    endDate.add(numberOfPeriods, "month");
+                    break;
+                }
+                case "YEARLY": {
+                    endDate.add(numberOfPeriods, "year");
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        return fromDayJsDate(endDate)
     }
 
     getPeriodFormatted(): string {

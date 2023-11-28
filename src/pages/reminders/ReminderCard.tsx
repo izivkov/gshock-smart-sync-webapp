@@ -26,12 +26,19 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [startDate, setStartDate] = useState(reminder.startDate);
-    const [endDate, setEndDate] = useState(createEndDate(reminder));
+    var [endDate, setEndDate] = useState(createEndDate(reminder));
     const [title, setTitle] = useState(reminder.title);
     const [repeatPeriod, setRepeatPeriod] = useState(reminder.repeatPeriod);
     const [enabled, setEnabled] = useState(reminder.enabled);
     const [daysOfWeek, setDaysOfWeek] = useState(reminder.daysOfWeek);
     const [frequency, setFrequency] = useState("");
+    const [event, setEvent] = useState<Event>(new Event(title,
+        startDate,
+        endDate,
+        reminder.repeatPeriod,
+        reminder.daysOfWeek,
+        reminder.enabled,
+        reminder.incompatible,));
 
     useEffect(() => {
         setStartDate(reminder.startDate);
@@ -43,9 +50,20 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
         setFrequency(event.getFrequencyFormatted());
     }, [reminder]);
 
+    useEffect(() => {
+        setEvent(new Event(title,
+            startDate,
+            endDate,
+            repeatPeriod,
+            daysOfWeek,
+            enabled,
+            reminder.incompatible,));
+    }, [title, startDate, endDate, repeatPeriod, daysOfWeek, enabled, reminder.incompatible]);
+
     const handleOpenDialog = () => {
         setDialogOpen(true);
     };
+
 
     const handleCloseDialog = (reminderData: ReminderData) => {
         setStartDate(reminderData.startDate);
@@ -63,6 +81,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
         if (!reminderData.endDate || end <= start) {
             setEndDate(reminderData.startDate);
         }
+
         setTitle(reminderData.title);
         setEnabled(reminderData.enabled);
         setDaysOfWeek(reminderData.daysOfWeek);
@@ -70,19 +89,12 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
         event.update(reminderData)
 
         setFrequency(event.getFrequencyFormatted());
+        if (reminderData.occurrences > 1) {
+            setEndDate(event.calculateEndDateFromOccurences(reminderData.occurrences, event.startDate, event.repeatPeriod, event.daysOfWeek))
+        }
 
         setDialogOpen(false);
     };
-
-    const event = new Event(
-        title,
-        startDate,
-        endDate,
-        reminder.repeatPeriod,
-        reminder.daysOfWeek,
-        reminder.enabled,
-        reminder.incompatible,
-    )
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
         <AppText text={title} variant='h5' />
