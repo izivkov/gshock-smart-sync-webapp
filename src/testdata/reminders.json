@@ -1,21 +1,19 @@
 [
     {
-        "title": "Weekly Reminder",
+        "title": "Pay Rhodora",
         "startDate": {
             "year": 2023,
             "month": "NOVEMBER",
-            "day": 22
+            "day": 23
         },
         "endDate": {
             "year": 2023,
             "month": "NOVEMBER",
-            "day": 22
+            "day": 23
         },
         "repeatPeriod": "WEEKLY",
         "daysOfWeek": [
-            "MONDAY",
-            "WEDNESDAY",
-            "FRIDAY"
+            "THURSDAY"
         ],
         "enabled": true,
         "incompatible": false
@@ -34,7 +32,7 @@
         },
         "repeatPeriod": "MONTHLY",
         "daysOfWeek": [],
-        "enabled": true,
+        "enabled": false,
         "incompatible": false
     },
     {
@@ -83,7 +81,7 @@
             "month": "JANUARY",
             "day": 2
         },
-        "repeatPeriod": "NEVER",
+        "repeatPeriod": "MONTHLY",
         "daysOfWeek": [],
         "enabled": true,
         "incompatible": false

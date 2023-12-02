@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
 import AppDialog from '../components/AppDialog';
 import AppDatePicker from '../components/AppDatePicker';
 import AppSelect from '../components/AppSelect';
@@ -11,6 +10,7 @@ import AppRadioButtonList from '../components/AppRadioButtonList';
 import AppText from '../components/AppText';
 import AppInput from '../components/AppInput';
 import { fromDayJsDate, toDayJsDate } from './Reminders';
+import { Dayjs } from 'dayjs';
 
 interface ReminderEditDialogProps {
     open: boolean;
@@ -37,7 +37,6 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     useEffect(() => {
         condigureDialog(reminderData);
     }, [reminderData]);
-
 
     const displayMap: Record<repeatPeriodType, string> = {
         "NEVER": "Does not repeat",

@@ -1,34 +1,38 @@
 "use client"
 
 import { Switch } from "@material-tailwind/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AppText from "./AppText";
 
 interface AppSwitchProps {
   text?: string;
-  checked: boolean;
+  initialValue: boolean;
   onChange: (checked: boolean) => void;
 }
 
-const AppSwitch: React.FC<AppSwitchProps> = ({ text, checked, onChange }) => {
+const AppSwitch: React.FC<AppSwitchProps> = ({ text, initialValue, onChange }) => {
 
-  const [switchState, setSwitchState] = useState<boolean>(checked); // Set to true for checked or false for unchecked
+  const [checked, setChecked] = useState<boolean>(initialValue);
 
   useEffect(() => {
-    setSwitchState(checked);
-  }, [checked]);
+    setChecked(initialValue);
+  }, [initialValue]);
 
-  const toggleSwitch = () => {
-    setSwitchState(!switchState); // Toggle the state when the Switch is clicked.
-    onChange(!switchState);
+  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setChecked(isChecked);
+    // Pass back the state to the parent component
+    if (onChange) {
+      onChange(isChecked);
+    }
   };
 
   return (
     <div className="flex flex-row justify-between gap-6 items-center">
       <AppText text={text ? text : ""} />
       <Switch
-        checked={switchState}
-        onChange={toggleSwitch}
+        checked={checked}
+        onChange={handleSwitchChange}
         ripple={false}
         className="h-full w-full checked:bg-[purple]"
         containerProps={{

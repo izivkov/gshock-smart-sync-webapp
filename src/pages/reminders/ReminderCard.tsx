@@ -10,20 +10,22 @@ import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData from './ReminderData';
 import Edit from '@mui/icons-material/Edit';
 import AppSwitch from '../components/AppSwitch';
-import { start } from 'repl';
 import { toDayJsDate } from './Reminders';
+import { on } from 'events';
 
 interface ReminderCardProps {
     number: 1 | 2 | 3 | 4 | 5;
-    reminder: ReminderData;
+    initialReminder: ReminderData;
+    onChange: (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => void;
 }
 
-const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
+const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, onChange }) => {
 
     const createEndDate = (reminder: ReminderData): { year: number, month: string, day: number } => {
         return reminder.endDate ? reminder.endDate : reminder.startDate;
     }
 
+    const [reminder, setReminder] = useState<ReminderData>(initialReminder);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [startDate, setStartDate] = useState(reminder.startDate);
     var [endDate, setEndDate] = useState(createEndDate(reminder));
@@ -32,6 +34,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
     const [enabled, setEnabled] = useState(reminder.enabled);
     const [daysOfWeek, setDaysOfWeek] = useState(reminder.daysOfWeek);
     const [frequency, setFrequency] = useState("");
+    const [incompatible, setInciompatible] = useState(reminder.incompatible);
     const [event, setEvent] = useState<Event>(new Event(title,
         startDate,
         endDate,
@@ -41,24 +44,39 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
         reminder.incompatible,));
 
     useEffect(() => {
-        setStartDate(reminder.startDate);
-        setEndDate(createEndDate(reminder));
-        setTitle(reminder.title);
-        setRepeatPeriod(reminder.repeatPeriod);
-        setEnabled(reminder.enabled);
-        setDaysOfWeek(reminder.daysOfWeek);
-        setFrequency(event.getFrequencyFormatted());
-    }, [reminder]);
-
-    useEffect(() => {
         setEvent(new Event(title,
             startDate,
             endDate,
             repeatPeriod,
             daysOfWeek,
             enabled,
-            reminder.incompatible,));
-    }, [title, startDate, endDate, repeatPeriod, daysOfWeek, enabled, reminder.incompatible]);
+            incompatible));
+
+        const reminderData: ReminderData = {
+            title: title,
+            startDate: startDate,
+            endDate: endDate,
+            repeatPeriod: repeatPeriod,
+            daysOfWeek: daysOfWeek,
+            enabled: enabled,
+            incompatible: incompatible,
+            occurrences: 0
+        }
+
+    }, [title, startDate, endDate, repeatPeriod, daysOfWeek, enabled, incompatible, frequency]);
+
+    useEffect(() => {
+        setStartDate(initialReminder.startDate);
+        setEndDate(createEndDate(initialReminder));
+        setTitle(initialReminder.title);
+        setRepeatPeriod(initialReminder.repeatPeriod);
+        setEnabled(initialReminder.enabled);
+        setDaysOfWeek(initialReminder.daysOfWeek);
+        setFrequency(event.getFrequencyFormatted(initialReminder.repeatPeriod));
+
+        // onChange(initialReminder, number);
+
+    }, [initialReminder]);
 
     const handleOpenDialog = () => {
         setDialogOpen(true);
@@ -88,7 +106,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
 
         event.update(reminderData)
 
-        setFrequency(event.getFrequencyFormatted());
+        setFrequency(event.getFrequencyFormatted(reminderData.repeatPeriod));
         if (reminderData.occurrences > 1) {
             setEndDate(event.calculateEndDateFromOccurences(reminderData.occurrences, event.startDate, event.repeatPeriod, event.daysOfWeek))
         }
@@ -111,7 +129,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, reminder }) => {
                 <Period event={event} />
             </div>
             <div className='flex flex-col justify-between items-end'>
-                <AppSwitch checked={enabled} onChange={setEnabled} />
+                <AppSwitch initialValue={enabled} onChange={setEnabled} />
                 <div className="pt-2 pr-2">
                     <AppText text={frequency} />
                 </div>

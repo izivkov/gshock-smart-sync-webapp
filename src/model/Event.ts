@@ -320,9 +320,9 @@ class Event {
         return daysOfWeekStr.slice(0, -1);
     }
 
-    getFrequencyFormatted(): string {
+    getFrequencyFormatted(repeatPeriod: string): string {
         let formattedFreq = "";
-        switch (this.repeatPeriod) {
+        switch (repeatPeriod) {
             case "WEEKLY":
                 formattedFreq = this.getDaysOfWeekFormatted();
                 break;

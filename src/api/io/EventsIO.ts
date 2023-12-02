@@ -76,7 +76,7 @@ const EventsIO = {
         }
 
         function getSelectedEvents(events: Event[]): Event[] {
-            return events.filter((event) => event.selected);
+            return events;
         }
 
         await connection.sendMessage(JSON.stringify({
