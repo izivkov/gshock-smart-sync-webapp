@@ -9,7 +9,7 @@ import AppCheckboxList from '../components/AppCheckboxList';
 import AppRadioButtonList from '../components/AppRadioButtonList';
 import AppText from '../components/AppText';
 import AppInput from '../components/AppInput';
-import { fromDayJsDate, toDayJsDate } from './Reminders';
+import { fromDayJsDate, toDayJsDate } from './ReminderUtils';
 import { Dayjs } from 'dayjs';
 
 interface ReminderEditDialogProps {

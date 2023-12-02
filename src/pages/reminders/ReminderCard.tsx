@@ -5,13 +5,11 @@ import AppCard from "@components/AppCard";
 import AppText from "@components/AppText";
 import dayjs from 'dayjs';
 import Period from './Period';
-import Event from '@model/Event';
 import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData from './ReminderData';
 import Edit from '@mui/icons-material/Edit';
 import AppSwitch from '../components/AppSwitch';
-import { toDayJsDate } from './Reminders';
-import { on } from 'events';
+import { calculateEndDateFromOccurences, getFrequencyFormatted, toDayJsDate } from './ReminderUtils';
 
 interface ReminderCardProps {
     number: 1 | 2 | 3 | 4 | 5;
@@ -35,23 +33,8 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
     const [daysOfWeek, setDaysOfWeek] = useState(reminder.daysOfWeek);
     const [frequency, setFrequency] = useState("");
     const [incompatible, setInciompatible] = useState(reminder.incompatible);
-    const [event, setEvent] = useState<Event>(new Event(title,
-        startDate,
-        endDate,
-        reminder.repeatPeriod,
-        reminder.daysOfWeek,
-        reminder.enabled,
-        reminder.incompatible,));
 
     useEffect(() => {
-        setEvent(new Event(title,
-            startDate,
-            endDate,
-            repeatPeriod,
-            daysOfWeek,
-            enabled,
-            incompatible));
-
         const reminderData: ReminderData = {
             title: title,
             startDate: startDate,
@@ -72,7 +55,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         setRepeatPeriod(initialReminder.repeatPeriod);
         setEnabled(initialReminder.enabled);
         setDaysOfWeek(initialReminder.daysOfWeek);
-        setFrequency(event.getFrequencyFormatted(initialReminder.repeatPeriod));
+        setFrequency(getFrequencyFormatted(initialReminder.repeatPeriod, initialReminder.startDate, initialReminder.daysOfWeek));
 
         // onChange(initialReminder, number);
 
@@ -104,11 +87,13 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         setEnabled(reminderData.enabled);
         setDaysOfWeek(reminderData.daysOfWeek);
 
-        event.update(reminderData)
-
-        setFrequency(event.getFrequencyFormatted(reminderData.repeatPeriod));
+        setFrequency(getFrequencyFormatted(reminderData.repeatPeriod, reminderData.startDate, reminderData.daysOfWeek));
         if (reminderData.occurrences > 1) {
-            setEndDate(event.calculateEndDateFromOccurences(reminderData.occurrences, event.startDate, event.repeatPeriod, event.daysOfWeek))
+            setEndDate(calculateEndDateFromOccurences(
+                reminderData.occurrences,
+                reminder.startDate,
+                reminderData.repeatPeriod,
+                reminderData.daysOfWeek));
         }
 
         setDialogOpen(false);
@@ -126,7 +111,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
     const body =
         <div className='flex flex-row w-full justify-between items-center'>
             <div className="flex flex-col justify-between">
-                <Period event={event} />
+                <Period startDate={startDate} endDate={endDate} />
             </div>
             <div className='flex flex-col justify-between items-end'>
                 <AppSwitch initialValue={enabled} onChange={setEnabled} />

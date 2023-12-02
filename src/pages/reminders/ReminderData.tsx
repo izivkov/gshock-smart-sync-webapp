@@ -1,6 +1,7 @@
 import exp from "constants"
 
 export type dayOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+export type monthType = "JANUARY" | "FEBRUARY" | "MARCH" | "APRIL" | "MAY" | "JUNE" | "JULY" | "AUGUST" | "SEPTEMBER" | "OCTOBER" | "NOVEMBER" | "DECEMBER";
 export type repeatPeriodType = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "NEVER";
 
 interface ReminderData {
@@ -9,13 +10,13 @@ interface ReminderData {
     enabled: boolean,
     endDate: {
         "year": number,
-        "month": string,
+        "month": monthType,
         "day": number
     } | null,
 
     startDate: {
         "year": number,
-        "month": string,
+        "month": monthType,
         "day": number
     },
 

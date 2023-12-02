@@ -7,7 +7,6 @@ import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
 import ReminderData, { repeatPeriodType } from './ReminderData';
 import * as testReminders from '../../testdata/reminders.json';
-import dayjs from 'dayjs';
 
 const Reminders: React.FC = () => {
 
@@ -69,22 +68,5 @@ const Reminders: React.FC = () => {
 };
 
 // export some utility functions
-export const toDayJsDate = (date: { year: number, month: string, day: number } | null): Dayjs => {
-    if (!date) {
-        return dayjs();
-    }
-
-    const { year, month, day } = date;
-
-    const dateString = `${year}-${month}-${day}`;
-    const dayjsDate = dayjs(dateString, { format: 'YYYY-MMMM-DD' });
-
-    return dayjsDate;
-}
-
-export const fromDayJsDate = (date: Dayjs): { year: number, month: string, day: number } => {
-    const dayjsDate = dayjs(date);
-    return { year: dayjsDate.year(), month: dayjsDate.format("MMMM"), day: dayjsDate.date() }
-}
 
 export default withBottomMenu(Reminders);
