@@ -67,6 +67,11 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
 
 
     const handleCloseDialog = (reminderData: ReminderData) => {
+        if (!reminderData) {
+            setDialogOpen(false);
+            return;
+        }
+
         setStartDate(reminderData.startDate);
         setRepeatPeriod(reminderData.repeatPeriod);
 

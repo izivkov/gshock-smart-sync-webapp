@@ -24,8 +24,8 @@ const LightCard: React.FC<LightCardProps> = ({ }) => {
             </div>
             <div className="flex flex-row w-full justify-between items-center">
                 <AppRadioButtonList label="Illumination Period" checkedIndex={1} name="iliminationPeriod" orientation="horizontal" onChange={() => { }} radioButtons={[
-                    <AppText text="12h" variant='paragraph' />,
-                    <AppText text="24h" variant='paragraph' />
+                    <AppText text="1s" variant='paragraph' />,
+                    <AppText text="2s" variant='paragraph' />
                 ]} />
             </div>
         </div>
