@@ -20,7 +20,7 @@ const LightCard: React.FC<LightCardProps> = ({ }) => {
         <div className="flex flex-col w-full justify-between items-center gap-4">
             <div className="flex flex-row w-full justify-between items-center">
                 <AppText text="Auto Light" variant='h6' />
-                <AppSwitch checked={true} onChange={() => { }} />
+                <AppSwitch initialValue={true} onChange={() => { }} />
             </div>
             <div className="flex flex-row w-full justify-between items-center">
                 <AppRadioButtonList label="Illumination Period" checkedIndex={1} name="iliminationPeriod" orientation="horizontal" onChange={() => { }} radioButtons={[
