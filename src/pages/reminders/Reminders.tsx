@@ -5,7 +5,7 @@ import withBottomMenu from '@components/withBottomMenu'
 import AppButton from '../components/AppButton';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
-import ReminderData, { repeatPeriodType } from './ReminderData';
+import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
 import * as testReminders from '../../testdata/reminders.json';
 
 const Reminders: React.FC = () => {
@@ -16,7 +16,7 @@ const Reminders: React.FC = () => {
         daysOfWeek: [],
         enabled: false,
         endDate: null,
-        startDate: { year: 2000, month: '1', day: 1 },
+        startDate: { year: 2000, month: 'JANUARY' as monthType, day: 1 },
         incompatible: false,
         repeatPeriod: 'NEVER' as repeatPeriodType,
         occurrences: 0,
@@ -29,14 +29,16 @@ const Reminders: React.FC = () => {
         (async () => {
             if (!initialized.current) {
                 initialized.current = true;
-                // const newReminders = await GShockAPI.getEventsFromWatch();
-                const newReminders = testReminders as ReminderData[];
+                const newReminders = await GShockAPI.getEventsFromWatch();
+                // const newReminders = testReminders as ReminderData[];
+
                 setReminders(newReminders);
             }
         })()
     }, [reminders]);
 
     function sendToWatch(): void {
+        console.log(`==========> Sending reminders to watch: ${reminders}`);
         GShockAPI.setEvents(reminders);
     }
 
@@ -45,7 +47,9 @@ const Reminders: React.FC = () => {
             return;
         }
 
-        const newReminders = [...reminders];
+        // const newReminders = [...reminders]; // shallow copy does not work
+        const newReminders = JSON.parse(JSON.stringify(reminders));
+
         newReminders[number - 1] = reminder;
         setReminders(newReminders);
         console.log(reminder);

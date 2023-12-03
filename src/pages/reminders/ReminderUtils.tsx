@@ -14,7 +14,7 @@ export const toDayJsDate = (date: { year: number, month: string, day: number } |
     return dayjsDate;
 }
 
-export const fromDayJsDate = (date: Dayjs): { year: number, month: string, day: number } => {
+export const fromDayJsDate = (date: Dayjs): { year: number, month: monthType, day: number } => {
     const dayjsDate = dayjs(date);
     return { year: dayjsDate.year(), month: dayjsDate.format("MMMM"), day: dayjsDate.date() }
 }
@@ -95,10 +95,10 @@ export const capitalizeFirstAndTrim = (inStr: string, len: number): string => {
 
 export const calculateEndDateFromOccurences = (
     numberOfPeriods: number,
-    startDate: { year: number; month: string; day: number },
+    startDate: { year: number; month: monthType; day: number },
     repeatPeriod: repeatPeriodType,
     daysOfWeek: dayOfWeekType[]
-): { year: number; month: string; day: number } => {
+): { year: number; month: monthType; day: number } => {
 
     function calculateEndDateForWeekly(
         startDate: Dayjs,

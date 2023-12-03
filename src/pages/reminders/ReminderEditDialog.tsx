@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import AppDialog from '../components/AppDialog';
 import AppDatePicker from '../components/AppDatePicker';
 import AppSelect from '../components/AppSelect';
-import ReminderData, { repeatPeriodType } from './ReminderData';
-import { Card, CardBody, CardFooter, CardHeader, Checkbox, DialogHeader, Input, Typography } from '@material-tailwind/react';
+import ReminderData, { dayOfWeekType, monthType, repeatPeriodType } from './ReminderData';
+import { Card, CardBody, CardFooter, CardHeader } from '@material-tailwind/react';
 import AppDialogButton from '../components/AppDialogButton';
 import AppCheckboxList from '../components/AppCheckboxList';
 import AppRadioButtonList from '../components/AppRadioButtonList';
@@ -16,27 +16,29 @@ interface ReminderEditDialogProps {
     open: boolean;
     handleClose: (returnData: any) => void;
     startDate: Dayjs;
-    reminderData: ReminderData;
+    initReminderData: ReminderData;
 }
 
-const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClose, startDate, reminderData }) => {
+const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClose, startDate, initReminderData }) => {
 
     const [endOnIndex, setOnIndex] = useState(0);
     const [repeatEventsVisible, setRepeatEventsVisible] = useState(false);
     const [weeklyEventsVisible, setWeeklyEventsVisible] = useState(false);
     const [endDateVisible, setEndDateVisible] = useState(false);
-    const [endDate, setEndDate] = useState(reminderData.endDate ? toDayJsDate(reminderData.endDate) : startDate);
+    const [endDate, setEndDate] = useState(initReminderData.endDate ? toDayJsDate(initReminderData.endDate) : startDate);
     const [error, setError] = useState({ state: false, message: "" });
     const [dialogOpen, setDialogOpen] = React.useState(open);
     const [frequency, setFrequency] = React.useState("");
+    const [reminderData, setReminderData] = useState<ReminderData>(initReminderData);
 
     useEffect(() => {
         setDialogOpen(open)
     }, [open]);
 
     useEffect(() => {
+        setReminderData(initReminderData);
         condigureDialog(reminderData);
-    }, [reminderData]);
+    }, [initReminderData]);
 
     const displayMap: Record<repeatPeriodType, string> = {
         "NEVER": "Does not repeat",
@@ -76,9 +78,8 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         setEndDate(toDayJsDate(reminderData.endDate));
     }
 
-    type daysOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
     interface CheckboxValues {
-        value: daysOfWeekType;
+        value: dayOfWeekType;
         displayValue: string;
     }
 
@@ -99,7 +100,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const startDateSelected = (startDate: Dayjs) => {
         reminderData.startDate = fromDayJsDate(startDate);
         if (!reminderData.endDate) {
-            reminderData.endDate = { year: startDate.year(), month: startDate.format("MMMM"), day: startDate.date() };
+            reminderData.endDate = { year: startDate.year(), month: startDate.format("MMMM") as monthType, day: startDate.date() };
         }
     };
 
@@ -127,7 +128,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         const num = parseInt(value, 10);
         if (!isNaN(num) && num > 0) {
             reminderData.occurrences = num;
-            reminderData.endDate = { year: startDate.year(), month: startDate.format("MMMM"), day: startDate.date() }
+            reminderData.endDate = { year: startDate.year(), month: startDate.format("MMMM") as monthType, day: startDate.date() }
             setOnIndex(2)
             setError({ state: false, message: "" })
             setEndDateVisible(false)
@@ -138,8 +139,8 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     }
 
     function daysOfWeekSelected(selected: string[]): void {
-        function getValuesByDisplayValues(displayValues: string[]): daysOfWeekType[] {
-            const values: daysOfWeekType[] = [];
+        function getValuesByDisplayValues(displayValues: string[]): dayOfWeekType[] {
+            const values: dayOfWeekType[] = [];
 
             displayValues.forEach(displayValue => {
                 const foundCheckBox = checkBoxes.find(checkBox => checkBox.displayValue === displayValue);

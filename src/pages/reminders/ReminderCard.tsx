@@ -6,7 +6,7 @@ import AppText from "@components/AppText";
 import dayjs from 'dayjs';
 import Period from './Period';
 import ReminderEditDialog from './ReminderEditDialog';
-import ReminderData from './ReminderData';
+import ReminderData, { monthType } from './ReminderData';
 import Edit from '@mui/icons-material/Edit';
 import AppSwitch from '../components/AppSwitch';
 import { calculateEndDateFromOccurences, getFrequencyFormatted, toDayJsDate } from './ReminderUtils';
@@ -19,7 +19,7 @@ interface ReminderCardProps {
 
 const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, onChange }) => {
 
-    const createEndDate = (reminder: ReminderData): { year: number, month: string, day: number } => {
+    const createEndDate = (reminder: ReminderData): { year: number, month: monthType, day: number } => {
         return reminder.endDate ? reminder.endDate : reminder.startDate;
     }
 
@@ -46,6 +46,8 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
             occurrences: 0
         }
 
+        setReminder(reminderData);
+
     }, [title, startDate, endDate, repeatPeriod, daysOfWeek, enabled, incompatible, frequency]);
 
     useEffect(() => {
@@ -56,8 +58,6 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         setEnabled(initialReminder.enabled);
         setDaysOfWeek(initialReminder.daysOfWeek);
         setFrequency(getFrequencyFormatted(initialReminder.repeatPeriod, initialReminder.startDate, initialReminder.daysOfWeek));
-
-        // onChange(initialReminder, number);
 
     }, [initialReminder]);
 
@@ -73,7 +73,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         if (reminderData.repeatPeriod === "NEVER") {
             setEndDate(reminderData.startDate);
         } else {
-            setEndDate(reminderData.endDate as { year: number, month: string, day: number });
+            setEndDate(reminderData.endDate as { year: number, month: monthType, day: number });
         }
 
         const start = toDayJsDate(reminderData.startDate);
@@ -97,6 +97,9 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         }
 
         setDialogOpen(false);
+
+        // pass data back to Remiders component
+        onChange(reminderData, number);
     };
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
@@ -123,7 +126,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
 
     const footer =
         <div className="flex w-0">
-            <ReminderEditDialog startDate={toDayjsDate(startDate)} open={dialogOpen} handleClose={handleCloseDialog} reminderData={reminder} />
+            <ReminderEditDialog startDate={toDayjsDate(startDate)} open={dialogOpen} handleClose={handleCloseDialog} initReminderData={reminder} />
         </div>
 
     return (
