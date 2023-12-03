@@ -119,10 +119,13 @@ const EventsIO = {
                 ...ReminderEncoder.reminderTimeFromJson(reminderJson),
             ];
 
+            // const encodedTitle = new Uint8Array(title.split('').map((char: string) => char.charCodeAt(0)));
+            const encodedTitle = Utils.toByteArray(title, 18);
+
             await CasioIO.writeCmd(0x000e, [
-                title,
                 CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TITLE,
                 index + 1,
+                ...Array.from(encodedTitle),
             ]);
 
             await CasioIO.writeCmd(0x000e, reminderTime);

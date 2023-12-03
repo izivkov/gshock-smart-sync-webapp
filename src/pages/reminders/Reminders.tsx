@@ -7,6 +7,7 @@ import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
 import * as testReminders from '../../testdata/reminders.json';
+import { asyncScheduler } from 'rxjs';
 
 const Reminders: React.FC = () => {
 
@@ -38,8 +39,9 @@ const Reminders: React.FC = () => {
     }, [reminders]);
 
     function sendToWatch(): void {
-        console.log(`==========> Sending reminders to watch: ${reminders}`);
-        GShockAPI.setEvents(reminders);
+        (async () => {
+            await GShockAPI.setEvents(reminders);
+        })()
     }
 
     const onChange = (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => {
