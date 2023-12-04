@@ -64,7 +64,7 @@ const Alarms: React.FC = () => {
                     <AlarmCard key={index} number={(index + 1) as 1 | 2 | 3 | 4 | 5} alarm={alarm} onChange={onChange} />
                 ))}
 
-                <AppSwitch text="Signal (chime)" checked={alarms[0].hourlyChime} onChange={onSignalChange} />
+                <AppSwitch text="Signal (chime)" initialValue={alarms[0].hourlyChime} onChange={onSignalChange} />
             </div>
             <div className="flex gap-6 justify-end p-16 mr-10">
                 <AppButton label="Send to Watch" onClick={sendToWatch} />

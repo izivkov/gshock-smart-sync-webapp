@@ -17,7 +17,7 @@ const ButtonSoundCard: React.FC<ButtonSoundCardProps> = ({ }) => {
     const body =
         <div className="flex flex-row w-full justify-between items-center">
             <AppText text="Button Operation Tone" variant='paragraph' />
-            <AppSwitch checked={true} onChange={() => { }} />
+            <AppSwitch initialValue={true} onChange={() => { }} />
         </div>
 
     const footer = <></>

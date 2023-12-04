@@ -17,7 +17,7 @@ const AutoTimeAdjustCard: React.FC<AutoTimeAdjustCardProps> = ({ }) => {
     const body =
         <div className="flex flex-row w-full justify-between items-center">
             <AppText text="Time Adjustment" variant='paragraph' />
-            <AppSwitch checked={true} onChange={() => { }} />
+            <AppSwitch initialValue={true} onChange={() => { }} />
         </div>
 
     const footer = <></>

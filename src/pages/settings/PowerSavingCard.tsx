@@ -17,7 +17,7 @@ const PowerSavingCard: React.FC<PowerSavingCardProps> = ({ }) => {
     const body =
         <div className="flex flex-row w-full justify-between items-center">
             <AppText text="Power Saving Mode" variant='paragraph' />
-            <AppSwitch checked={true} onChange={() => { }} />
+            <AppSwitch initialValue={true} onChange={() => { }} />
         </div>
 
     const footer = <></>

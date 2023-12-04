@@ -2,7 +2,7 @@
 
 import { Select } from "@material-tailwind/react";
 import { Option } from "@material-tailwind/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AppSelectProps {
   label?: string
@@ -15,6 +15,9 @@ interface AppSelectProps {
 const AppSelect: React.FC<AppSelectProps> = ({ label, items, value, className, onSelected }) => {
 
   const [selectedOption, setSelectedOption] = useState(value); // Set the initial selected option
+  useEffect(() => {
+    setSelectedOption(value);
+  })
 
   const handleChange = (e: any) => {
     setSelectedOption(e);

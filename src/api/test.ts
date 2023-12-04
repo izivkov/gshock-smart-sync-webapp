@@ -27,12 +27,10 @@ const test = {
         console.log("Temperature:", temperature);
 
         await GShockAPI.setTime();
-        */
 
         const alarms: any[] = await GShockAPI.getAlarms();
         console.log("Alarms:", alarms);
 
-        /*
         alarms[3].minute = 23;
 
         await GShockAPI.setAlarms(alarms);
@@ -46,10 +44,12 @@ const test = {
 
         events = await GShockAPI.getEventsFromWatch();
         console.log(`Events Again: ${JSON.stringify(events)}`);
+        */
 
         const settings: any = await GShockAPI.getSettings();
         console.log("Settings:", settings);
 
+        /*
         settings.dateFormat = "MM:DD";
         await GShockAPI.setSettings(settings);
 

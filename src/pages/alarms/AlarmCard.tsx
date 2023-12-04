@@ -76,7 +76,7 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm, onChange }) => {
             <TimePickerDialog initialTime={time} open={dialogOpen} handleClose={handleCloseDialog} />
         </div>
         <div className="flex justify-end">
-            <AppSwitch checked={alarm.enabled} onChange={(checked) => { }} />
+            <AppSwitch initialValue={alarm.enabled} onChange={(checked) => { }} />
         </div>
     </div >
 

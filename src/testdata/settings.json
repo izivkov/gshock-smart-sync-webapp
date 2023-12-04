@@ -1,0 +1,10 @@
+{
+    "autoLight": true,
+    "buttonTone": true,
+    "dateFormat": "DD:MM",
+    "language": "Spanish",
+    "lightDuration": "4s",
+    "powerSavingMode": true,
+    "timeAdjustment": true,
+    "timeFormat": "24h"
+}
