@@ -2,8 +2,8 @@
     "autoLight": true,
     "buttonTone": true,
     "dateFormat": "DD:MM",
-    "language": "Spanish",
-    "lightDuration": "4s",
+    "language": "German",
+    "lightDuration": "1.5s",
     "powerSavingMode": true,
     "timeAdjustment": true,
     "timeFormat": "24h"

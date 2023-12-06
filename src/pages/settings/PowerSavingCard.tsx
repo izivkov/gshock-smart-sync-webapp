@@ -6,9 +6,20 @@ import AppText from "@components/AppText";
 import AppSwitch from '../components/AppSwitch';
 
 interface PowerSavingCardProps {
+    powerSavingsInit: boolean,
 }
 
-const PowerSavingCard: React.FC<PowerSavingCardProps> = ({ }) => {
+const PowerSavingCard: React.FC<PowerSavingCardProps> = ({ powerSavingsInit }) => {
+
+    const [powerSavings, setPowerSavings] = useState<boolean>(powerSavingsInit);
+
+    useEffect(() => {
+        setPowerSavings(powerSavingsInit);
+    }, [powerSavingsInit]);
+
+    const onPowerSavingChange = (value: boolean): void => {
+        setPowerSavings(value);
+    }
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
         <AppText text="Power Saving" variant='h5' />
@@ -17,7 +28,7 @@ const PowerSavingCard: React.FC<PowerSavingCardProps> = ({ }) => {
     const body =
         <div className="flex flex-row w-full justify-between items-center">
             <AppText text="Power Saving Mode" variant='paragraph' />
-            <AppSwitch initialValue={true} onChange={() => { }} />
+            <AppSwitch initialValue={powerSavings} onChange={onPowerSavingChange} />
         </div>
 
     const footer = <></>

@@ -6,9 +6,20 @@ import AppText from "@components/AppText";
 import AppSwitch from '../components/AppSwitch';
 
 interface AutoTimeAdjustCardProps {
+    autoTimeAdjustInit: boolean,
 }
 
-const AutoTimeAdjustCard: React.FC<AutoTimeAdjustCardProps> = ({ }) => {
+const AutoTimeAdjustCard: React.FC<AutoTimeAdjustCardProps> = ({ autoTimeAdjustInit }) => {
+
+    const [autoTimeAdjust, setAutoTimeAdjust] = useState<boolean>(autoTimeAdjustInit);
+
+    useEffect(() => {
+        setAutoTimeAdjust(autoTimeAdjustInit);
+    }, [autoTimeAdjustInit]);
+
+    const onAutoTimeAdjustChange = (value: boolean): void => {
+        setAutoTimeAdjust(value);
+    }
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
         <AppText text="Auto Time Adjustment" variant='h5' />
@@ -17,7 +28,7 @@ const AutoTimeAdjustCard: React.FC<AutoTimeAdjustCardProps> = ({ }) => {
     const body =
         <div className="flex flex-row w-full justify-between items-center">
             <AppText text="Time Adjustment" variant='paragraph' />
-            <AppSwitch initialValue={true} onChange={() => { }} />
+            <AppSwitch initialValue={autoTimeAdjust} onChange={onAutoTimeAdjustChange} />
         </div>
 
     const footer = <></>

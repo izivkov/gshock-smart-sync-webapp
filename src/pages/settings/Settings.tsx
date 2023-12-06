@@ -58,10 +58,10 @@ const Settings: React.FC = () => {
         <div className='flex flex-col'>
             <div className="inline-block bg-white p-4 gap-4 rounded shadow-lg grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 justify-items-center">
                 <LocaleCard languageInit={settings.language} dateFormatInit={settings.dateFormat} timeFormatInit={settings.timeFormat} onChange={onLocaleChanged} />
-                <ButtonSoundCard />
-                <LightCard />
-                <PowerSavingCard />
-                <AutoTimeAdjustCard />
+                <ButtonSoundCard buttonSoundInit={settings.buttonTone} />
+                <LightCard illuminationPeriodInit={settings.lightDuration} autoLightInit={settings.autoLight} />
+                <PowerSavingCard powerSavingsInit={settings.powerSavingMode} />
+                <AutoTimeAdjustCard autoTimeAdjustInit={settings.timeAdjustment} />
             </div>
             <div className="flex gap-6 justify-end p-16 mr-10">
                 <AppButton label="Send to Watch" onClick={() => alert("Send to Watch Clicked")} />

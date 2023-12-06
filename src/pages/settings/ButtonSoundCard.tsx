@@ -6,9 +6,20 @@ import AppText from "@components/AppText";
 import AppSwitch from '../components/AppSwitch';
 
 interface ButtonSoundCardProps {
+    buttonSoundInit: boolean,
 }
 
-const ButtonSoundCard: React.FC<ButtonSoundCardProps> = ({ }) => {
+const ButtonSoundCard: React.FC<ButtonSoundCardProps> = ({ buttonSoundInit }) => {
+
+    const [bittonSound, setButtonSound] = useState<boolean>(buttonSoundInit);
+
+    useEffect(() => {
+        setButtonSound(buttonSoundInit);
+    }, [buttonSoundInit]);
+
+    const onButtonSoundChange = (value: boolean): void => {
+        setButtonSound(value);
+    }
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
         <AppText text="Button Sound" variant='h5' />
@@ -17,7 +28,7 @@ const ButtonSoundCard: React.FC<ButtonSoundCardProps> = ({ }) => {
     const body =
         <div className="flex flex-row w-full justify-between items-center">
             <AppText text="Button Operation Tone" variant='paragraph' />
-            <AppSwitch initialValue={true} onChange={() => { }} />
+            <AppSwitch initialValue={bittonSound} onChange={onButtonSoundChange} />
         </div>
 
     const footer = <></>
