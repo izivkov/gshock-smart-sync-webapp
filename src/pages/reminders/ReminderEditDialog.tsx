@@ -28,7 +28,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const [endDate, setEndDate] = useState(initReminderData.endDate ? toDayJsDate(initReminderData.endDate) : startDate);
     const [error, setError] = useState({ state: false, message: "" });
     const [dialogOpen, setDialogOpen] = React.useState(open);
-    const [frequency, setFrequency] = React.useState("");
+    const [frequency, setFrequency] = React.useState(initReminderData.repeatPeriod);
     const [reminderData, setReminderData] = useState<ReminderData>(initReminderData);
 
     useEffect(() => {
@@ -205,7 +205,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
 
                         {repeatEventsVisible && <div className="flex flex-row justify-start gap-2" >
                             <div className={weeklyEventsVisible ? "border-r border-gray-400 p-4" : ""}>
-                                <AppRadioButtonList checkedIndex={endOnIndex} name="endsOn" label='Ends on' orientation="vertical" onChange={onEndsSelected} radioButtons={[
+                                <AppRadioButtonList selectedIndexInit={endOnIndex} name="endsOn" label='Ends on' orientation="vertical" onChange={onEndsSelected} radioButtons={[
 
                                     <AppText disabled={endOnIndex != 0} text="Never" variant='paragraph' />,
 
@@ -220,7 +220,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                                     </div>]} />
                             </div>
                             {weeklyEventsVisible && <div className="">
-                                <AppCheckboxList label='Repeat on' displayValues={checkBoxes.map(checkBox => checkBox.displayValue)} preSelected={lookupDisplayValues(reminderData.daysOfWeek)} onChange={daysOfWeekSelected} />
+                                <AppCheckboxList label='Repeat on' displayValues={checkBoxes.map(checkBox => checkBox.displayValue)} selectedSetInit={lookupDisplayValues(reminderData.daysOfWeek)} onChange={daysOfWeekSelected} />
                             </div>}
                         </div>
                         }

@@ -5,15 +5,15 @@ import AppCard from "@components/AppCard";
 import AppText from "@components/AppText";
 import AppSwitch from '../components/AppSwitch';
 import AppRadioButtonList from '../components/AppRadioButtonList';
-import { lightDurationType } from './SettingsData';
-import WatchInfo, { watchInfo } from '@/api/WatchInfo';
+import WatchInfo, { watchInfo, lightDurationType } from '@/api/WatchInfo';
 
 interface LightCardProps {
     autoLightInit: boolean,
     illuminationPeriodInit: lightDurationType,
+    onChange: (autoLight: boolean, illuminationPeriod: lightDurationType) => void;
 }
 
-const LightCard: React.FC<LightCardProps> = ({ autoLightInit, illuminationPeriodInit }) => {
+const LightCard: React.FC<LightCardProps> = ({ autoLightInit, illuminationPeriodInit, onChange }) => {
 
     const [autoLight, setAutoLight] = useState<boolean>(autoLightInit);
     const [illuminationPeriod, setIlluminationPeriod] = useState<lightDurationType>(illuminationPeriodInit);
@@ -25,10 +25,22 @@ const LightCard: React.FC<LightCardProps> = ({ autoLightInit, illuminationPeriod
 
     const onAoutoLightChange = (value: boolean) => {
         setAutoLight(value);
+        onChange(value, illuminationPeriod);
     }
 
-    const onIlluminationPeriodChange = (value: lightDurationType) => {
+    const onIlluminationPeriodChange = (index: number) => {
+        var value: lightDurationType = watchInfo.shortLightDuration as lightDurationType;
+        switch (index) {
+            case 0:
+                value = watchInfo.shortLightDuration as lightDurationType;
+                break
+            case 1:
+                value = watchInfo.longLightDuration as lightDurationType;
+                break
+        }
+
         setIlluminationPeriod(value);
+        onChange(autoLight, value);
     }
 
     const getIlluminationPeriodIndex = (value: lightDurationType) => {
@@ -46,7 +58,7 @@ const LightCard: React.FC<LightCardProps> = ({ autoLightInit, illuminationPeriod
     }
 
     const shortDuration = watchInfo.shortLightDuration || "2" + 's';
-    const longDuration = (watchInfo.longLightDuration || "4") + 's';
+    const longDuration = (watchInfo.longLightDuration || "4" + 's');
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
         <AppText text="Light" variant='h5' />
@@ -59,10 +71,11 @@ const LightCard: React.FC<LightCardProps> = ({ autoLightInit, illuminationPeriod
                 <AppSwitch initialValue={autoLight} onChange={onAoutoLightChange} />
             </div>
             <div className="flex flex-row w-full justify-between items-center">
-                <AppRadioButtonList label="Illumination Period" checkedIndex={getIlluminationPeriodIndex(illuminationPeriod)} name="illiminationPeriod" orientation="horizontal" onChange={onIlluminationPeriodChange} radioButtons={[
-                    <AppText text={shortDuration} variant='paragraph' />,
-                    <AppText text={longDuration} variant='paragraph' />
-                ]} />
+                <AppRadioButtonList label="Illumination Period" selectedIndexInit={getIlluminationPeriodIndex(illuminationPeriod)} name="illiminationPeriod"
+                    orientation="horizontal" onChange={onIlluminationPeriodChange} radioButtons={[
+                        <AppText text={shortDuration} variant='paragraph' />,
+                        <AppText text={longDuration} variant='paragraph' />
+                    ]} />
             </div>
         </div>
 

@@ -9,20 +9,18 @@ import AppCheckbox from './AppCheckbox';
 interface AppCheckboxListProps {
     displayValues: string[];
     label: string;
-    preSelected: string[]
+    selectedSetInit: string[]
     onChange: (selected: string[]) => void;
     className?: string
 }
 
-const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label, onChange, className, preSelected }) => {
+const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label, onChange, className, selectedSetInit }) => {
 
-    const [daysOfWeek, setDaysOfWeek] = useState(preSelected);
-    const [selectedSet, setSelectedSet] = useState(new Set<string>(preSelected));
+    const [selectedSet, setSelectedSet] = useState(new Set<string>(selectedSetInit));
 
     useEffect(() => {
-        setDaysOfWeek(preSelected)
-        setSelectedSet(new Set<string>(preSelected))
-    }, [preSelected]);
+        setSelectedSet(new Set<string>(selectedSetInit))
+    }, [selectedSetInit]);
 
     const toggleCheckbox = (checked: boolean, index: number) => {
         if (checked) {
@@ -46,7 +44,7 @@ const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label,
                             className="flex w-full cursor-pointer items-center px-3 py-2"
                         >
                             <ListItemPrefix className="p-0 hover:before:opacity-0">
-                                <AppCheckbox text={""} checked={daysOfWeek.includes(displayValue)} index={index} onChange={toggleCheckbox} />
+                                <AppCheckbox text={""} checked={selectedSet.has(displayValue)} index={index} onChange={toggleCheckbox} />
                             </ListItemPrefix>
                             <Typography color="blue-gray" className="font-medium">
                                 {displayValue}

@@ -3,17 +3,24 @@
 import { List, ListItem, ListItemPrefix, Radio, Typography } from "@material-tailwind/react";
 import AppText from './AppText';
 import AppRadioButton from './AppRadioButton';
+import { useEffect, useState } from "react";
 
 interface AppRadioButtonListProps {
     radioButtons: React.JSX.Element[];
     label: string;
     onChange: (index: number, checked: boolean) => void;
-    checkedIndex: number;
+    selectedIndexInit: number;
     orientation: "horizontal" | "vertical";
     name: string
 }
 
-const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, label, onChange, checkedIndex, orientation, name }) => {
+const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, label, onChange, selectedIndexInit, orientation, name }) => {
+
+    const [selectedIndex, setSelectedIndex] = useState(selectedIndexInit);
+
+    useEffect(() => {
+        setSelectedIndex(selectedIndexInit);
+    }, [selectedIndexInit]);
 
     const radioButtonClass = orientation === "vertical" ? "flex flex-col inline-block" : "flex flex-row";
 
@@ -29,7 +36,7 @@ const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, l
                                 className="hover:before:opacity-0"
                                 label={""}
                                 index={index}
-                                checked={index === checkedIndex}
+                                checkedInit={index === selectedIndex}
                                 onChange={onChange} />
                         </ListItemPrefix>
                         {radioButton}

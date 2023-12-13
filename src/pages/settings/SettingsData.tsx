@@ -1,8 +1,5 @@
 
-export type dateFormatType = "MM:DD" | "DD:MM";
-export type timeFormatType = "12h" | "24h";
-export type languageType = "English" | "Spanish" | "French" | "German" | "Italian" | "Russian";
-export type lightDurationType = "1.5s" | "2s" | "3s" | "4s";
+import { dateFormatType, languageType, timeFormatType, lightDurationType } from '@/api/WatchInfo';
 
 interface SettingsData {
 

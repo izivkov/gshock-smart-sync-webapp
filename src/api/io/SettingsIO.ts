@@ -49,7 +49,7 @@ const SettingsIO = {
 
     async set(settings: BasicSettings) {
         cachedIO.delete("GET_SETTINGS");
-        await connection.sendMessage(JSON.stringify({ action: "SET_SETTINGS", value: SettingsEncoder.encode(settings) }));
+        await connection.sendMessage(JSON.stringify({ action: "SET_SETTINGS", value: settings /*SettingsEncoder.encode(settings)*/ }));
     },
 
     toJson(data: any) {
@@ -127,7 +127,7 @@ class SettingsEncoder {
                 arr[5] = 0;
         }
 
-        return JSON.stringify(arr);
+        return arr;
     }
 
     static decode(data: number[]): BasicSettings {

@@ -1,5 +1,10 @@
 import { progressEvents } from '@api/ProgressEvents';
 
+export type dateFormatType = "MM:DD" | "DD:MM";
+export type timeFormatType = "12h" | "24h";
+export type languageType = "English" | "Spanish" | "French" | "German" | "Italian" | "Russian";
+export type lightDurationType = "1.5s" | "2s" | "3s" | "4s";
+
 enum WATCH_MODEL {
     GA = "GA",
     GW = "GW",
@@ -16,8 +21,8 @@ class ModelInfo {
         public alarmCount: number,
         public hasAutoLight: boolean,
         public hasReminders: boolean,
-        public shortLightDuration: string,
-        public longLightDuration: string
+        public shortLightDuration: lightDurationType,
+        public longLightDuration: lightDurationType
     ) { }
 }
 
@@ -31,8 +36,8 @@ class WatchInfo {
     alarmCount: number;
     hasAutoLight: boolean;
     hasReminders: boolean;
-    shortLightDuration: string;
-    longLightDuration: string;
+    shortLightDuration: lightDurationType;
+    longLightDuration: lightDurationType;
 
     private models: ModelInfo[] = [
         new ModelInfo(WATCH_MODEL.GW, 6, 3, 5, true, true, "2s", "4s"),

@@ -10,8 +10,8 @@ import AutoTimeAdjustCard from './AutoTimeAdjustCard';
 import PowerSavingCard from './PowerSavingCard';
 import GShockAPI from '@/api/GShockAPI';
 import * as testSettings from '../../testdata/settings.json';
-import SettingsData, { dateFormatType, languageType, timeFormatType } from './SettingsData';
-import { on } from 'events';
+import { dateFormatType, languageType, lightDurationType, timeFormatType } from '@api/WatchInfo';
+import SettingsData from './SettingsData';
 
 const Settings: React.FC = () => {
 
@@ -22,7 +22,7 @@ const Settings: React.FC = () => {
         buttonTone: true,
         dateFormat: "MM:DD",
         language: "English",
-        lightDuration: "4s",
+        lightDuration: "2s",
         powerSavingMode: true,
         timeAdjustment: true,
         timeFormat: "12h"
@@ -35,8 +35,8 @@ const Settings: React.FC = () => {
             if (!initialized.current) {
                 initialized.current = true;
 
-                // const newSettings = await GShockAPI.getSettings();
-                const newSettings = testSettings as SettingsData;
+                const newSettings = await GShockAPI.getSettings();
+                // const newSettings = testSettings as SettingsData;
                 setSettings(newSettings);
             }
         })()
@@ -50,21 +50,62 @@ const Settings: React.FC = () => {
             dateFormat: dateFormat,
             timeFormat: timeFormat
         }
+        setSettings(newSettings);
+    }
+
+    const onAutoTimeAdjustChange = (autoTimeAdjust: boolean) => {
+
+        const newSettings: SettingsData = {
+            ...settings,
+            timeAdjustment: autoTimeAdjust
+        }
+        setSettings(newSettings);
+    }
+
+    const onButtonSoundChange = (buttonSound: boolean) => {
+
+        const newSettings: SettingsData = {
+            ...settings,
+            buttonTone: buttonSound
+        }
+        setSettings(newSettings);
+    }
+
+    const onIlluminationPeriodChange = (autoLight: boolean, illuminationPeriod: lightDurationType) => {
+
+        const newSettings: SettingsData = {
+            ...settings,
+            lightDuration: illuminationPeriod,
+            autoLight: autoLight
+        }
 
         setSettings(newSettings);
+    }
+
+    const onPowerSavingChange = (powerSavingMode: boolean) => {
+
+        const newSettings: SettingsData = {
+            ...settings,
+            powerSavingMode: powerSavingMode
+        }
+        setSettings(newSettings);
+    }
+
+    const onSave = async () => {
+        await GShockAPI.setSettings(settings);
     }
 
     return (
         <div className='flex flex-col'>
             <div className="inline-block bg-white p-4 gap-4 rounded shadow-lg grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 justify-items-center">
                 <LocaleCard languageInit={settings.language} dateFormatInit={settings.dateFormat} timeFormatInit={settings.timeFormat} onChange={onLocaleChanged} />
-                <ButtonSoundCard buttonSoundInit={settings.buttonTone} />
-                <LightCard illuminationPeriodInit={settings.lightDuration} autoLightInit={settings.autoLight} />
-                <PowerSavingCard powerSavingsInit={settings.powerSavingMode} />
-                <AutoTimeAdjustCard autoTimeAdjustInit={settings.timeAdjustment} />
+                <ButtonSoundCard buttonSoundInit={settings.buttonTone} onChange={onButtonSoundChange} />
+                <LightCard illuminationPeriodInit={settings.lightDuration} autoLightInit={settings.autoLight} onChange={onIlluminationPeriodChange} />
+                <PowerSavingCard powerSavingsInit={settings.powerSavingMode} onChange={onPowerSavingChange} />
+                <AutoTimeAdjustCard autoTimeAdjustInit={settings.timeAdjustment} onChange={onAutoTimeAdjustChange} />
             </div>
             <div className="flex gap-6 justify-end p-16 mr-10">
-                <AppButton label="Send to Watch" onClick={() => alert("Send to Watch Clicked")} />
+                <AppButton label="Send to Watch" onClick={onSave} />
             </div>
         </div>
     );

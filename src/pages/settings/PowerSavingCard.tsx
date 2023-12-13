@@ -7,9 +7,10 @@ import AppSwitch from '../components/AppSwitch';
 
 interface PowerSavingCardProps {
     powerSavingsInit: boolean,
+    onChange: (powerSavings: boolean) => void;
 }
 
-const PowerSavingCard: React.FC<PowerSavingCardProps> = ({ powerSavingsInit }) => {
+const PowerSavingCard: React.FC<PowerSavingCardProps> = ({ powerSavingsInit, onChange }) => {
 
     const [powerSavings, setPowerSavings] = useState<boolean>(powerSavingsInit);
 
@@ -19,6 +20,7 @@ const PowerSavingCard: React.FC<PowerSavingCardProps> = ({ powerSavingsInit }) =
 
     const onPowerSavingChange = (value: boolean): void => {
         setPowerSavings(value);
+        onChange(value);
     }
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">

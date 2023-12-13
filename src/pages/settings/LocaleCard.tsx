@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import AppCard from "@components/AppCard";
 import AppText from "@components/AppText";
-import AppRadioButtonList from '../components/AppRadioButtonList';
-import AppSelect from '../components/AppSelect';
-import { dateFormatType, languageType, timeFormatType } from './SettingsData';
+import AppRadioButtonList from '@components/AppRadioButtonList';
+import AppSelect from '@components/AppSelect';
+import { dateFormatType, languageType, timeFormatType } from '@/api/WatchInfo';
 
 interface LocaleCardProps {
     languageInit: languageType,
@@ -59,15 +59,40 @@ const LocaleCard: React.FC<LocaleCardProps> = ({ languageInit, dateFormatInit, t
                 return 0;
         }
     }
+    const onTimeFormatChange = (index: number) => {
+        var value: timeFormatType = '12h';
+        switch (index) {
+            case 0:
+                value = '12h';
+                break
+            case 1:
+                value = '24h';
+                break
+        }
+        onChange(language, dateFormat, value);
+    }
+
+    const onDateFormatChange = (index: number) => {
+        var value: dateFormatType = 'MM:DD';
+        switch (index) {
+            case 0:
+                value = 'MM:DD';
+                break
+            case 1:
+                value = 'DD:MM';
+                break
+        }
+        onChange(language, value, timeFormat);
+    }
 
     const body =
         <div className="flex flex-col w-full justify-between items-center">
             <div className='flex flex-col w-full justify-between'>
-                <AppRadioButtonList checkedIndex={getTimeFormatIndex(timeFormat)} label='Time Format' name="timeFormat" orientation="horizontal" onChange={() => { }} radioButtons={[
+                <AppRadioButtonList selectedIndexInit={getTimeFormatIndex(timeFormat)} label='Time Format' name="timeFormat" orientation="horizontal" onChange={onTimeFormatChange} radioButtons={[
                     <AppText text="12h" variant='paragraph' />,
                     <AppText text="24h" variant='paragraph' />
                 ]} />
-                <AppRadioButtonList checkedIndex={getDateFormatIndex(dateFormat)} label='Date Format' name="dateFormat" orientation="horizontal" onChange={() => { }} radioButtons={[
+                <AppRadioButtonList selectedIndexInit={getDateFormatIndex(dateFormat)} label='Date Format' name="dateFormat" orientation="horizontal" onChange={onDateFormatChange} radioButtons={[
                     <AppText text="MM:DD" variant='paragraph' />,
                     <AppText text="DD:MM" variant='paragraph' />
                 ]} />

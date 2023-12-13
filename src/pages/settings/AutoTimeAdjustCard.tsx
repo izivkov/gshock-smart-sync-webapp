@@ -7,9 +7,10 @@ import AppSwitch from '../components/AppSwitch';
 
 interface AutoTimeAdjustCardProps {
     autoTimeAdjustInit: boolean,
+    onChange: (autoTimeAdjust: boolean) => void;
 }
 
-const AutoTimeAdjustCard: React.FC<AutoTimeAdjustCardProps> = ({ autoTimeAdjustInit }) => {
+const AutoTimeAdjustCard: React.FC<AutoTimeAdjustCardProps> = ({ autoTimeAdjustInit, onChange }) => {
 
     const [autoTimeAdjust, setAutoTimeAdjust] = useState<boolean>(autoTimeAdjustInit);
 
@@ -19,6 +20,7 @@ const AutoTimeAdjustCard: React.FC<AutoTimeAdjustCardProps> = ({ autoTimeAdjustI
 
     const onAutoTimeAdjustChange = (value: boolean): void => {
         setAutoTimeAdjust(value);
+        onChange(value);
     }
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">

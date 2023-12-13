@@ -7,9 +7,10 @@ import AppSwitch from '../components/AppSwitch';
 
 interface ButtonSoundCardProps {
     buttonSoundInit: boolean,
+    onChange: (buttonSound: boolean) => void;
 }
 
-const ButtonSoundCard: React.FC<ButtonSoundCardProps> = ({ buttonSoundInit }) => {
+const ButtonSoundCard: React.FC<ButtonSoundCardProps> = ({ buttonSoundInit, onChange }) => {
 
     const [bittonSound, setButtonSound] = useState<boolean>(buttonSoundInit);
 
@@ -19,6 +20,7 @@ const ButtonSoundCard: React.FC<ButtonSoundCardProps> = ({ buttonSoundInit }) =>
 
     const onButtonSoundChange = (value: boolean): void => {
         setButtonSound(value);
+        onChange(value);
     }
 
     const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">

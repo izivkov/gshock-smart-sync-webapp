@@ -2,19 +2,25 @@
 
 import { Checkbox, Radio } from "@material-tailwind/react";
 import { on } from "events";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AppRadioButtonProps {
   name: string;
   label: string;
-  checked: boolean;
+  checkedInit: boolean;
   className?: string;
   onChange: (index: number, checked: boolean) => void;
   index: number;
   disaabled?: boolean
 }
 
-const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checked, className, onChange, index, disaabled }) => {
+const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checkedInit, className, onChange, index, disaabled }) => {
+
+  const [checked, setChecked] = useState(checkedInit);
+
+  useEffect(() => {
+    setChecked(checkedInit);
+  }, [checkedInit]);
 
   const toggleCheckbox = (e: any) => {
     onChange(index, e.target.checked);
@@ -33,6 +39,7 @@ const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checked, c
       label={label}
       onChange={toggleCheckbox}
       defaultChecked={checked}
+      checked={checked}
       disabled={disaabled}
     />
   )
