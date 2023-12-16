@@ -12,6 +12,9 @@ interface KeyedData {
     value: string;
 }
 
+let deferredResult: Promise<string>;
+let resolver: ((value?: string | PromiseLike<string>) => void) | undefined;
+
 const WorldCitiesIO = {
     async request(cityNumber: number): Promise<string> {
         const key = `1f0${cityNumber}`;
@@ -23,21 +26,15 @@ const WorldCitiesIO = {
         try {
             CasioIO.request(key);
 
-            const deferredResult = new Promise<string>((resolve) => {
-                cachedIO.resultQueue.enqueue({
-                    key,
-                    result: resolve,
-                });
-            });
+            // const deferredResult = new Promise<string>((resolve) => {
+            //     cachedIO.resultQueue.enqueue({
+            //         key,
+            //         result: resolve,
+            //     });
+            // });
 
-            cachedIO.subscribe("CASIO_WORLD_CITIES", (keyedData: KeyedData) => {
-                const data = keyedData.value;
-                const resultKey = keyedData.key;
-
-                const deferred = cachedIO.resultQueue.dequeue(resultKey);
-                if (deferred) {
-                    deferred(data);
-                }
+            deferredResult = new Promise<string>((resolve) => {
+                resolver = resolve as (value?: string | PromiseLike<string>) => void;
             });
 
             return await deferredResult;
@@ -47,17 +44,17 @@ const WorldCitiesIO = {
         }
     },
 
-    toJson(data: any): Record<string, WorldCityData> {
-        const json: Record<string, WorldCityData> = {};
-        const dataStr: any = Utils.toCompactString(data);
-        const dataJson: WorldCityData = { key: cachedIO.createKey(dataStr), value: data };
-        const characteristicsArray = Utils.toIntArray(dataStr);
-        if (characteristicsArray[1] === 0) {
-            json["HOME_TIME"] = dataJson;
-        }
-        json["CASIO_WORLD_CITIES"] = dataJson;
-        return json;
-    },
+    // toJson(data: any): Record<string, WorldCityData> {
+    //     const json: Record<string, WorldCityData> = {};
+    //     const dataStr: any = Utils.toCompactString(data);
+    //     const dataJson: WorldCityData = { key: cachedIO.createKey(dataStr), value: data };
+    //     const characteristicsArray = Utils.toIntArray(dataStr);
+    //     if (characteristicsArray[1] === 0) {
+    //         json["HOME_TIME"] = dataJson;
+    //     }
+    //     json["CASIO_WORLD_CITIES"] = dataJson;
+    //     return json;
+    // },
 
     parseCity(timeZone: string): string {
         const city = timeZone.split('/').pop();
@@ -70,6 +67,10 @@ const WorldCitiesIO = {
             cityIndex.toString(16).padStart(2, '0') +
             Utils.toHexStr(city.substring(0, 18)).padEnd(36, '0')
         );
+    },
+
+    onReceived: (data: any) => {
+        resolver!(data);
     },
 };
 

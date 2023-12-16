@@ -62,8 +62,8 @@ class WatchInfo {
         this.alarmCount = 5;
         this.hasAutoLight = false;
         this.hasReminders = false;
-        this.shortLightDuration = "";
-        this.longLightDuration = "";
+        this.shortLightDuration = "1.5s";
+        this.longLightDuration = "3s";
 
         this.initializeModels();
     }

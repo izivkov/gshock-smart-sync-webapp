@@ -1,8 +1,13 @@
 import { cachedIO } from "@io/CachedIO";
 import Utils from "@utils/Utils";
 import CasioIO from "@io/CasioIO";
+import { resolve } from "path";
+
+let deferredResult: Promise<string>;
+let resolver: ((value?: string | PromiseLike<string>) => void) | undefined;
 
 const WatchNameIO = {
+
   request: async function (): Promise<string> {
     const key = "23";
     const watchName = await cachedIO.request(key, this.getWatchName);
@@ -12,38 +17,17 @@ const WatchNameIO = {
   getWatchName: async (key: string): Promise<string> => {
     CasioIO.request(key);
 
-    const deferredResult = new Promise<string>((resolve) => {
-      cachedIO.resultQueue.enqueue({
-        key: key,
-        result: resolve,
-      });
-    });
-
-    cachedIO.subscribe("CASIO_WATCH_NAME", (keyedData) => {
-      const data = keyedData.value;
-      const key = keyedData.key;
-
-      const result = Utils.trimNonAsciiCharacters(Utils.toAsciiString(data, 4));
-      const deferred = cachedIO.resultQueue.dequeue(key);
-      if (deferred) {
-        deferred(result);
-      }
+    deferredResult = new Promise<string>((resolve) => {
+      resolver = resolve as (value?: string | PromiseLike<string>) => void;
     });
 
     return await deferredResult;
   },
 
-  toJson: (data: any): Record<string, any> => {
-    const json: Record<string, any> = {};
-    const dataStr = Utils.toCompactString(data);
-
-    const dataJson = {
-      key: cachedIO.createKey(dataStr),
-      value: data,
-    };
-    json["CASIO_WATCH_NAME"] = dataJson;
-    return json;
+  onReceived: (data: any) => {
+    const result = Utils.trimNonAsciiCharacters(Utils.toAsciiString(data, 3));
+    resolver!(result);
   },
-};
+}
 
 export default WatchNameIO;
