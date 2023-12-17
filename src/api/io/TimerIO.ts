@@ -9,6 +9,9 @@ interface TimerData {
     seconds: number;
 }
 
+let deferredResult: Promise<TimerData>;
+let resolver: ((value?: TimerData | PromiseLike<TimerData>) => void);
+
 const TimerIO = {
     async request(): Promise<number> {
         const key = `18`;
@@ -16,32 +19,14 @@ const TimerIO = {
         return timerValue;
     },
 
-    async _getTimer(key: string): Promise<number> {
+    async _getTimer(key: string): Promise<TimerData> {
         CasioIO.request(key);
 
-        const getTimer = (data: Uint8Array): TimerData => {
-            return TimerDecoder.decodeValue(data);
-        };
-
-        const deferredResult = new Promise<number>((resolve) => {
-            cachedIO.resultQueue.enqueue({
-                key,
-                result: resolve,
-            });
+        deferredResult = new Promise<TimerData>((resolve) => {
+            resolver = resolve as ((value?: TimerData | PromiseLike<TimerData>) => void);
         });
 
-        cachedIO.subscribe("CASIO_TIMER", (keyedData) => {
-            const data = keyedData.value;
-            const resultKey = keyedData.key;
-
-            const deferredResult = cachedIO.resultQueue.dequeue(resultKey);
-            if (deferredResult) {
-                deferredResult(getTimer(data));
-            }
-        });
-
-        const result = await deferredResult;
-        return result;
+        return await deferredResult
     },
 
     set(timerValue: number): void {
@@ -50,12 +35,12 @@ const TimerIO = {
         connection.sendMessage(`{"action": "SET_TIMER", "value": ${timerValue}}`);
     },
 
-    toJson(data: any): Record<string, any> {
-        const json: Record<string, any> = {};
-        const dataStr = Utils.toCompactString(data);
-        const dataJson = { key: cachedIO.createKey(dataStr), value: data };
-        json["CASIO_TIMER"] = dataJson;
-        return json;
+    onReceived(data: any): void {
+        const getTimer = (data: Uint8Array): TimerData => {
+            return TimerDecoder.decodeValue(data);
+        };
+
+        resolver!(getTimer(data));
     },
 
     async sendToWatch(message: string): Promise<void> {

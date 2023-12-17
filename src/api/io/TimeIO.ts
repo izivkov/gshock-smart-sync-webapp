@@ -32,6 +32,13 @@ const TimeIO = {
         return await WorldCitiesIO.request(cityNum);
     },
 
+    getWorldCitiesWithTZ: async (cityNum: number): Promise<string> => {
+        const newCity = WorldCitiesIO.parseCity("America/Toronto");
+        const encoded = WorldCitiesIO.encodeAndPad(newCity, cityNum);
+        CasioIO.removeFromCache(encoded);
+        return encoded;
+    },
+
     async initializeForSettingTime(): Promise<void> {
         await this.writeDST();
         await this.writeDSTForWorldCities();

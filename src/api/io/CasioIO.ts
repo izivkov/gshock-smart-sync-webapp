@@ -2,6 +2,7 @@ import { progressEvents } from "@api/ProgressEvents";
 import { CasioConstants } from "@api/CasioConstants";
 import { connection } from "@api/Connection";
 import WatchDataListener from "@api/WatchDataListener";
+import { cachedIO } from "./CachedIO";
 
 const CasioIO = {
     mAvailableCharacteristics: null,
@@ -69,6 +70,11 @@ const CasioIO = {
         });
 
         return byteArray;
+    },
+
+    removeFromCache: function (newValue: string): void {
+        const key = cachedIO.createKey(newValue)
+        cachedIO.remove(key)
     },
 
     handlesMap: new Map<number, string>([

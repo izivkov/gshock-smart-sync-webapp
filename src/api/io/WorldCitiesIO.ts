@@ -44,18 +44,6 @@ const WorldCitiesIO = {
         }
     },
 
-    // toJson(data: any): Record<string, WorldCityData> {
-    //     const json: Record<string, WorldCityData> = {};
-    //     const dataStr: any = Utils.toCompactString(data);
-    //     const dataJson: WorldCityData = { key: cachedIO.createKey(dataStr), value: data };
-    //     const characteristicsArray = Utils.toIntArray(dataStr);
-    //     if (characteristicsArray[1] === 0) {
-    //         json["HOME_TIME"] = dataJson;
-    //     }
-    //     json["CASIO_WORLD_CITIES"] = dataJson;
-    //     return json;
-    // },
-
     parseCity(timeZone: string): string {
         const city = timeZone.split('/').pop();
         return city?.toUpperCase()?.replace(/_/g, ' ') || '';

@@ -4,11 +4,12 @@ const test = {
     run: async (): Promise<void> => {
         await GShockAPI.init();
 
-        const name: string = await GShockAPI.getWatchName();
-        console.log("Watch Name:", name);
+        console.log("=============================================== Starting Tests");
+        // const name: string = await GShockAPI.getWatchName();
+        // console.log("Watch Name:", name);
 
-        const worldCitiesData: any = await GShockAPI.getWorldCities(0);
-        console.log("World Cities:", worldCitiesData);
+        // const worldCitiesData: any = await GShockAPI.getWorldCities(0);
+        // console.log("World Cities:", worldCitiesData);
 
         // const homeTime: string = await GShockAPI.getHomeTime();
         // console.log("Home Time:", homeTime);
@@ -19,11 +20,11 @@ const test = {
         // await GShockAPI.setTimer(201);
         // console.log("Timer Set");
 
-        // const batteryLevel: number = await GShockAPI.getBatteryLevel();
-        // console.log("Battery Level:", batteryLevel);
+        const batteryLevel: number = await GShockAPI.getBatteryLevel();
+        console.log("Battery Level:", batteryLevel);
 
-        // const temperature: number = await GShockAPI.getWatchTemperature();
-        // console.log("Temperature:", temperature);
+        const temperature: number = await GShockAPI.getWatchTemperature();
+        console.log("Temperature:", temperature);
 
         // await GShockAPI.setTime();
 
@@ -60,7 +61,7 @@ const test = {
         // console.log("Is Normal Button Pressed:", GShockAPI.isNormalButtonPressed());
         // console.log("Is Auto Time Started:", GShockAPI.isAutoTimeStarted());
 
-        console.log("End of tests\n");
+        console.log("=============================================== End of Tests");
     },
 };
 

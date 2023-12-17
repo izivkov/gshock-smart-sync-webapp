@@ -8,6 +8,9 @@ class WatchConditionValue {
     constructor(public batteryLevel: number, public temperature: number) { }
 }
 
+let deferredResult: Promise<WatchConditionValue>;
+let resolver: ((value?: WatchConditionValue | PromiseLike<WatchConditionValue>) => void);
+
 const WatchConditionDecoder = {
     decodeValue(data: Uint8Array | null): WatchConditionValue {
         if (!data) {
@@ -44,36 +47,16 @@ const WatchConditionIO = {
     getWatchCondition: async (key: string): Promise<WatchConditionValue> => {
         CasioIO.request(key);
 
-        const deferredResult = new Promise<WatchConditionValue>((resolve) => {
-            cachedIO.resultQueue.enqueue({
-                key: key,
-                result: resolve,
-            });
+        deferredResult = new Promise<WatchConditionValue>((resolve) => {
+            resolver = resolve as ((value?: WatchConditionValue | PromiseLike<WatchConditionValue>) => void);
         });
 
-        cachedIO.subscribe("CASIO_WATCH_CONDITION", (keyedData) => {
-            const data = keyedData.value;
-            const key = keyedData.key;
-
-            const result = WatchConditionDecoder.decodeValue(data);
-            const deferred = cachedIO.resultQueue.dequeue(key);
-            if (deferred) {
-                deferred(result);
-            }
-        });
-
-        return await deferredResult;
+        return await deferredResult
     },
 
-    toJson: (data: any) => {
-        const dataCompactString = Utils.toCompactString(data);
-        const json = {
-            CASIO_WATCH_CONDITION: {
-                key: cachedIO.createKey(dataCompactString),
-                value: data,
-            },
-        };
-        return json;
+    onReceved: (data: any) => {
+        const result = WatchConditionDecoder.decodeValue(data);
+        resolver!(result);
     },
 };
 
