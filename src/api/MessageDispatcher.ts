@@ -30,8 +30,8 @@ class MessageDispatcher {
     };
 
     toJsonConverters: Record<string, Function> = {
-        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM]: AlarmsIO.toJson,
-        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM2]: AlarmsIO.toJson,
+        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM]: AlarmsIO.onReceived,
+        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM2]: AlarmsIO.onReceived,
         [CasioConstants.CHARACTERISTICS.CASIO_DST_SETTING]: DstForWorldCitiesIO.toJson,
         [CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TIME]: EventsIO.toJson,
         [CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TITLE]: EventsIO.toJsonTitle,

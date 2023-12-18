@@ -12,6 +12,9 @@ interface AlarmData {
     hourlyChime: boolean;
 }
 
+let deferredResult: Promise<void>;
+let resolver: ((value?: Alarm[] | PromiseLike<string>) => void);
+
 const AlarmsIO = {
     async request(): Promise<void> {
         return await cachedIO.request("GET_ALARMS", this.getAlarms);
@@ -21,33 +24,11 @@ const AlarmsIO = {
         connection.sendMessage(`{"action": "${key}" }`);
         Alarm.clear();
 
-        const deferredResult = new Promise<void>((resolve) => {
-            cachedIO.resultQueue.enqueue({
-                key,
-                result: resolve,
-            });
+        deferredResult = new Promise<void>((resolve) => {
+            resolver = resolve as ((value?: Alarm[] | PromiseLike<string>) => void);
         });
 
-        cachedIO.subscribe("ALARMS", (keyedData) => {
-            const data = keyedData.value;
-            const key = "GET_ALARMS";
-
-            function fromJson(jsonStr: string): void {
-                const alarmArr = JSON.parse(jsonStr);
-                Alarm.alarms.push(...alarmArr);
-            }
-
-            fromJson(JSON.stringify(data));
-
-            if (Alarm.alarms.length > 1) {
-                const deferred = cachedIO.resultQueue.dequeue(key);
-                if (deferred) {
-                    deferred(Alarm.alarms);
-                }
-            }
-        });
-
-        return await deferredResult;
+        return await deferredResult
     },
 
     async set(alarms: AlarmData[]): Promise<void> {
@@ -66,13 +47,19 @@ const AlarmsIO = {
         connection.sendMessage(`{ "action": "SET_ALARMS", "value": ${toJson()} }`);
     },
 
-    toJson(data: any): Record<string, any> {
-        return {
-            ALARMS: {
-                value: AlarmsIO.AlarmDecoder.toJson(data).ALARMS,
-                key: "GET_ALARMS",
-            },
-        };
+    onReceived(dataIntArray: any): void {
+        const data = AlarmsIO.AlarmDecoder.toJson(dataIntArray).ALARMS
+
+        function fromJson(jsonStr: string): void {
+            const alarmArr = JSON.parse(jsonStr);
+            Alarm.alarms.push(...alarmArr);
+        }
+
+        fromJson(JSON.stringify(data));
+
+        if (Alarm.alarms.length > 1) {
+            resolver!(Alarm.alarms);
+        }
     },
 
     async sendToWatch(message: string): Promise<void> {

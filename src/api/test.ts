@@ -20,16 +20,16 @@ const test = {
         // await GShockAPI.setTimer(201);
         // console.log("Timer Set");
 
-        const batteryLevel: number = await GShockAPI.getBatteryLevel();
-        console.log("Battery Level:", batteryLevel);
+        // const batteryLevel: number = await GShockAPI.getBatteryLevel();
+        // console.log("Battery Level:", batteryLevel);
 
-        const temperature: number = await GShockAPI.getWatchTemperature();
-        console.log("Temperature:", temperature);
+        // const temperature: number = await GShockAPI.getWatchTemperature();
+        // console.log("Temperature:", temperature);
 
         // await GShockAPI.setTime();
 
-        // const alarms: any[] = await GShockAPI.getAlarms();
-        // console.log("Alarms:", alarms);
+        const alarms: any[] = await GShockAPI.getAlarms();
+        console.log("Alarms:", alarms);
 
         // alarms[3].minute = 23;
 
