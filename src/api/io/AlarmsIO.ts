@@ -28,7 +28,7 @@ const AlarmsIO = {
             resolver = resolve as ((value?: Alarm[] | PromiseLike<string>) => void);
         });
 
-        return await deferredResult
+        return deferredResult
     },
 
     async set(alarms: AlarmData[]): Promise<void> {

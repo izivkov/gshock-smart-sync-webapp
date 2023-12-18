@@ -21,7 +21,7 @@ const WatchNameIO = {
       resolver = resolve as (value?: string | PromiseLike<string>) => void;
     });
 
-    return await deferredResult;
+    return deferredResult;
   },
 
   onReceived: (data: any) => {

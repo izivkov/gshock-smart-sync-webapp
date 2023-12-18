@@ -26,18 +26,11 @@ const WorldCitiesIO = {
         try {
             CasioIO.request(key);
 
-            // const deferredResult = new Promise<string>((resolve) => {
-            //     cachedIO.resultQueue.enqueue({
-            //         key,
-            //         result: resolve,
-            //     });
-            // });
-
             deferredResult = new Promise<string>((resolve) => {
                 resolver = resolve as (value?: string | PromiseLike<string>) => void;
             });
 
-            return await deferredResult;
+            return deferredResult;
         } catch (error) {
             console.error("Error fetching world cities:", error);
             throw error;

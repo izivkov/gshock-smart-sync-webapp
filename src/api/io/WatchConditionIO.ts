@@ -51,7 +51,7 @@ const WatchConditionIO = {
             resolver = resolve as ((value?: WatchConditionValue | PromiseLike<WatchConditionValue>) => void);
         });
 
-        return await deferredResult
+        return deferredResult
     },
 
     onReceved: (data: any) => {

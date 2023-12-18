@@ -22,6 +22,15 @@ interface Reminder {
     daysOfWeek: string[];
 }
 
+var deferredResult: Promise<Event>;
+var resolver: ((value?: Event | PromiseLike<Event>) => void);
+
+class AccumulatedValueHolder {
+    title: string = "";
+}
+
+const accumulatedValueHolder = new AccumulatedValueHolder();
+
 const EventsIO = {
     async request(eventNumber: number): Promise<Event> {
         return cachedIO.request(eventNumber.toString(), this.getEventFromWatch);
@@ -32,37 +41,11 @@ const EventsIO = {
         CasioIO.request("31" + eventNumber); // reminder time
 
         const key = "310" + eventNumber;
-        const deferredResult = new Promise<Event>((resolve) => {
-            cachedIO.resultQueue.enqueue({
-                key,
-                result: resolve,
-            });
+        deferredResult = new Promise<Event>((resolve) => {
+            resolver = resolve as ((value?: Event | PromiseLike<Event>) => void);
         });
 
-        let title = "";
-
-        cachedIO.subscribe("REMINDERS", (keyedData) => {
-            const data = keyedData.value;
-            const key = keyedData.key;
-
-            const reminderJson = data;
-
-            switch (Object.keys(reminderJson)[0]) {
-                case "title":
-                    title = reminderJson["title"];
-                    break;
-                case "time":
-                    reminderJson["title"] = title;
-                    const event = Event.createEvent(reminderJson);
-                    const deferred = cachedIO.resultQueue.dequeue(key);
-                    if (deferred) {
-                        deferred(event);
-                    }
-                    break;
-            }
-        });
-
-        return await deferredResult;
+        return deferredResult;
     },
 
     async setEvents(events: Event[]): Promise<void> {
@@ -85,25 +68,16 @@ const EventsIO = {
         }));
     },
 
-    toJson(data: any): any {
-        const dataStr = Utils.toCompactString(data);
-        const reminderJson = {
-            REMINDERS: {
-                key: cachedIO.createKey(dataStr),
-                value: ReminderDecoder.reminderTimeToJson(data + 2),
-            },
-        };
-        return reminderJson;
+    onReceived(data: any): any {
+        const decoded: any = ReminderDecoder.reminderTimeToJson(data + 2)
+        decoded["title"] = accumulatedValueHolder.title
+        const event = Event.createEvent(decoded)
+        resolver!(event);
     },
 
-    toJsonTitle(data: any): any {
-        const dataStr = Utils.toCompactString(data);
-        return {
-            REMINDERS: {
-                key: cachedIO.createKey(dataStr),
-                value: ReminderDecoder.reminderTitleToJson(data),
-            },
-        };
+    onReceivedTitle(data: any): any {
+        const decoded: any = ReminderDecoder.reminderTitleToJson(data)
+        accumulatedValueHolder.title = decoded["title"] as string
     },
 
     async sendToWatchSet(message: string): Promise<void> {
@@ -133,7 +107,6 @@ const EventsIO = {
 
         console.log("Got reminders", remindersJsonArr);
     },
-
 }
 
 const ReminderDecoder = {

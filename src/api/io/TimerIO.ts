@@ -26,7 +26,7 @@ const TimerIO = {
             resolver = resolve as ((value?: TimerData | PromiseLike<TimerData>) => void);
         });
 
-        return await deferredResult
+        return deferredResult
     },
 
     set(timerValue: number): void {
