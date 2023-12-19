@@ -29,23 +29,23 @@ class MessageDispatcher {
         "SET_TIME": TimeIO.sendToWatchSet,
     };
 
-    toJsonConverters: Record<string, Function> = {
+    dataReceivedMessages: Record<string, Function> = {
         [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM]: AlarmsIO.onReceived,
         [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM2]: AlarmsIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_DST_SETTING]: DstForWorldCitiesIO.toJson,
+        [CasioConstants.CHARACTERISTICS.CASIO_DST_SETTING]: DstForWorldCitiesIO.onReceived,
         [CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TIME]: EventsIO.onReceived,
         [CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TITLE]: EventsIO.onReceivedTitle,
         [CasioConstants.CHARACTERISTICS.CASIO_TIMER]: TimerIO.onReceived,
         [CasioConstants.CHARACTERISTICS.CASIO_WORLD_CITIES]: WorldCitiesIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_DST_WATCH_STATE]: DstWatchStateIO.toJson,
+        [CasioConstants.CHARACTERISTICS.CASIO_DST_WATCH_STATE]: DstWatchStateIO.onReceived,
         [CasioConstants.CHARACTERISTICS.CASIO_WATCH_NAME]: WatchNameIO.onReceived,
         [CasioConstants.CHARACTERISTICS.CASIO_WATCH_CONDITION]: WatchConditionIO.onReceved,
-        [CasioConstants.CHARACTERISTICS.CASIO_APP_INFORMATION]: AppInfoIO.toJson,
-        [CasioConstants.CHARACTERISTICS.CASIO_BLE_FEATURES]: ButtonPressedIO.toJson,
-        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_BASIC]: SettingsIO.toJson,
-        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_BLE]: TimeAdjustmentIO.toJson,
-        [CasioConstants.CHARACTERISTICS.ERROR]: ErrorIO.toJson,
-        [CasioConstants.CHARACTERISTICS.UNKNOWN]: UnknownIO.toJson,
+        [CasioConstants.CHARACTERISTICS.CASIO_APP_INFORMATION]: AppInfoIO.onReceived,
+        [CasioConstants.CHARACTERISTICS.CASIO_BLE_FEATURES]: ButtonPressedIO.onReceived,
+        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_BASIC]: SettingsIO.onReceived,
+        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_BLE]: TimeAdjustmentIO.onReceived,
+        [CasioConstants.CHARACTERISTICS.ERROR]: ErrorIO.onReceived,
+        [CasioConstants.CHARACTERISTICS.UNKNOWN]: UnknownIO.onReceived,
     };
 
     async sendToWatch(message: string) {
@@ -58,10 +58,10 @@ class MessageDispatcher {
         }
     }
 
-    toJson(data: any) {
+    onReceived(data: any) {
         const key = data[0];
-        if (this.toJsonConverters[key]) {
-            return this.toJsonConverters[key](data);
+        if (this.dataReceivedMessages[key]) {
+            return this.dataReceivedMessages[key](data);
         } else {
             console.error("GShockAPI", "Unknown key: " + key);
             return null; // You can handle this case as needed

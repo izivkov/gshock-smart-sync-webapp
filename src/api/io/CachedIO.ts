@@ -1,6 +1,5 @@
 import { watchValuesCache } from "@io/WatchValuesCache";
 import { resultQueue } from "@io/ResultQueue";
-import WatchDataEvents from "@api/WatchDataEvents";
 
 class CachedIO {
     cache = watchValuesCache;
@@ -32,15 +31,6 @@ class CachedIO {
 
     delete(key: string) {
         this.cache.remove(key);
-    }
-
-    subscribe(subject: string, onDataReceived: (data: any) => void) {
-        WatchDataEvents.addSubject(subject);
-
-        // receive values from the commands we issued in start()
-        WatchDataEvents.subscribe(this.constructor.name, subject, (data) => {
-            onDataReceived(data);
-        });
     }
 
     get(key: string) {

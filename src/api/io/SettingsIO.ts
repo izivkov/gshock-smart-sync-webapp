@@ -14,6 +14,9 @@ interface BasicSettings {
     language: "English" | "Spanish" | "French" | "German" | "Italian" | "Russian";
 }
 
+let deferredResult: Promise<BasicSettings>;
+let resolver: ((value?: BasicSettings | PromiseLike<BasicSettings>) => void);
+
 const SettingsIO = {
 
     async request(): Promise<BasicSettings> {
@@ -24,41 +27,21 @@ const SettingsIO = {
     async getBasicSettings(key: string): Promise<BasicSettings> {
         CasioIO.request(key);
 
-        const deferredResult = new Promise<BasicSettings>((resolve) => {
-            cachedIO.resultQueue.enqueue({
-                key: key,
-                result: resolve,
-            });
+        deferredResult = new Promise<BasicSettings>((resolve) => {
+            resolver = resolve as ((value?: BasicSettings | PromiseLike<BasicSettings>) => void);
         });
 
-        cachedIO.subscribe("SETTINGS", (keyedData) => {
-            const data = keyedData.value;
-            const resultKey = keyedData.key;
-
-            const deferredResult = cachedIO.resultQueue.dequeue(resultKey);
-            if (deferredResult) {
-                deferredResult(data);
-            }
-        });
-
-        const result = await deferredResult;
-        return result;
+        return deferredResult
     },
-
-    /////////////
 
     async set(settings: BasicSettings) {
         cachedIO.delete("GET_SETTINGS");
         await connection.sendMessage(JSON.stringify({ action: "SET_SETTINGS", value: settings /*SettingsEncoder.encode(settings)*/ }));
     },
 
-    toJson(data: any) {
-        const dataStr = Utils.toCompactString(data);
-        const key = cachedIO.createKey(dataStr);
+    onReceived(data: any) {
         const value = SettingsEncoder.decode(data);
-        const dataJson = { key, value };
-        const settingsJson = { SETTINGS: dataJson };
-        return settingsJson;
+        resolver!(value);
     },
 
     async sendToWatch(message: string) {

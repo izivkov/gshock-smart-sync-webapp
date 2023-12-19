@@ -10,15 +10,8 @@ const UnknownIO = {
         return "UNKNOWN";
     },
 
-    toJson(data: any): Record<string, UnknownData> {
-        const dataStr = Utils.toCompactString(data);
-        const json: Record<string, UnknownData> = {
-            UNKNOWN: {
-                key: "UNKNOWN",
-                value: dataStr,
-            },
-        };
-        return json;
+    onReceived(data: any): Record<string, UnknownData> {
+        return data;
     },
 };
 

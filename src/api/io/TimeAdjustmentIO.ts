@@ -1,8 +1,10 @@
 import { CasioConstants } from "@api/CasioConstants";
 import { cachedIO } from "@io/CachedIO";
-import Utils from "@utils/Utils";
 import { connection } from "@api/Connection";
 import CasioIO from "@io/CasioIO";
+
+let deferredResult: Promise<boolean>;
+let resolver: ((value?: boolean | PromiseLike<boolean>) => void);
 
 const CasioIsAutoTimeOriginalValue = {
     value: new Uint8Array(),
@@ -16,27 +18,11 @@ async function request(): Promise<boolean> {
 async function getTimeAdjustment(key: string): Promise<boolean> {
     CasioIO.request(key);
 
-    const deferredResult = new Promise<boolean>((resolve) => {
-        cachedIO.resultQueue.enqueue({
-            key,
-            result: resolve,
-        });
+    deferredResult = new Promise<boolean>((resolve) => {
+        resolver = resolve as ((value?: boolean | PromiseLike<boolean>) => void);
     });
 
-    cachedIO.subscribe("TIME_ADJUSTMENT", (keyedData) => {
-        const data = keyedData.value;
-        const key = keyedData.key;
-
-        const dataJson = data;
-        const timeAdjustment = dataJson.timeAdjustment === true;
-
-        const deferredResult = cachedIO.resultQueue.dequeue(key);
-        if (deferredResult) {
-            deferredResult(timeAdjustment);
-        }
-    });
-
-    return await deferredResult;
+    return deferredResult
 }
 
 async function set(settings: {
@@ -63,21 +49,10 @@ function toJsonTimeAdjustment(isTimeAdjustmentSet: boolean): {
     };
 }
 
-function toJson(data: any): { TIME_ADJUSTMENT: { key: string; value: { timeAdjustment: boolean } } } {
+function onReceived(data: any) {
     const isTimeAdjustmentSet = TimeAdjustmentIO.isTimeAdjustmentSet(data);
-    const valueJson = TimeAdjustmentIO.toJsonTimeAdjustment(isTimeAdjustmentSet);
-    const dataStr = Utils.toCompactString(data);
-
-    const dataJson = {
-        key: cachedIO.createKey(dataStr),
-        value: valueJson,
-    };
-
     CasioIsAutoTimeOriginalValue.value = data;
-
-    return {
-        TIME_ADJUSTMENT: dataJson,
-    };
+    resolver!(isTimeAdjustmentSet);
 }
 
 async function sendToWatch(message: string): Promise<void> {
@@ -120,7 +95,7 @@ function encodeTimeAdjustment(settings: {
 const TimeAdjustmentIO = {
     request,
     set,
-    toJson,
+    onReceived,
     sendToWatch,
     sendToWatchSet,
     isTimeAdjustmentSet,

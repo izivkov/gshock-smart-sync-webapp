@@ -8,6 +8,9 @@ interface CasioTimeZone {
     dstRules: number;
 }
 
+let deferredResult: Promise<any>;
+let resolver: ((value?: any | PromiseLike<any>) => void);
+
 const DstForWorldCitiesIO = {
     async request(cityNumber: number): Promise<any> {
         return await cachedIO.request(`1e0${cityNumber}`, this.getDSTForWorldCities);
@@ -16,24 +19,11 @@ const DstForWorldCitiesIO = {
     async getDSTForWorldCities(key: string): Promise<any> {
         CasioIO.request(key);
 
-        const deferredResult = new Promise<any>((resolve) => {
-            cachedIO.resultQueue.enqueue({
-                key,
-                result: resolve,
-            });
+        deferredResult = new Promise<any>((resolve) => {
+            resolver = resolve as ((value?: any | PromiseLike<any>) => void);
         });
 
-        cachedIO.subscribe("CASIO_DST_SETTING", (keyedData: { value: any; key: any; }) => {
-            const data = keyedData.value;
-            const key = keyedData.key;
-
-            const deferred = cachedIO.resultQueue.dequeue(key);
-            if (deferred) {
-                deferred(data);
-            }
-        });
-
-        return await deferredResult;
+        return deferredResult
     },
 
     async setDST(dst: string, casioTimeZone: CasioTimeZone): Promise<string> {
@@ -48,15 +38,8 @@ const DstForWorldCitiesIO = {
         return Utils.fromByteArrayToHexStrWithSpaces(dstByteArray);
     },
 
-    toJson(data: any): any {
-        const json: any = {};
-        const dataStr = Utils.toCompactString(data);
-        const dataJson = {
-            key: cachedIO.createKey(dataStr),
-            value: data,
-        };
-        json["CASIO_DST_SETTING"] = dataJson;
-        return json;
+    onReceived(data: any): any {
+        resolver!(data);
     },
 };
 

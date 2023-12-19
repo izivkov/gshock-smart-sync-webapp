@@ -1,5 +1,4 @@
 import { connection } from "@api/Connection";
-import WatchDataEvents from "@api/WatchDataEvents";
 import { messageDispatcher } from "@api/MessageDispatcher";
 import Utils from "@utils/Utils";
 
@@ -12,12 +11,7 @@ const WatchDataListener = {
 
             const intArrayData = Utils.toIntArray(data);
             console.log("---> Received intArrayData " + intArrayData);
-            const dataJson = messageDispatcher.toJson(intArrayData);
-
-            for (const topic in dataJson) {
-                const value = dataJson[topic];
-                WatchDataEvents.emitEvent(topic, value);
-            }
+            const dataJson = messageDispatcher.onReceived(intArrayData);
         }
 
         connection.setDataReceivedCallback(dataReceived);

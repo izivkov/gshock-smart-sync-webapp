@@ -5,8 +5,12 @@ const test = {
         await GShockAPI.init();
 
         console.log("=============================================== Starting Tests");
+
         const name: string = await GShockAPI.getWatchName();
         console.log("Watch Name:", name);
+
+        const appInfo: any = await GShockAPI.getAppInfo();
+        console.log("App Info:", appInfo);
 
         const worldCitiesData: any = await GShockAPI.getWorldCities(0);
         console.log("World Cities:", worldCitiesData);
@@ -39,27 +43,27 @@ const test = {
         let events: any[] = await GShockAPI.getEventsFromWatch();
         console.log(`Events: ${JSON.stringify(events)}`);
 
-        // events[0].title = "Test 1";
-        // await GShockAPI.setEvents(events);
+        events[0].title = "Test 1";
+        await GShockAPI.setEvents(events);
 
-        // events = await GShockAPI.getEventsFromWatch();
-        // console.log(`Events Again: ${JSON.stringify(events)}`);
+        events = await GShockAPI.getEventsFromWatch();
+        console.log(`Events Again: ${JSON.stringify(events)}`);
 
-        // const settings: any = await GShockAPI.getSettings();
-        // console.log("Settings:", settings);
+        const settings: any = await GShockAPI.getSettings();
+        console.log("Settings:", settings);
 
-        // settings.dateFormat = "MM:DD";
-        // await GShockAPI.setSettings(settings);
+        settings.dateFormat = "MM:DD";
+        await GShockAPI.setSettings(settings);
 
-        // const settingsAfter: any = await GShockAPI.getSettings();
-        // console.log("New Settings:", settingsAfter);
+        const settingsAfter: any = await GShockAPI.getSettings();
+        console.log("New Settings:", settingsAfter);
 
-        // const buttonPressed: string = await GShockAPI.getPressedButton();
-        // console.log("Button Pressed:", buttonPressed);
+        const buttonPressed: string = await GShockAPI.getPressedButton();
+        console.log("Button Pressed:", buttonPressed);
 
-        // console.log("Is Action Button Pressed:", GShockAPI.isActionButtonPressed());
-        // console.log("Is Normal Button Pressed:", GShockAPI.isNormalButtonPressed());
-        // console.log("Is Auto Time Started:", GShockAPI.isAutoTimeStarted());
+        console.log("Is Action Button Pressed:", GShockAPI.isActionButtonPressed());
+        console.log("Is Normal Button Pressed:", GShockAPI.isNormalButtonPressed());
+        console.log("Is Auto Time Started:", GShockAPI.isAutoTimeStarted());
 
         console.log("=============================================== End of Tests");
     },
