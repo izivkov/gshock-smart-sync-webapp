@@ -7,7 +7,6 @@ import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
 import * as testReminders from '../../testdata/reminders.json';
-import { asyncScheduler } from 'rxjs';
 
 const Reminders: React.FC = () => {
 
