@@ -23,13 +23,6 @@ type frequencyDisplayType = "Does not repeat" | "Weekly" | "Monthly" | "Yearly";
 
 const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClose, startDate, initReminderData }) => {
 
-    const displayMap: Record<repeatPeriodType, frequencyDisplayType> = {
-        "NEVER": "Does not repeat",
-        "WEEKLY": "Weekly",
-        "MONTHLY": "Monthly",
-        "YEARLY": "Yearly"
-    };
-
     const [endOnIndex, setOnIndex] = useState(0);
     const [repeatEventsVisible, setRepeatEventsVisible] = useState(false);
     const [weeklyEventsVisible, setWeeklyEventsVisible] = useState(false);
@@ -38,7 +31,6 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const [error, setError] = useState({ state: false, message: "" });
     const [dialogOpen, setDialogOpen] = React.useState(open);
     const [frequency, setFrequency] = React.useState(initReminderData.repeatPeriod);
-    const [frequencyDisplay, setFrequencyDisplay] = useState<frequencyDisplayType>(displayMap[initReminderData.repeatPeriod]);
     const [reminderData, setReminderData] = useState<ReminderData>(initReminderData);
 
     useEffect(() => {
@@ -47,13 +39,19 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
 
     useEffect(() => {
         setReminderData(initReminderData);
-        condigureDialog(reminderData);
+        condigureDialog(initReminderData);
     }, [initReminderData]);
 
-    const frequencyDisplayOptions: frequencyDisplayType[] = ["Does not repeat", "Weekly", "Monthly", "Yearly", "Invalid"];
+    const frequencyDisplayOptions: frequencyDisplayType[] = ["Does not repeat", "Weekly", "Monthly", "Yearly"];
+    const displayMap: Record<repeatPeriodType, frequencyDisplayType> = {
+        "NEVER": "Does not repeat",
+        "WEEKLY": "Weekly",
+        "MONTHLY": "Monthly",
+        "YEARLY": "Yearly"
+    };
 
     const forDisplay = (value: repeatPeriodType): frequencyDisplayType => {
-        return displayMap[value] || "Invalid";
+        return displayMap[value];
     };
 
     const getRepeatPeriodType = (str: string): repeatPeriodType => {
@@ -79,7 +77,6 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         if (reminderData.repeatPeriod === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
 
         setFrequency(reminderData.repeatPeriod)
-        setFrequencyDisplay(forDisplay(reminderData.repeatPeriod));
         setEndDate(toDayJsDate(reminderData.endDate));
     }
 
@@ -122,12 +119,15 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const handleSelectFrequency = (displayValue: frequencyDisplayType) => {
         const frequency = getRepeatPeriodType(displayValue)
         setFrequency(frequency);
-        setFrequencyDisplay(forDisplay(frequency));
 
-        reminderData.repeatPeriod = frequency
+        if (frequency !== "NEVER") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
+        if (frequency === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
 
-        if (reminderData.repeatPeriod !== "NEVER") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
-        if (reminderData.repeatPeriod === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
+        const newReminderData: ReminderData = {
+            ...reminderData,
+            repeatPeriod: frequency,
+        }
+        setReminderData(newReminderData)
     }
 
     function onOccurencesChange(value: string): void {
@@ -199,7 +199,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                     <CardHeader className="flex flex-row justify-between" children={<></>} />
                     <CardBody className="flex flex-col gap-4">
                         <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full" />
-                        <AppSelect label='Frequency' value={frequencyDisplay} items={frequencyDisplayOptions} className="w-full" onSelected={handleSelectFrequency} />
+                        <AppSelect label='Frequency' value={forDisplay(reminderData.repeatPeriod)} items={frequencyDisplayOptions} className="w-full" onSelected={handleSelectFrequency} />
                         <div className="flex flex-row justify-between items-center gap-4">
                             <AppDatePicker open={open} label='Start Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
                         </div>

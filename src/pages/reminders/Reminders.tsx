@@ -29,8 +29,8 @@ const Reminders: React.FC = () => {
         (async () => {
             if (!initialized.current) {
                 initialized.current = true;
-                // const newReminders = await GShockAPI.getEventsFromWatch();
-                const newReminders = testReminders as ReminderData[];
+                const newReminders = await GShockAPI.getEventsFromWatch();
+                // const newReminders = testReminders as ReminderData[];
 
                 setReminders(newReminders);
             }

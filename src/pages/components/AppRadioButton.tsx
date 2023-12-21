@@ -38,7 +38,6 @@ const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checkedIni
       }}
       label={label}
       onChange={toggleCheckbox}
-      defaultChecked={checked}
       checked={checked}
       disabled={disaabled}
     />

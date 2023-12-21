@@ -89,7 +89,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         }
 
         setTitle(reminderData.title);
-        setEnabled(reminderData.enabled);
+        // setEnabled(reminderData.enabled);
         setDaysOfWeek(reminderData.daysOfWeek);
 
         setFrequency(getFrequencyFormatted(reminderData.repeatPeriod, reminderData.startDate, reminderData.daysOfWeek));
@@ -100,6 +100,9 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
                 reminderData.repeatPeriod,
                 reminderData.daysOfWeek));
         }
+
+        // get data from the current card
+        reminderData.enabled = enabled
 
         setDialogOpen(false);
 
@@ -116,13 +119,18 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         return dayjs(`${year}-${month}-${day}`);
     }
 
+    const setEnabledValue = (value: boolean) => {
+        setEnabled(value);
+        onChange({ ...reminder, enabled: value }, number);
+    }
+
     const body =
         <div className='flex flex-row w-full justify-between items-center'>
             <div className="flex flex-col justify-between">
                 <Period startDate={startDate} endDate={endDate} />
             </div>
             <div className='flex flex-col justify-between items-end'>
-                <AppSwitch initialValue={enabled} onChange={setEnabled} />
+                <AppSwitch initialValue={enabled} onChange={setEnabledValue} />
                 <div className="pt-2 pr-2">
                     <AppText text={frequency} />
                 </div>
