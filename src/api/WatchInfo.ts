@@ -76,7 +76,6 @@ class WatchInfo {
             new ModelInfo(WATCH_MODEL.UNKNOWN, 2, 1, 5, false, false, "1.5s", "3s"),
         ];
 
-        // this.modelMap = {};
         for (const modelInfo of this.models) {
             this.modelMap[modelInfo.model] = modelInfo;
         }
@@ -90,11 +89,11 @@ class WatchInfo {
             this.shortName = parts[1];
         }
 
-        this.model = this.shortName.startsWith("GA")
+        this.model = this.shortName.startsWith("GA") || this.shortName.startsWith("GMA")
             ? WATCH_MODEL.GA
-            : this.shortName.startsWith("GW")
+            : this.shortName.startsWith("GW") || this.shortName.startsWith("GMW")
                 ? WATCH_MODEL.GW
-                : this.shortName.startsWith("DW")
+                : this.shortName.startsWith("DW") || this.shortName.startsWith("GDW")
                     ? WATCH_MODEL.DW
                     : WATCH_MODEL.UNKNOWN;
 

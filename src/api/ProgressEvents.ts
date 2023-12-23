@@ -8,7 +8,7 @@ interface IEventAction {
     action: () => void;
 }
 
-class EventAction implements IEventAction {
+export class EventAction implements IEventAction {
     constructor(public label: string, public action: () => void) { }
 }
 

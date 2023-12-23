@@ -47,6 +47,18 @@ class Connection {
       // Connect to the device
       const server = await device.gatt!.connect();
 
+      device.addEventListener('gattserverdisconnected', () => {
+        this.device = null;
+        this.server = null;
+        this.service = null;
+        this.readCharacteristic = null;
+        this.writeCharacteristic = null;
+        this.writeCharacteristicSetValue = null;
+        this.notifyCharacteristic = null;
+
+        progressEvents.onNext("Disconnected");
+      })
+
       watchInfo.setNameAndModel(device.name!);
 
       this.service = await server.getPrimaryService(CasioConstants.WATCH_FEATURES_SERVICE_UUID);
@@ -103,6 +115,14 @@ class Connection {
       return true;
     } else {
       // Web Bluetooth API is not available, indicating experimental features are not enabled
+      return false;
+    }
+  }
+
+  isConnected = (): boolean => {
+    if (this.device) {
+      return this.device.gatt!.connected;
+    } else {
       return false;
     }
   }
