@@ -1,18 +1,15 @@
 "use client"
 
-import {
-    Card,
-    CardHeader,
-    CardBody,
-    CardFooter,
-} from "@material-tailwind/react";
-import { ReactNode } from "react";
-
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, ReactNode } from 'react';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Box from '@mui/material/Box';
 
 const defaultCustomCardStyle = {
-    display: 'inline-block', // Makes the card inline-block
-    maxWidth: '100%', // Allows the card to expand up to its parent's width
+    display: 'inline-block',
+    maxWidth: '100%',
     margin: 10,
     paddingTop: 30,
     paddingBottom: 6,
@@ -22,8 +19,7 @@ const defaultCustomCardStyle = {
     border: "2px solid gray",
 };
 
-// inline-block bg-white p-4 rounded shadow-lg
-const classNameDefault = "mt-6 w-96"
+const classNameDefault = "mt-6 w-96";
 
 interface AppCardProps {
     className?: string;
@@ -38,30 +34,27 @@ interface AppCardProps {
 
 const AppCard: React.FC<AppCardProps> = ({ header, body, footer, classNameHeader, classNameBody, classNameFooter, className = classNameDefault, customCardStyle = defaultCustomCardStyle }) => {
 
-    const [isClient, setIsClient] = useState(false)
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        setIsClient(true)
-    }, [])
+        setIsClient(true);
+    }, []);
+
+    if (!isClient) {
+        return null;
+    }
 
     return (
         <Card className={className} style={customCardStyle}>
-            <div >
-                <CardHeader className={classNameHeader}>
-                    {header}
-                </CardHeader>
-            </div>
-            <div>
-                <CardBody className={classNameBody}>
-                    {body}
-                </CardBody>
-            </div>
-
-            <div>
-                <CardFooter className={classNameFooter}>
-                    {footer}
-                </CardFooter>
-            </div>
+            <Box className={classNameHeader}>
+                {header}
+            </Box>
+            <CardContent className={classNameBody}>
+                {body}
+            </CardContent>
+            <CardActions className={classNameFooter}>
+                {footer}
+            </CardActions>
         </Card>
     );
 }

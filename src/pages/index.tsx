@@ -8,9 +8,7 @@ import { progressEvents } from "@api/ProgressEvents"
 import { useRouter } from 'next/navigation';
 import { EventAction } from "@api/ProgressEvents";
 
-import {
-  Typography,
-} from "@material-tailwind/react";
+import Typography from '@mui/material/Typography';
 import AppCard from '../pages/components/AppCard'
 import GShockAPI from '@/api/GShockAPI'
 
@@ -44,23 +42,22 @@ function Home() {
 
   const textBody =
     <div>
-      <Typography color="gray" >
+      <Typography color="textSecondary" >
         1. Enable Bluetooth in your browser using this URL:
         <br />
         {bluetoothSettingUrl}
       </Typography>
       <CopyToClipboardComponent textToCopy={bluetoothSettingUrl} />
-      <Typography color="gray">
-        <br />
-        2. After Pressing the [Pair Watch] button below, you will see a box searching for Blowtooth devices.
+      <Typography color="textSecondary" sx={{ mt: 2 }}>
+        2. After Pressing the [Pair Watch] button below, you will see a box searching for Bluetooth devices.
         < br /> <br />
-        3. To configure your watch, long - press the LOWER-LEFT button on your watch and it should appear in the list of devices. Select it and press the [Pair] button.
+        3. To configure your watch, long-press the LOWER-LEFT button on your watch and it should appear in the list of devices. Select it and press the [Pair] button.
         < br /> <br />
-        4. ...or Short - press the LOWER-RIGHT button on your watch to set time
+        4. ...or Short-press the LOWER-RIGHT button on your watch to set time
         < br /> <br />
       </Typography>
-      <Typography color="gray">
-        <i><b>Note:</b> Only Chrome browsers on Windows, Mac and Linux are currently supported.</i>
+      <Typography color="textSecondary" sx={{ fontStyle: 'italic', fontWeight: 'bold' }}>
+        Note: Only Chrome browsers on Windows, Mac and Linux are currently supported.
         <br /><br />
       </Typography>
     </div>
