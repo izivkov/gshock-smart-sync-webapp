@@ -2,28 +2,12 @@
 
 import React, { useState, useEffect, ReactNode } from 'react';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Box from '@mui/material/Box';
 
-const defaultCustomCardStyle = {
-    display: 'inline-block',
-    maxWidth: '100%',
-    margin: 10,
-    paddingTop: 30,
-    paddingBottom: 6,
-    paddingRight: 10,
-    backgroundColor: '#fff',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    border: "2px solid gray",
-};
-
-const classNameDefault = "mt-6 w-96";
-
 interface AppCardProps {
     className?: string;
-    customCardStyle?: React.CSSProperties;
     classNameHeader?: string;
     classNameBody?: string;
     classNameFooter?: string;
@@ -32,7 +16,7 @@ interface AppCardProps {
     footer: ReactNode;
 }
 
-const AppCard: React.FC<AppCardProps> = ({ header, body, footer, classNameHeader, classNameBody, classNameFooter, className = classNameDefault, customCardStyle = defaultCustomCardStyle }) => {
+const AppCard: React.FC<AppCardProps> = ({ header, body, footer, classNameHeader, classNameBody, classNameFooter, className = "mt-6 w-full max-w-lg" }) => {
 
     const [isClient, setIsClient] = useState(false);
 
@@ -45,14 +29,14 @@ const AppCard: React.FC<AppCardProps> = ({ header, body, footer, classNameHeader
     }
 
     return (
-        <Card className={className} style={customCardStyle}>
-            <Box className={classNameHeader}>
+        <Card className={`${className} glass-card overflow-hidden`} sx={{ background: 'transparent', boxShadow: 'none', border: 'none' }}>
+            <Box className={`${classNameHeader} p-8 flex justify-center bg-white/10`}>
                 {header}
             </Box>
-            <CardContent className={classNameBody}>
+            <CardContent className={`${classNameBody} p-8`}>
                 {body}
             </CardContent>
-            <CardActions className={classNameFooter}>
+            <CardActions className={`${classNameFooter} p-8 pt-0 flex justify-center`}>
                 {footer}
             </CardActions>
         </Card>
