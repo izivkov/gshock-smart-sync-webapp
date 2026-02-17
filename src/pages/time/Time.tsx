@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import withBottomMenu from '@components/withBottomMenu'
+import { Box, Grid } from '@mui/material';
 import TimeCard from './TimeCard';
 import TimerCard from './TimerCard';
 import HomeTimeCard from './HomeTimeCard';
@@ -9,18 +9,27 @@ import ConditionCard from './ConditionCard';
 import WatchNameCard from './WatchNameCard';
 
 const Time: React.FC = () => {
-
     return (
-        <div className="flex flex-col items-center justify-center p-4 md:p-8 min-h-[calc(100vh-80px)]">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center w-full max-w-7xl">
-                <TimeCard />
-                <TimerCard />
-                <WatchNameCard />
-                <HomeTimeCard />
-                <ConditionCard />
-            </div>
-        </div >
+        <Box sx={{ py: 4 }}>
+            <Grid container spacing={4} justifyContent="center">
+                <Grid item xs={12} md={6} lg={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <TimeCard />
+                </Grid>
+                <Grid item xs={12} md={6} lg={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <TimerCard />
+                </Grid>
+                <Grid item xs={12} md={6} lg={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <WatchNameCard />
+                </Grid>
+                <Grid item xs={12} md={6} lg={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <HomeTimeCard />
+                </Grid>
+                <Grid item xs={12} md={6} lg={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <ConditionCard />
+                </Grid>
+            </Grid>
+        </Box>
     );
 };
 
-export default withBottomMenu(Time);
+export default Time;

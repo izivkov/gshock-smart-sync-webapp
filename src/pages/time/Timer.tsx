@@ -1,16 +1,15 @@
 "use client"
 
 import React from 'react';
-import withBottomMenu from '@components/withBottomMenu'
+import { Box } from '@mui/material';
 import TimerCard from './TimerCard';
 
 const Timer: React.FC = () => {
-
     return (
-        <div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <TimerCard />
-        </div>
+        </Box>
     );
 };
 
-export default withBottomMenu(Timer);
+export default Timer;

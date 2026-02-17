@@ -1,9 +1,11 @@
+"use client"
+
 import React, { useEffect, useState } from 'react';
+import { Box, Paper, Divider, Typography } from '@mui/material';
 import AppDialog from '../components/AppDialog';
 import AppDatePicker from '../components/AppDatePicker';
 import AppSelect from '../components/AppSelect';
 import ReminderData, { dayOfWeekType, monthType, repeatPeriodType } from './ReminderData';
-import { Card, CardBody, CardFooter, CardHeader } from '@material-tailwind/react';
 import AppDialogButton from '../components/AppDialogButton';
 import AppCheckboxList from '../components/AppCheckboxList';
 import AppRadioButtonList from '../components/AppRadioButtonList';
@@ -183,7 +185,6 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
             if (foundCheckbox) {
                 displayValues.push(foundCheckbox.displayValue);
             } else {
-                // No matching value is found.
                 displayValues.push("N/A");
             }
         });
@@ -192,57 +193,75 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     }
 
     return (
-        <div>
-            <AppDialog open={dialogOpen} onClose={() => handleClose(reminderData)} title="Edit Reminder">
+        <AppDialog open={dialogOpen} onClose={() => handleClose(reminderData)} title="Edit Reminder">
+            <Paper elevation={0} sx={{ p: 4, bgcolor: 'transparent' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full" />
 
-                <Card className="mx-auto w-full max-w-1xl">
-                    <CardHeader className="flex flex-row justify-between" children={<></>} />
-                    <CardBody className="flex flex-col gap-4">
-                        <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full" />
-                        <AppSelect label='Frequency' value={forDisplay(reminderData.repeatPeriod)} items={frequencyDisplayOptions} className="w-full" onSelected={handleSelectFrequency} />
-                        <div className="flex flex-row justify-between items-center gap-4">
-                            <AppDatePicker open={open} label='Start Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
-                        </div>
-                        {endDateVisible && <div className="flex flex-row justify-between items-center gap-4">
+                    <AppSelect label='Frequency' value={forDisplay(reminderData.repeatPeriod)} items={frequencyDisplayOptions} className="w-full" onSelected={handleSelectFrequency} />
+
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                        <AppDatePicker open={open} label='Start Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
+                    </Box>
+
+                    {endDateVisible && (
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
                             <AppDatePicker open={open} label='End Date' initialDate={endDate} onDateSelected={date => endDateSelected(date)} />
-                        </div>}
+                        </Box>
+                    )}
 
-                        {repeatEventsVisible && <div className="flex flex-row justify-start gap-2" >
-                            <div className={weeklyEventsVisible ? "border-r border-gray-400 p-4" : ""}>
-                                <AppRadioButtonList selectedIndexInit={endOnIndex} name="endsOn" label='Ends on' orientation="vertical" onChange={onEndsSelected} radioButtons={[
+                    {repeatEventsVisible && (
+                        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, mt: 2 }}>
+                            <Box sx={{ flex: 1, pr: { md: 4 }, borderRight: { md: '1px solid rgba(0,0,0,0.1)' } }}>
+                                <AppRadioButtonList
+                                    selectedIndexInit={endOnIndex}
+                                    name="endsOn"
+                                    label='Ends on'
+                                    orientation="vertical"
+                                    onChange={onEndsSelected}
+                                    radioButtons={[
+                                        <AppText key="never" disabled={endOnIndex !== 0} text="Never" variant='paragraph' />,
+                                        <Box key="on" sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                                            <AppText text="On" variant='paragraph' />
+                                            <AppDatePicker disabled={endOnIndex !== 1} label={""} onDateSelected={endDateSelected} initialDate={startDate} open={false} />
+                                        </Box>,
+                                        <Box key="after" sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                                            <AppText text="After" variant='paragraph' />
+                                            <AppInput disabled={endOnIndex !== 2} type="number" label='Occurrences' onChange={onOccurencesChange} />
+                                        </Box>
+                                    ]}
+                                />
+                            </Box>
 
-                                    <AppText disabled={endOnIndex != 0} text="Never" variant='paragraph' />,
+                            {weeklyEventsVisible && (
+                                <Box sx={{ flex: 1 }}>
+                                    <AppCheckboxList
+                                        label='Repeat on'
+                                        displayValues={checkBoxes.map(checkBox => checkBox.displayValue)}
+                                        selectedSetInit={lookupDisplayValues(reminderData.daysOfWeek)}
+                                        onChange={daysOfWeekSelected}
+                                    />
+                                </Box>
+                            )}
+                        </Box>
+                    )}
 
-                                    <div className='flex flex-row gap-2 items-center'>
-                                        <AppText text="On" variant='paragraph' />
-                                        <AppDatePicker disabled={endOnIndex != 1} label={""} onDateSelected={endDateSelected} initialDate={startDate} open={false} />
-                                    </div>,
+                    <Divider sx={{ my: 1 }} />
 
-                                    <div className='flex flex-row gap-2 items-center'>
-                                        <AppText text="After" variant='paragraph' />
-                                        <AppInput disabled={endOnIndex != 2} type="number" label='Occurences' onChange={onOccurencesChange} />
-                                    </div>]} />
-                            </div>
-                            {weeklyEventsVisible && <div className="">
-                                <AppCheckboxList label='Repeat on' displayValues={checkBoxes.map(checkBox => checkBox.displayValue)} selectedSetInit={lookupDisplayValues(reminderData.daysOfWeek)} onChange={daysOfWeekSelected} />
-                            </div>}
-                        </div>
-                        }
-                    </CardBody>
-                    <CardFooter className="pt-0 flex flex-col justify-start">
-                        {error && <div className="text-red-500">
-                            <AppText text={error.message} variant='paragraph' />
-                        </div>}
-                        <div className="pt-0 flex flex-row justify-end">
-                            <AppDialogButton label="Calcel" onClick={() => handleClose(null)} />
-                            <AppDialogButton label="Save" onClick={() => onSave(reminderData)} />
-                        </div>
-                    </CardFooter>
-                </Card>
-            </AppDialog>
-        </div >
+                    {error.state && (
+                        <Typography color="error" variant="caption" sx={{ mt: -1 }}>
+                            {error.message}
+                        </Typography>
+                    )}
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, pt: 2 }}>
+                        <AppDialogButton label="Cancel" onClick={() => handleClose(null)} />
+                        <AppDialogButton label="Save" onClick={() => onSave(reminderData)} />
+                    </Box>
+                </Box>
+            </Paper>
+        </AppDialog>
     );
 };
 
 export default ReminderEditDialog;
-

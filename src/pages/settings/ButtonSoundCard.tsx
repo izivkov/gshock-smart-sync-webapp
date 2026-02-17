@@ -36,8 +36,7 @@ const ButtonSoundCard: React.FC<ButtonSoundCardProps> = ({ buttonSoundInit, onCh
     const footer = <></>
 
     return (
-        <AppCard header={header} body={body} footer={footer} className="mt-10" classNameHeader="w-96 h-10 flex flex-row text-center items-center"
-            classNameBody="bg-white" classNameFooter="bg-gray-400 w-96 h-0 pt-0 p-0" />
+        <AppCard header={header} body={body} footer={footer} />
     );
 }
 

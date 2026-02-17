@@ -5,6 +5,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Box from '@mui/material/Box';
+import { Divider } from '@mui/material';
 
 interface AppCardProps {
     className?: string;
@@ -29,16 +30,22 @@ const AppCard: React.FC<AppCardProps> = ({ header, body, footer, classNameHeader
     }
 
     return (
-        <Card className={`${className} glass-card overflow-hidden`} sx={{ background: 'transparent', boxShadow: 'none', border: 'none' }}>
-            <Box className={`${classNameHeader} p-8 flex justify-center bg-white/10`}>
+        <Card className={`${className}`} sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Box className={`${classNameHeader}`} sx={{ p: 4, display: 'flex', justifyContent: 'center', bgcolor: 'rgba(0,0,0,0.02)' }}>
                 {header}
             </Box>
-            <CardContent className={`${classNameBody} p-8`}>
+            <Divider />
+            <CardContent className={`${classNameBody}`} sx={{ p: 4, flexGrow: 1 }}>
                 {body}
             </CardContent>
-            <CardActions className={`${classNameFooter} p-8 pt-0 flex justify-center`}>
-                {footer}
-            </CardActions>
+            {footer && (
+                <>
+                    <Divider sx={{ mx: 2 }} />
+                    <CardActions className={`${classNameFooter}`} sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
+                        {footer}
+                    </CardActions>
+                </>
+            )}
         </Card>
     );
 }

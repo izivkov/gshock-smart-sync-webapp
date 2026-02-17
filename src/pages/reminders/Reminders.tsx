@@ -1,15 +1,13 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react';
-import withBottomMenu from '@components/withBottomMenu'
-import AppButton from '../components/AppButton';
+import { Box, Grid, Typography, Fab } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
-import * as testReminders from '../../testdata/reminders.json';
 
 const Reminders: React.FC = () => {
-
     const initialized = useRef(false)
 
     const reminderInit = {
@@ -30,48 +28,55 @@ const Reminders: React.FC = () => {
             if (!initialized.current) {
                 initialized.current = true;
                 const newReminders = await GShockAPI.getEventsFromWatch();
-                // const newReminders = testReminders as ReminderData[];
-
                 setReminders(newReminders);
             }
         })()
     }, [reminders]);
 
-    function sendToWatch(): void {
-        (async () => {
-            await GShockAPI.setEvents(reminders);
-        })()
+    const sendToWatch = async () => {
+        await GShockAPI.setEvents(reminders);
     }
 
     const onChange = (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => {
-        if (!initialized.current) {
-            return;
-        }
-
-        // const newReminders = [...reminders]; // shallow copy does not work
+        if (!initialized.current) return;
         const newReminders = JSON.parse(JSON.stringify(reminders));
-
         newReminders[number - 1] = reminder;
         setReminders(newReminders);
-        console.log(reminder);
     }
 
     return (
-        <div className='flex flex-col'>
-            <div className="inline-block bg-white p-4 gap-4 rounded shadow-lg grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 justify-items-center">
-                <ReminderCard number={1} initialReminder={reminders[0]} onChange={onChange} />
-                <ReminderCard number={2} initialReminder={reminders[1]} onChange={onChange} />
-                <ReminderCard number={3} initialReminder={reminders[2]} onChange={onChange} />
-                <ReminderCard number={4} initialReminder={reminders[3]} onChange={onChange} />
-                <ReminderCard number={5} initialReminder={reminders[4]} onChange={onChange} />
-            </div>
-            <div className="flex gap-6 justify-end p-16 mr-10">
-                <AppButton label="Send to Watch" onClick={sendToWatch} />
-            </div>
-        </div>
+        <Box sx={{ py: 4, position: 'relative' }}>
+            <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
+                Reminders
+            </Typography>
+
+            <Grid container spacing={4} justifyContent="center">
+                {reminders.map((reminder, index) => (
+                    <Grid item xs={12} md={6} key={index} sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <ReminderCard
+                            number={(index + 1) as 1 | 2 | 3 | 4 | 5}
+                            initialReminder={reminder}
+                            onChange={onChange}
+                        />
+                    </Grid>
+                ))}
+            </Grid>
+
+            <Fab
+                color="primary"
+                aria-label="send"
+                onClick={sendToWatch}
+                sx={{
+                    position: 'fixed',
+                    bottom: { xs: 90, md: 32 },
+                    right: 32,
+                    boxShadow: 4
+                }}
+            >
+                <SendIcon />
+            </Fab>
+        </Box>
     );
 };
 
-// export some utility functions
-
-export default withBottomMenu(Reminders);
+export default Reminders;
