@@ -7,24 +7,14 @@ import { watchInfo } from "@api/WatchInfo";
 
 const WatchNameCard: React.FC = () => {
 
-    const header = <div className="flex flex-row justify-between">
-        <AppText text="Watch Name" variant='h5' /></div>
-
-    const body = <div>
-
-        <div>
-            <div className="flex flex-row justify-center">
-                <AppText text={`${watchInfo.name}`} variant='lead' />
-            </div>
+    const body =
+        <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl">
+            <AppText text="Watch Name" variant='h6' />
+            <AppText text={`${watchInfo.name}`} variant='paragraph' className="font-semibold" />
         </div>
-    </div>
-
-    const footer = <></>
 
     return (
-        <AppCard header={header} body={body} footer={footer}
-            classNameHeader="h-10 px-6 flex flex-row items-center border-b border-white/10"
-            classNameBody="p-6" />
+        <AppCard header={null} body={body} footer={null} />
     );
 }
 

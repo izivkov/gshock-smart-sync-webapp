@@ -194,25 +194,25 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
 
     return (
         <AppDialog open={dialogOpen} onClose={() => handleClose(reminderData)} title="Edit Reminder">
-            <Paper elevation={0} sx={{ p: 4, bgcolor: 'transparent' }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full" />
+            <Paper elevation={0} sx={{ p: 1, bgcolor: 'transparent' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                    <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full max-w-sm" />
 
-                    <AppSelect label='Frequency' value={forDisplay(reminderData.repeatPeriod)} items={frequencyDisplayOptions} className="w-full" onSelected={handleSelectFrequency} />
+                    <AppSelect label='Frequency' value={forDisplay(reminderData.repeatPeriod)} items={frequencyDisplayOptions} className="w-full max-w-sm" onSelected={handleSelectFrequency} />
 
-                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 'sm', alignItems: 'center' }}>
                         <AppDatePicker open={open} label='Start Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
                     </Box>
 
                     {endDateVisible && (
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 'sm', alignItems: 'center' }}>
                             <AppDatePicker open={open} label='End Date' initialDate={endDate} onDateSelected={date => endDateSelected(date)} />
                         </Box>
                     )}
 
                     {repeatEventsVisible && (
-                        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, mt: 2 }}>
-                            <Box sx={{ flex: 1, pr: { md: 4 }, borderRight: { md: '1px solid rgba(0,0,0,0.1)' } }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, mt: 2, width: '100%', maxWidth: 'sm' }}>
+                            <Box sx={{ flex: 1, borderBottom: '1px solid rgba(139, 94, 60, 0.15)', pb: 2 }}>
                                 <AppRadioButtonList
                                     selectedIndexInit={endOnIndex}
                                     name="endsOn"
@@ -220,14 +220,14 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                                     orientation="vertical"
                                     onChange={onEndsSelected}
                                     radioButtons={[
-                                        <AppText key="never" disabled={endOnIndex !== 0} text="Never" variant='paragraph' />,
+                                        <AppText key="never" text="Never" variant='paragraph' disabled={endOnIndex !== 0} />,
                                         <Box key="on" sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                                            <AppText text="On" variant='paragraph' />
+                                            <AppText text="On" variant='paragraph' disabled={endOnIndex !== 1} />
                                             <AppDatePicker disabled={endOnIndex !== 1} label={""} onDateSelected={endDateSelected} initialDate={startDate} open={false} />
                                         </Box>,
                                         <Box key="after" sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                                            <AppText text="After" variant='paragraph' />
-                                            <AppInput disabled={endOnIndex !== 2} type="number" label='Occurrences' onChange={onOccurencesChange} />
+                                            <AppText text="After" variant='paragraph' disabled={endOnIndex !== 2} />
+                                            <AppInput disabled={endOnIndex !== 2} type="number" label='Occurrences' onChange={onOccurencesChange} className="w-24" />
                                         </Box>
                                     ]}
                                 />
@@ -246,7 +246,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                         </Box>
                     )}
 
-                    <Divider sx={{ my: 1 }} />
+                    <Divider sx={{ width: '100%', my: 1 }} />
 
                     {error.state && (
                         <Typography color="error" variant="caption" sx={{ mt: -1 }}>
@@ -254,7 +254,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                         </Typography>
                     )}
 
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, pt: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, pt: 2, width: '100%' }}>
                         <AppDialogButton label="Cancel" onClick={() => handleClose(null)} />
                         <AppDialogButton label="Save" onClick={() => onSave(reminderData)} />
                     </Box>

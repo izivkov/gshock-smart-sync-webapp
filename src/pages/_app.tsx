@@ -1,29 +1,34 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { ThemeProvider as MTThemeProvider } from "@material-tailwind/react";
-import { ThemeProvider as MUIThemeProvider, createTheme, alpha } from '@mui/material/styles';
+import { ThemeProvider as MUIThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MainLayout from './components/MainLayout';
-import { useMemo } from 'react';
 
-// Define a modern Material 3 inspired theme
+// Warm brown/peach theme matching the Android G-Shock app
 const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#6750A4', // M3 Purple
-      light: '#EADDFF',
-      dark: '#21005D',
+      main: '#8B5E3C',       // warm brown
+      light: '#FCEEE6',      // peach card background
+      dark: '#5C3A1E',       // deep brown
+      contrastText: '#FFF8F4',
     },
     secondary: {
-      main: '#625B71',
-      light: '#E8DEF8',
-      dark: '#1D192B',
+      main: '#7A5C44',
+      light: '#F5EDE4',
+      dark: '#4A3628',
     },
     background: {
-      default: 'transparent', // Let the animated background show through
-      paper: 'rgba(255, 255, 255, 0.7)',
+      default: '#F5EDE4',    // warm linen — static, never changes
+      paper: '#FCEEE6',      // slightly lighter peach for cards
     },
+    text: {
+      primary: '#2D1A0E',
+      secondary: '#7A5C44',
+    },
+    divider: 'rgba(139, 94, 60, 0.15)',
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
@@ -41,21 +46,28 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 100, // M3 Stadium button
+          borderRadius: 100,
           textTransform: 'none',
           fontWeight: 600,
-          padding: '8px 24px',
+          padding: '10px 28px',
+        },
+        outlined: {
+          borderColor: '#8B5E3C',
+          color: '#8B5E3C',
+          '&:hover': {
+            background: 'rgba(139, 94, 60, 0.08)',
+            borderColor: '#5C3A1E',
+          },
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 24,
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          background: 'rgba(255, 255, 255, 0.5)',
+          borderRadius: 20,
+          boxShadow: '0 2px 12px rgba(139, 94, 60, 0.10)',
+          background: '#FCEEE6',
+          border: 'none',
         },
       },
     },
@@ -63,6 +75,37 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
+          background: '#FCEEE6',
+        },
+      },
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        switchBase: {
+          '&.Mui-checked': {
+            color: '#8B5E3C',
+            '& + .MuiSwitch-track': {
+              backgroundColor: '#8B5E3C',
+            },
+          },
+        },
+      },
+    },
+    MuiBottomNavigation: {
+      styleOverrides: {
+        root: {
+          background: '#FCEEE6',
+          borderTop: '1px solid rgba(139, 94, 60, 0.15)',
+        },
+      },
+    },
+    MuiBottomNavigationAction: {
+      styleOverrides: {
+        root: {
+          color: '#7A5C44',
+          '&.Mui-selected': {
+            color: '#8B5E3C',
+          },
         },
       },
     },

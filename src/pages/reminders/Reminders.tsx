@@ -1,8 +1,9 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Grid, Typography, Fab } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
+import {
+    Box, Typography, Divider, Button, Paper
+} from '@mui/material';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
@@ -45,36 +46,47 @@ const Reminders: React.FC = () => {
     }
 
     return (
-        <Box sx={{ py: 4, position: 'relative' }}>
-            <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
-                Reminders
+        <Box sx={{ pt: 3, pb: 10, maxWidth: 500, mx: 'auto', width: '100%' }}>
+            {/* Page title — matches Android "Events" */}
+            <Typography
+                variant="h5"
+                align="center"
+                sx={{ mb: 2.5, fontWeight: 500, color: 'text.primary', letterSpacing: 0.2 }}
+            >
+                Events
             </Typography>
 
-            <Grid container spacing={4} justifyContent="center">
+            {/* Event list — rounded card with rows */}
+            <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', mx: 1 }}>
                 {reminders.map((reminder, index) => (
-                    <Grid item xs={12} md={6} key={index} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <React.Fragment key={index}>
                         <ReminderCard
                             number={(index + 1) as 1 | 2 | 3 | 4 | 5}
                             initialReminder={reminder}
                             onChange={onChange}
                         />
-                    </Grid>
+                        {index < reminders.length - 1 && (
+                            <Divider sx={{ mx: 0, borderColor: 'rgba(139,94,60,0.10)' }} />
+                        )}
+                    </React.Fragment>
                 ))}
-            </Grid>
+            </Paper>
 
-            <Fab
-                color="primary"
-                aria-label="send"
-                onClick={sendToWatch}
-                sx={{
-                    position: 'fixed',
-                    bottom: { xs: 90, md: 32 },
-                    right: 32,
-                    boxShadow: 4
-                }}
-            >
-                <SendIcon />
-            </Fab>
+            {/* Bottom action — matches Android "SEND TO WATCH REMINDERS" */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <Button
+                    variant="text"
+                    onClick={sendToWatch}
+                    sx={{
+                        color: '#8B5E3C',
+                        fontWeight: 700,
+                        fontSize: '0.95rem',
+                        letterSpacing: 1,
+                    }}
+                >
+                    SEND TO WATCH REMINDERS
+                </Button>
+            </Box>
         </Box>
     );
 };

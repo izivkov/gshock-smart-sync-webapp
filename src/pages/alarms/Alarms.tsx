@@ -1,8 +1,9 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Grid, Typography, Fab } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
+import {
+    Box, Typography, Switch, Divider, Button, Paper
+} from '@mui/material';
 import AlarmCard from './AlarmCard';
 import AppSwitch from '@components/AppSwitch';
 import GShockAPI from '@/api/GShockAPI';
@@ -29,18 +30,15 @@ const Alarms: React.FC = () => {
         })()
     }, [alarms]);
 
+    const sendToPhone = async () => { /* placeholder */ }
     const sendToWatch = async () => {
         await GShockAPI.setAlarms(alarms);
     }
 
     const onChange = (
         alarmnumber: 1 | 2 | 3 | 4 | 5,
-        alarm: {
-            hour: number,
-            minute: number,
-            hourlyChime: boolean,
-            enabled: boolean
-        }) => {
+        alarm: { hour: number, minute: number, hourlyChime: boolean, enabled: boolean }
+    ) => {
         const newAlarms = [...alarms];
         newAlarms[alarmnumber - 1] = alarm;
         setAlarms(newAlarms);
@@ -57,33 +55,57 @@ const Alarms: React.FC = () => {
     }
 
     return (
-        <Box sx={{ py: 4, position: 'relative' }}>
-            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
-                <AppSwitch text="Signal (Hourly Chime)" initialValue={alarms[0].hourlyChime} onChange={onSignalChange} />
+        <Box sx={{ pt: 3, pb: 10, maxWidth: 500, mx: 'auto', width: '100%' }}>
+            {/* Page title */}
+            <Typography
+                variant="h5"
+                align="center"
+                sx={{ mb: 2.5, fontWeight: 500, color: 'text.primary', letterSpacing: 0.2 }}
+            >
+                Watch Alarms
+            </Typography>
+
+            {/* Alarm list — rounded card with rows */}
+            <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', mx: 1 }}>
+                {alarms.map((alarm, index) => (
+                    <React.Fragment key={index}>
+                        <AlarmCard
+                            number={(index + 1) as 1 | 2 | 3 | 4 | 5}
+                            alarm={alarm}
+                            onChange={onChange}
+                        />
+                        {index < alarms.length - 1 && (
+                            <Divider sx={{ mx: 0, borderColor: 'rgba(139,94,60,0.10)' }} />
+                        )}
+                    </React.Fragment>
+                ))}
+            </Paper>
+
+            {/* Signal (chime) toggle below the list */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', px: 3, mt: 2 }}>
+                <Typography variant="body1" sx={{ color: 'text.primary', mr: 1 }}>
+                    Signal (chime)
+                </Typography>
+                <AppSwitch text="" initialValue={alarms[0].hourlyChime} onChange={onSignalChange} />
             </Box>
 
-            <Grid container spacing={4} justifyContent="center">
-                {alarms.map((alarm, index) => (
-                    <Grid item xs={12} md={6} key={index} sx={{ display: 'flex', justifyContent: 'center' }}>
-                        <AlarmCard number={(index + 1) as 1 | 2 | 3 | 4 | 5} alarm={alarm} onChange={onChange} />
-                    </Grid>
-                ))}
-            </Grid>
-
-            {/* Floating Action Button for sending to watch */}
-            <Fab
-                color="primary"
-                aria-label="send"
-                onClick={sendToWatch}
-                sx={{
-                    position: 'fixed',
-                    bottom: { xs: 90, md: 32 },
-                    right: 32,
-                    boxShadow: 4
-                }}
-            >
-                <SendIcon />
-            </Fab>
+            {/* Bottom action buttons — matching Android */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, px: 2 }}>
+                <Button
+                    variant="outlined"
+                    onClick={sendToPhone}
+                    sx={{ flexShrink: 0 }}
+                >
+                    Send to Phone
+                </Button>
+                <Button
+                    variant="outlined"
+                    onClick={sendToWatch}
+                    sx={{ flexShrink: 0 }}
+                >
+                    Send to Watch
+                </Button>
+            </Box>
         </Box>
     );
 };

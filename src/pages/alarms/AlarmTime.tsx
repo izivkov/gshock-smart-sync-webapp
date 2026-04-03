@@ -16,7 +16,7 @@ const AlarmTime: React.FC<AlarmTimeProps> = ({ alarmTime }) => {
     }, [alarmTime]);
 
     return (
-        <div className="text-4xl font-semibold text-center" suppressHydrationWarning>
+        <div className="text-xl font-semibold text-center" suppressHydrationWarning>
             {time.format('h:mm A')}
         </div>
     );

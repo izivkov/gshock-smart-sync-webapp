@@ -86,20 +86,22 @@ const LocaleCard: React.FC<LocaleCardProps> = ({ languageInit, dateFormatInit, t
     }
 
     const body =
-        <div className="flex flex-col w-full justify-between items-center">
-            <div className='flex flex-col w-full justify-between'>
+        <div className="flex flex-col w-full gap-2 px-1 py-0.5">
+            <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl">
                 <AppRadioButtonList selectedIndexInit={getTimeFormatIndex(timeFormat)} label='Time Format' name="timeFormat" orientation="horizontal" onChange={onTimeFormatChange} radioButtons={[
                     <AppText key="12h" text="12h" variant='paragraph' />,
                     <AppText key="24h" text="24h" variant='paragraph' />
                 ]} />
+            </div>
+            <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl">
                 <AppRadioButtonList selectedIndexInit={getDateFormatIndex(dateFormat)} label='Date Format' name="dateFormat" orientation="horizontal" onChange={onDateFormatChange} radioButtons={[
                     <AppText key="MMDD" text="MM:DD" variant='paragraph' />,
                     <AppText key="DDMM" text="DD:MM" variant='paragraph' />
                 ]} />
-                <div className="flex flex-row w-full justify-between items-center pt-4 gap-4">
-                    <AppText text="Language" variant='h6' />
-                    <AppSelect label='Language' value={language} items={languageOptions} className="w-full" onSelected={onlanguageSelected} />
-                </div>
+            </div>
+            <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl gap-4">
+                <AppText text="Language" variant='h6' />
+                <AppSelect label='Select Language' value={language} items={languageOptions} className="w-48" onSelected={onlanguageSelected} />
             </div>
         </div>
 

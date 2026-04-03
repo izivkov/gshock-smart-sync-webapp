@@ -30,18 +30,22 @@ const AppCard: React.FC<AppCardProps> = ({ header, body, footer, classNameHeader
     }
 
     return (
-        <Card className={`${className}`} sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Box className={`${classNameHeader}`} sx={{ p: 4, display: 'flex', justifyContent: 'center', bgcolor: 'rgba(0,0,0,0.02)' }}>
-                {header}
-            </Box>
-            <Divider />
-            <CardContent className={`${classNameBody}`} sx={{ p: 4, flexGrow: 1 }}>
+        <Card className={`${className}`} sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+            {header && (
+                <>
+                    <Box className={`${classNameHeader}`} sx={{ px: 3, py: 2, display: 'flex', justifyContent: 'center' }}>
+                        {header}
+                    </Box>
+                    <Divider sx={{ borderColor: 'rgba(139,94,60,0.10)' }} />
+                </>
+            )}
+            <CardContent className={`${classNameBody}`} sx={{ px: 3, py: 2, flexGrow: 1, '&:last-child': { pb: 2 } }}>
                 {body}
             </CardContent>
             {footer && (
                 <>
-                    <Divider sx={{ mx: 2 }} />
-                    <CardActions className={`${classNameFooter}`} sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
+                    <Divider sx={{ mx: 2, borderColor: 'rgba(139,94,60,0.10)' }} />
+                    <CardActions className={`${classNameFooter}`} sx={{ px: 3, py: 2, display: 'flex', justifyContent: 'center' }}>
                         {footer}
                     </CardActions>
                 </>

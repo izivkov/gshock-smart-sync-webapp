@@ -23,20 +23,14 @@ const AutoTimeAdjustCard: React.FC<AutoTimeAdjustCardProps> = ({ autoTimeAdjustI
         onChange(value);
     }
 
-    const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
-        <AppText text="Auto Time Adjustment" variant='h5' />
-    </div>
-
     const body =
-        <div className="flex flex-row w-full justify-between items-center">
-            <AppText text="Time Adjustment" variant='paragraph' />
+        <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl">
+            <AppText text="Auto Time Adjustment" variant='h6' />
             <AppSwitch initialValue={autoTimeAdjust} onChange={onAutoTimeAdjustChange} />
         </div>
 
-    const footer = <></>
-
     return (
-        <AppCard header={header} body={body} footer={footer} />
+        <AppCard header={<></>} body={body} footer={<></>} />
     );
 }
 

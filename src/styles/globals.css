@@ -3,44 +3,45 @@
 @tailwind utilities;
 
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  --glass-blur: blur(12px);
-}
-
-[data-theme='dark'] {
-  --glass-bg: rgba(0, 0, 0, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --app-bg: #F5EDE4;
+  --card-bg: #FCEEE6;
+  --accent: #8B5E3C;
+  --text-primary: #2D1A0E;
+  --text-secondary: #7A5C44;
 }
 
 body {
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
+  background-color: var(--app-bg);
   min-height: 100vh;
   margin: 0;
   font-family: 'Inter', sans-serif;
 }
 
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+.app-card {
+  background: var(--card-bg);
   border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(139, 94, 60, 0.10);
 }
 
+/* Hide Material Tailwind focused/hovered circles and ripples */
+[class*="material-tailwind"] :before,
+[class*="material-tailwind"]::before,
+[class*="material-tailwind"] :after,
+[class*="material-tailwind"]::after,
+[class*="Mui"] :before,
+[class*="Mui"]::before,
+[class*="Mui"] :after,
+[class*="Mui"]::after,
+.before\:hidden::before,
+.after\:hidden::after,
+[class*="ripple"] {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent);
+}

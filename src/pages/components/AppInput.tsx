@@ -41,8 +41,19 @@ const AppInput: React.FC<AppInputProps> = ({ label, type, onChange, className, i
 
 
   return (
-    <div className={className}>
-      <Input disabled={disabledState} size={size} style={style} type={type} label={label} onChange={onChangeValue} value={inputText} />
+    <div className={`${className} max-w-sm`}>
+      <Input
+        disabled={disabledState}
+        size={size}
+        style={{ ...style, fontSize: '1rem' }}
+        type={type}
+        label={label}
+        onChange={onChangeValue}
+        value={inputText}
+        labelProps={{
+          className: "text-base",
+        }}
+      />
     </div>
   )
 }

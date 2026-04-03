@@ -30,9 +30,15 @@ const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onC
   return (
     <div className="flex flex-row justify-between gap-0 items-center inline-block">
       <AppText text={text ? text : ""} />
-      <Checkbox color="purple" checked={checkboxState} className={checkboxClass} onChange={toggleCheckbox} containerProps={{
-        className: checkboxClass,
-      }}
+      <Checkbox
+        color="purple"
+        checked={checkboxState}
+        className={`${checkboxClass} before:hidden after:hidden`}
+        onChange={toggleCheckbox}
+        containerProps={{
+          className: `${checkboxClass} before:hidden after:hidden`,
+        }}
+        ripple={false}
       />
     </div >
   )

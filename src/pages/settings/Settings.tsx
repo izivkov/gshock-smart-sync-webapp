@@ -1,8 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Grid, Typography, Fab } from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
+import { Box, Typography, Button } from '@mui/material';
 import LocaleCard from './LocaleCard';
 import ButtonSoundCard from './ButtonSoundCard';
 import LightCard from './LightCard';
@@ -61,52 +60,49 @@ const Settings: React.FC = () => {
         updateSettings({ powerSavingMode });
     }
 
+    const onAutoFill = async () => {
+        const newSettings = await GShockAPI.getSettings();
+        setSettings(newSettings);
+    }
+
     const onSave = async () => {
         await GShockAPI.setSettings(settings);
     }
 
     return (
-        <Box sx={{ py: 4, position: 'relative' }}>
-            <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
+        <Box sx={{ pt: 3, pb: 10, maxWidth: 500, mx: 'auto', width: '100%' }}>
+            {/* Page title */}
+            <Typography
+                variant="h5"
+                align="center"
+                sx={{ mb: 2.5, fontWeight: 500, color: 'text.primary', letterSpacing: 0.2 }}
+            >
                 Settings
             </Typography>
 
-            <Grid container spacing={4} justifyContent="center">
-                <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <LocaleCard
-                        languageInit={settings.language}
-                        dateFormatInit={settings.dateFormat}
-                        timeFormatInit={settings.timeFormat}
-                        onChange={onLocaleChanged}
-                    />
-                </Grid>
-                <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <ButtonSoundCard buttonSoundInit={settings.buttonTone} onChange={onButtonSoundChange} />
-                </Grid>
-                <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <LightCard illuminationPeriodInit={settings.lightDuration} autoLightInit={settings.autoLight} onChange={onIlluminationPeriodChange} />
-                </Grid>
-                <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <PowerSavingCard powerSavingsInit={settings.powerSavingMode} onChange={onPowerSavingChange} />
-                </Grid>
-                <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <AutoTimeAdjustCard autoTimeAdjustInit={settings.timeAdjustment} onChange={onAutoTimeAdjustChange} />
-                </Grid>
-            </Grid>
+            {/* Settings cards stacked vertically */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, px: 1 }}>
+                <LocaleCard
+                    languageInit={settings.language}
+                    dateFormatInit={settings.dateFormat}
+                    timeFormatInit={settings.timeFormat}
+                    onChange={onLocaleChanged}
+                />
+                <ButtonSoundCard buttonSoundInit={settings.buttonTone} onChange={onButtonSoundChange} />
+                <LightCard illuminationPeriodInit={settings.lightDuration} autoLightInit={settings.autoLight} onChange={onIlluminationPeriodChange} />
+                <PowerSavingCard powerSavingsInit={settings.powerSavingMode} onChange={onPowerSavingChange} />
+                <AutoTimeAdjustCard autoTimeAdjustInit={settings.timeAdjustment} onChange={onAutoTimeAdjustChange} />
+            </Box>
 
-            <Fab
-                color="primary"
-                aria-label="save"
-                onClick={onSave}
-                sx={{
-                    position: 'fixed',
-                    bottom: { xs: 90, md: 32 },
-                    right: 32,
-                    boxShadow: 4
-                }}
-            >
-                <SaveIcon />
-            </Fab>
+            {/* Bottom action buttons — matching Android */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, px: 2 }}>
+                <Button variant="outlined" onClick={onAutoFill}>
+                    Auto Fill Values
+                </Button>
+                <Button variant="outlined" onClick={onSave}>
+                    Send to Watch
+                </Button>
+            </Box>
         </Box>
     );
 };
