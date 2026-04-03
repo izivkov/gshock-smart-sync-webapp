@@ -16,9 +16,9 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <MUIThemeProvider theme={theme}>
       <CssBaseline />
-      <MTThemeProvider>
+      {/* <MTThemeProvider> */}
         <Component {...pageProps} />
-      </MTThemeProvider>
+      {/* </MTThemeProvider> */}
     </MUIThemeProvider>
   );
 }

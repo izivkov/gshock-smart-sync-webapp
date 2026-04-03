@@ -1,11 +1,11 @@
-"use client"
+
 
 import WatchImage from '@pages/home/WatchImage'
 import ConnectButton from '@pages/home/ConnectButton'
 import CopyToClipboardComponent from '@components/CopyToClipboardComponent'
 import React, { useEffect } from 'react'
 import { progressEvents } from "@api/ProgressEvents"
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { EventAction } from "@api/ProgressEvents";
 
 import Typography from '@mui/material/Typography';
@@ -66,7 +66,7 @@ function Home() {
 
   return (
     <main className="flex min-h-screen flex-col justify-between p-24">
-      <AppCard header={header} body={textBody} footer={footer} />
+      <AppCard header="Header" body="Body" footer="Footer" />
     </main >
   )
 }
