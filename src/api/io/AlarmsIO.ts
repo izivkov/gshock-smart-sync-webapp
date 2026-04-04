@@ -32,11 +32,6 @@ const AlarmsIO = {
     },
 
     async set(alarms: AlarmData[]): Promise<void> {
-        if (Alarm.alarms.length === 0) {
-            console.log("Alarm model not initialized! Cannot set alarm");
-            return;
-        }
-
         function toJson(): string {
             return JSON.stringify(alarms);
         }
@@ -48,16 +43,21 @@ const AlarmsIO = {
     },
 
     onReceived(dataIntArray: any): void {
-        const data = AlarmsIO.AlarmDecoder.toJson(dataIntArray).ALARMS
+        const command = dataIntArray[0];
+        const alarmsData = AlarmsIO.AlarmDecoder.toJson(dataIntArray).ALARMS;
 
-        function fromJson(jsonStr: string): void {
-            const alarmArr = JSON.parse(jsonStr);
-            Alarm.alarms.push(...alarmArr);
+        // If it's the first alarm (0x15), put it at index 0.
+        // If it's the others (0x16), put them at 1-4.
+        if (command === CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM) {
+            Alarm.alarms[0] = alarmsData[0];
+        } else if (command === CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM2) {
+            for (let i = 0; i < alarmsData.length; i++) {
+                Alarm.alarms[i + 1] = alarmsData[i];
+            }
         }
 
-        fromJson(JSON.stringify(data));
-
-        if (Alarm.alarms.length > 1) {
+        const count = Alarm.alarms.filter(a => a !== undefined).length;
+        if (count === 5) {
             resolver!(Alarm.alarms);
         }
     },

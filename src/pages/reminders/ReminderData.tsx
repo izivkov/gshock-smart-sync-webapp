@@ -1,8 +1,6 @@
-import exp from "constants"
-
 export type dayOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
 export type monthType = "JANUARY" | "FEBRUARY" | "MARCH" | "APRIL" | "MAY" | "JUNE" | "JULY" | "AUGUST" | "SEPTEMBER" | "OCTOBER" | "NOVEMBER" | "DECEMBER";
-export type repeatPeriodType = "WEEKLY" | "MONTHLY" | "YEARLY" | "NEVER";
+export type repeatPeriodType = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "NEVER";
 
 interface ReminderData {
 

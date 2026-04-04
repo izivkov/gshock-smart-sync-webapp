@@ -11,7 +11,11 @@ interface AppTimePickerProps {
 }
 
 const AppTimePicker: React.FC<AppTimePickerProps> = ({ onTimeSelected, onCancel, initialTime }) => {
-    const [selectedTime, setSelectedTime] = useState(null);
+    const [selectedTime, setSelectedTime] = useState<Dayjs>(initialTime);
+
+    useEffect(() => {
+        requestAnimationFrame(() => setSelectedTime(initialTime));
+    }, [initialTime]);
 
     const handleTimeAccepted = (time: any) => {
         setSelectedTime(time);
@@ -31,8 +35,8 @@ const AppTimePicker: React.FC<AppTimePickerProps> = ({ onTimeSelected, onCancel,
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} >
-            <StaticTimePicker defaultValue={dayjs('2023-01-01T00:00:00')}
-                value={initialTime}
+            <StaticTimePicker defaultValue={initialTime}
+                value={selectedTime}
                 onClose={onClose}
                 onAccept={handleTimeAccepted}
                 onChange={handleChange}

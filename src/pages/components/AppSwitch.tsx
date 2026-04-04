@@ -15,7 +15,7 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ text, initialValue, onChange }) =
   const [checked, setChecked] = useState<boolean>(initialValue);
 
   useEffect(() => {
-    setChecked(initialValue);
+    requestAnimationFrame(() => setChecked(initialValue));
   }, [initialValue]);
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
