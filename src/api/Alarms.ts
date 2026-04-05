@@ -5,13 +5,13 @@ class Alarm {
     hour: number;
     minute: number;
     enabled: boolean;
-    hourlyChime: boolean;
+    hasHourlyChime: boolean;
 
-    constructor(hour: number, minute: number, enabled: boolean, hourlyChime: boolean) {
+    constructor(hour: number, minute: number, enabled: boolean, hasHourlyChime: boolean) {
         this.hour = hour;
         this.minute = minute;
         this.enabled = enabled;
-        this.hourlyChime = hourlyChime;
+        this.hasHourlyChime = hasHourlyChime;
     }
 }
 
@@ -25,7 +25,7 @@ const Alarms = {
             alarmJson.hour,
             alarmJson.minute,
             alarmJson.enabled,
-            alarmJson.hourlyChime
+            alarmJson.hasHourlyChime
         );
 
         return this.createFirstAlarm(alarm);
@@ -34,7 +34,7 @@ const Alarms = {
     createFirstAlarm(alarm: Alarm): number[] {
         let flag = 0;
         if (alarm.enabled) flag |= this.ENABLED_MASK;
-        if (alarm.hourlyChime) flag |= this.HOURLY_CHIME_MASK;
+        if (alarm.hasHourlyChime) flag |= this.HOURLY_CHIME_MASK;
 
         return [
             CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM,
@@ -54,7 +54,7 @@ const Alarms = {
             alarmJson.hour,
             alarmJson.minute,
             alarmJson.enabled,
-            alarmJson.hourlyChime
+            alarmJson.hasHourlyChime
         ));
 
         return this.createSecondaryAlarm(alarms);
@@ -66,7 +66,7 @@ const Alarms = {
         for (const alarm of alarms) {
             let flag = 0;
             if (alarm.enabled) flag |= this.ENABLED_MASK;
-            if (alarm.hourlyChime) flag |= this.HOURLY_CHIME_MASK;
+            if (alarm.hasHourlyChime) flag |= this.HOURLY_CHIME_MASK;
 
             allAlarms = allAlarms.concat([
                 flag,

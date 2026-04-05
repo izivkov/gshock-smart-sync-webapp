@@ -26,15 +26,15 @@ const AppRadioButton: React.FC<AppRadioButtonProps> = ({ name, label, checkedIni
     onChange(index, e.target.checked);
   };
 
-  const rasioButtonClass = className ? className : "hover:before:opacity-0 p-0";
+  const radioButtonClass = className ? className : "hover:before:opacity-0 p-0";
 
   return (
     <Radio
       name={name}
       ripple={false}
-      className={rasioButtonClass}
+      className={`${radioButtonClass} before:hidden after:hidden`}
       containerProps={{
-        className: "p-0",
+        className: "p-0 before:hidden after:hidden",
       }}
       label={label}
       onChange={toggleCheckbox}

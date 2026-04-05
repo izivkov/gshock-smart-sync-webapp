@@ -30,9 +30,9 @@ const HomeTimeCard: React.FC = () => {
     const footer = <></>
 
     return (
-        <AppCard header={header} body={body} footer={footer} className="mt-10"
-            classNameHeader="h-10 pl-6 flex flex-row text-center items-center"
-            classNameBody="bg-white w-96" classNameFooter="bg-gray-400 w-96 h-0 pt-0 p-0" />
+        <AppCard header={header} body={body} footer={footer}
+            classNameHeader="h-10 px-6 flex flex-row items-center border-b border-white/10"
+            classNameBody="p-6" />
     );
 }
 

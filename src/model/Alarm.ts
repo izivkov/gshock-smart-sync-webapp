@@ -2,17 +2,17 @@ class Alarm {
     hour: number;
     minute: number;
     enabled: boolean;
-    hourlyChime: boolean;
+    hasHourlyChime: boolean;
 
-    constructor(hour: number, minute: number, enabled: boolean, hourlyChime: boolean = false) {
+    constructor(hour: number, minute: number, enabled: boolean, hasHourlyChime: boolean = false) {
         this.hour = hour;
         this.minute = minute;
         this.enabled = enabled;
-        this.hourlyChime = hourlyChime;
+        this.hasHourlyChime = hasHourlyChime;
     }
 
     toString(): string {
-        return `Alarm(hour=${this.hour}, minute=${this.minute}, enabled=${this.enabled}, hourlyChime=${this.hourlyChime})`;
+        return `Alarm(hour=${this.hour}, minute=${this.minute}, enabled=${this.enabled}, hasHourlyChime=${this.hasHourlyChime})`;
     }
 
     static clear(): void {

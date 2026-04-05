@@ -8,15 +8,16 @@ interface AlarmTimeProps {
 }
 
 const AlarmTime: React.FC<AlarmTimeProps> = ({ alarmTime }) => {
-    const [timeStr, setTimeStr] = useState<string | null>(null);
+
+    const [time, setTime] = useState(alarmTime);
 
     useEffect(() => {
-        requestAnimationFrame(() => setTimeStr(alarmTime ? alarmTime.format('h:mm A') : ""));
+        setTime(alarmTime);
     }, [alarmTime]);
 
     return (
-        <div className="text-4xl font-semibold text-center">
-            {timeStr || '\u00A0'}
+        <div className="text-xl font-semibold text-center" suppressHydrationWarning>
+            {time.format('h:mm A')}
         </div>
     );
 };

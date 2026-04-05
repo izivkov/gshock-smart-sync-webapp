@@ -23,21 +23,14 @@ const PowerSavingCard: React.FC<PowerSavingCardProps> = ({ powerSavingsInit, onC
         onChange(value);
     }
 
-    const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
-        <AppText text="Power Saving" variant='h5' />
-    </div>
-
     const body =
-        <div className="flex flex-row w-full justify-between items-center">
-            <AppText text="Power Saving Mode" variant='paragraph' />
+        <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl">
+            <AppText text="Power Saving" variant='h6' />
             <AppSwitch initialValue={powerSavings} onChange={onPowerSavingChange} />
         </div>
 
-    const footer = <></>
-
     return (
-        <AppCard header={header} body={body} footer={footer} className="mt-10" classNameHeader="w-96 h-10 flex flex-row text-center items-center"
-            classNameBody="bg-white" classNameFooter="bg-gray-400 w-96 h-0 pt-0 p-0" />
+        <AppCard header={<></>} body={body} footer={<></>} />
     );
 }
 

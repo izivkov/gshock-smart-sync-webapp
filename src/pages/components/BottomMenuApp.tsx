@@ -16,23 +16,23 @@ const BottomMenuApp: React.FC<BottomMenuProps> = ({ props }) => {
     const router = useRouter();
 
     return (
-        <div className='fixed bottom-0 w-full text-white'>
-            <div className="grid grid-cols-1 gap-4 self-end md:grid-cols-2 lg:grid-cols-4">
-                <div onClick={() => router.push('/time/Time')}>
+        <div className='fixed bottom-0 w-full p-4 pointer-events-none'>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 glass-card p-4 pointer-events-auto max-w-7xl mx-auto border-t border-white/20">
+                <div onClick={() => router.push('/time/Time')} className="cursor-pointer">
                     <MenuItemApp title="Time" description="Manage your time" icon={<TimeIcon />} />
                 </div>
-                <div onClick={() => router.push('/alarms/Alarms')}>
+                <div onClick={() => router.push('/alarms/Alarms')} className="cursor-pointer">
                     <MenuItemApp title="Alarms" description="Manage your alarms" icon={<AlarmsIcon />} />
                 </div>
-                <div onClick={() => router.push('/reminders/Reminders')}>
+                <div onClick={() => router.push('/reminders/Reminders')} className="cursor-pointer">
                     <MenuItemApp title="Reminders" description="Manage your reminders" icon={<CalenderIcon />} />
                 </div>
-                <div onClick={() => router.push('/settings/Settings')}>
+                <div onClick={() => router.push('/settings/Settings')} className="cursor-pointer">
                     <MenuItemApp title="Settings" description="Manage your settings" icon={<SettingsIcon />} />
                 </div>
             </div>
         </div>
     );
-};
+}
 
 export default BottomMenuApp;

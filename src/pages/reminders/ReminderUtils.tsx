@@ -148,7 +148,7 @@ export const calculateEndDateFromOccurences = (
     if (numberOfPeriods > 0) {
         switch (repeatPeriod) {
             case "DAILY": {
-                endDate = endDate.add(numberOfPeriods, "day");
+                endDate.add(numberOfPeriods, "day");
                 break;
             }
             case "WEEKLY": {
@@ -161,11 +161,11 @@ export const calculateEndDateFromOccurences = (
                 break;
             }
             case "MONTHLY": {
-                endDate = endDate.add(numberOfPeriods, "month");
+                endDate.add(numberOfPeriods, "month");
                 break;
             }
             case "YEARLY": {
-                endDate = endDate.add(numberOfPeriods, "year");
+                endDate.add(numberOfPeriods, "year");
                 break;
             }
             default:

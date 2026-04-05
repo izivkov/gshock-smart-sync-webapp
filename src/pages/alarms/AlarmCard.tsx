@@ -1,8 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import AppCard from "@components/AppCard";
-import AppText from "@components/AppText";
+import { Box, Typography } from '@mui/material';
 import AlarmTime from "./AlarmTime";
 import AlarmPeriod from "./AlarmPeriod";
 import AppSwitch from "@components/AppSwitch";
@@ -60,37 +59,38 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm, onChange }) => {
         }
     };
 
-    const title = `Alarm ${number}`;
-
-    const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
-        <AppText text={title} variant='h5' />
-        <Edit className="cursor-pointer" onClick={() => handleOpenDialog()} />
-    </div>
-
-    const body = <div className="flex flex-row items-center justify-between">
-        <div className="flex gap-6 items-center">
-            <div>
-                <AlarmTime alarmTime={time} />
-            </div>
-            <AlarmPeriod period="Daily" />
-            <TimePickerDialog initialTime={time} open={dialogOpen} handleClose={handleCloseDialog} />
-        </div>
-        <div className="flex justify-end">
-            <AppSwitch initialValue={alarm.enabled} onChange={(checked) => {
-                const updatedAlarm = {
-                    ...alarm,
-                    enabled: checked
-                };
-                onChange(number, updatedAlarm);
-            }} />
-        </div>
-    </div >
-
-    const footer = <></>
+    const onEnabledChange = (checked: boolean) => {
+        setEnabled(checked);
+        const newAlarm = { ...alarm, enabled: checked };
+        onChange(number, newAlarm);
+    };
 
     return (
-        <AppCard header={header} body={body} footer={footer} className="mt-10" classNameHeader="w-96 h-10 flex flex-row text-center items-center"
-            classNameBody="bg-white" classNameFooter="bg-gray-400 w-96 h-0 pt-0 p-0" />
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 2.5,
+            py: 2,
+            bgcolor: 'background.paper',
+            minHeight: 72
+        }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary', minWidth: 65 }}>
+                    Alarm {number}
+                </Typography>
+                <Box onClick={handleOpenDialog} sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <AlarmTime alarmTime={time} />
+                    <AlarmPeriod period="Daily" />
+                    <Edit sx={{ fontSize: 20, color: 'primary.main', opacity: 0.6 }} />
+                </Box>
+            </Box>
+
+            <AppSwitch initialValue={enabled} onChange={onEnabledChange} />
+
+            <TimePickerDialog initialTime={time} open={dialogOpen} handleClose={handleCloseDialog} />
+        </Box>
     );
 }
 

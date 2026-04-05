@@ -14,19 +14,16 @@ const MenuItemApp: React.FC<MenuItemProps> = ({ title, description, icon }) => {
     const router = useRouter();
 
     return (
-        <div >
-            <Card
-                shadow={false}
-                className="border border-blue-gray-50 py-4 px-5 shadow-xl shadow-transparent transition-all hover:-translate-y-4 hover:border-blue-gray-100/60 hover:shadow-blue-gray-900/5"
-            >
-                <Typography variant="h5" color="blue-gray" className="mb-3 flex items-center gap-3">
-                    {icon}
-                    {title}
-                </Typography>
-                <Typography color="blue-gray" className="font-normal opacity-70">
-                    {description}
-                </Typography>
-            </Card>
+        <div className="flex flex-col items-center justify-center p-2 rounded-xl transition-all hover:bg-white/10 text-white">
+            <div className="text-2xl mb-1 opacity-90">
+                {icon}
+            </div>
+            <Typography variant="h6" className="font-bold text-sm">
+                {title}
+            </Typography>
+            <Typography variant="caption" className="opacity-60 text-[10px] text-center hidden md:block">
+                {description}
+            </Typography>
         </div>
     );
 };

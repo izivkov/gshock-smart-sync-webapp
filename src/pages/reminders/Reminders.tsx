@@ -1,15 +1,14 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react';
-import withBottomMenu from '@components/withBottomMenu'
-import AppButton from '../components/AppButton';
+import {
+    Box, Typography, Divider, Button, Paper
+} from '@mui/material';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
-import * as testReminders from '../../testdata/reminders.json';
 
 const Reminders: React.FC = () => {
-
     const initialized = useRef(false)
 
     const reminderInit = {
@@ -30,48 +29,79 @@ const Reminders: React.FC = () => {
             if (!initialized.current) {
                 initialized.current = true;
                 const newReminders = await GShockAPI.getEventsFromWatch();
-                // const newReminders = testReminders as ReminderData[];
-
                 setReminders(newReminders);
             }
         })()
     }, [reminders]);
 
-    function sendToWatch(): void {
-        (async () => {
-            await GShockAPI.setEvents(reminders);
-        })()
+    const sendToWatch = async () => {
+        await GShockAPI.setEvents(reminders);
     }
 
     const onChange = (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => {
-        if (!initialized.current) {
-            return;
-        }
-
-        // const newReminders = [...reminders]; // shallow copy does not work
+        if (!initialized.current) return;
         const newReminders = JSON.parse(JSON.stringify(reminders));
-
         newReminders[number - 1] = reminder;
         setReminders(newReminders);
-        console.log(reminder);
     }
 
     return (
-        <div className='flex flex-col'>
-            <div className="inline-block bg-white p-4 gap-4 rounded shadow-lg grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 justify-items-center">
-                <ReminderCard number={1} initialReminder={reminders[0]} onChange={onChange} />
-                <ReminderCard number={2} initialReminder={reminders[1]} onChange={onChange} />
-                <ReminderCard number={3} initialReminder={reminders[2]} onChange={onChange} />
-                <ReminderCard number={4} initialReminder={reminders[3]} onChange={onChange} />
-                <ReminderCard number={5} initialReminder={reminders[4]} onChange={onChange} />
-            </div>
-            <div className="flex gap-6 justify-end p-16 mr-10">
-                <AppButton label="Send to Watch" onClick={sendToWatch} />
-            </div>
-        </div>
+        <Box sx={{ 
+            px: { xs: 0, md: 4 },
+            pt: { xs: 3, md: 4 }, 
+            pb: { xs: 10, md: 4 }, 
+            maxWidth: { xs: 500, md: 600 }, 
+            mx: 'auto', 
+            width: '100%' 
+        }}>
+            {/* Page title — matches Android "Events" */}
+            <Typography
+                variant="h5"
+                sx={{ 
+                    mb: 3, 
+                    fontWeight: 500, 
+                    color: 'text.primary', 
+                    letterSpacing: 0.2,
+                    textAlign: { xs: 'center', md: 'left' },
+                    px: { xs: 0, md: 0 }
+                }}
+            >
+                Events
+            </Typography>
+
+            {/* Event list — rounded card with rows */}
+            <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', mx: 1 }}>
+                {reminders.map((reminder, index) => (
+                    <React.Fragment key={index}>
+                        <ReminderCard
+                            number={(index + 1) as 1 | 2 | 3 | 4 | 5}
+                            initialReminder={reminder}
+                            onChange={onChange}
+                        />
+                        {index < reminders.length - 1 && (
+                            <Divider sx={{ mx: 0, borderColor: 'rgba(139,94,60,0.10)' }} />
+                        )}
+                    </React.Fragment>
+                ))}
+            </Paper>
+
+            {/* Bottom action — matches Android "SEND TO WATCH REMINDERS" */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <Button
+                    variant="text"
+                    onClick={sendToWatch}
+                    sx={{
+                        color: '#8B5E3C',
+                        fontWeight: 700,
+                        fontSize: '0.95rem',
+                        letterSpacing: 1,
+                    }}
+                >
+                    SEND TO WATCH REMINDERS
+                </Button>
+            </Box>
+        </Box>
     );
 };
 
-// export some utility functions
-
-export default withBottomMenu(Reminders);
+export default Reminders;

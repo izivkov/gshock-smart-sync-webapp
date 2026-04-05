@@ -38,7 +38,7 @@ const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label,
             <AppText text={label} variant='h6' />
             <List className={className}>
                 {displayValues.map((displayValue: string, index: number) => (
-                    <ListItem className="p-0" key={index}>
+                    <ListItem className="p-0 before:hidden after:hidden" key={index} ripple={false}>
                         <label
                             htmlFor={displayValue}
                             className="flex w-full cursor-pointer items-center px-3 py-2"

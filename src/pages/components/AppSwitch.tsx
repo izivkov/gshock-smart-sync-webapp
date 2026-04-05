@@ -15,7 +15,7 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ text, initialValue, onChange }) =
   const [checked, setChecked] = useState<boolean>(initialValue);
 
   useEffect(() => {
-    requestAnimationFrame(() => setChecked(initialValue));
+    setChecked(initialValue);
   }, [initialValue]);
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,12 +34,12 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ text, initialValue, onChange }) =
         checked={checked}
         onChange={handleSwitchChange}
         ripple={false}
-        className="h-full w-full checked:bg-[purple]"
+        className="h-full w-full checked:bg-[purple] before:hidden after:hidden"
         containerProps={{
-          className: "w-11 h-6",
+          className: "w-11 h-6 before:hidden after:hidden",
         }}
         circleProps={{
-          className: "before:hidden left-0.5 border-none",
+          className: "before:hidden after:hidden left-0.5 border-none",
         }} />
     </div >
   )

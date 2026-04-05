@@ -2,3 +2,134 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Material 3 Color Tokens - Warm Brown/Peach Theme */
+  --md-sys-color-primary: #8B5E3C;
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-primary-container: #FCEEE6;
+  --md-sys-color-on-primary-container: #2D1A0E;
+  
+  --md-sys-color-secondary: #7A5C44;
+  --md-sys-color-on-secondary: #FFFFFF;
+  --md-sys-color-secondary-container: #F5EDE4;
+  --md-sys-color-on-secondary-container: #2D1A0E;
+  
+  --md-sys-color-surface: #F5EDE4;
+  --md-sys-color-surface-container: #FCEEE6;
+  --md-sys-color-surface-container-high: #F8F1E9;
+  --md-sys-color-surface-container-low: #F2E9DE;
+  --md-sys-color-on-surface: #2D1A0E;
+  --md-sys-color-on-surface-variant: #7A5C44;
+  
+  --md-sys-color-outline: rgba(139, 94, 60, 0.3);
+  --md-sys-color-outline-variant: rgba(139, 94, 60, 0.15);
+  
+  /* Legacy variables for backward compatibility */
+  --app-bg: #F5EDE4;
+  --card-bg: #FCEEE6;
+  --accent: #8B5E3C;
+  --text-primary: #2D1A0E;
+  --text-secondary: #7A5C44;
+  
+  /* Material 3 Elevation Tokens */
+  --md-sys-elevation-1: 0 1px 2px rgba(139, 94, 60, 0.08);
+  --md-sys-elevation-2: 0 1px 3px rgba(139, 94, 60, 0.12);
+  --md-sys-elevation-3: 0 2px 6px rgba(139, 94, 60, 0.15);
+  
+  /* Material 3 Shape Tokens */
+  --md-sys-shape-corner-none: 0;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+}
+
+body {
+  background-color: var(--md-sys-color-surface);
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  color: var(--md-sys-color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Material 3 Card Styles */
+.app-card {
+  background: var(--md-sys-color-surface-container);
+  border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+.app-card-elevated {
+  background: var(--md-sys-color-surface-container);
+  border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--md-sys-elevation-2);
+}
+
+/* Material 3 Navigation Drawer Active Indicator */
+.nav-item-active {
+  background-color: rgba(139, 94, 60, 0.12);
+  border-radius: var(--md-sys-shape-corner-full);
+}
+
+/* Material 3 Surface Tint */
+.surface-tint {
+  background-color: var(--md-sys-color-surface-container);
+}
+
+/* Smooth transitions for layout changes */
+.layout-transition {
+  transition: margin 225ms cubic-bezier(0.4, 0, 0.2, 1),
+              padding 225ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hide Material Tailwind focused/hovered circles and ripples */
+[class*="material-tailwind"] :before,
+[class*="material-tailwind"]::before,
+[class*="material-tailwind"] :after,
+[class*="material-tailwind"]::after,
+[class*="Mui"] :before,
+[class*="Mui"]::before,
+[class*="Mui"] :after,
+[class*="Mui"]::after,
+.before\:hidden::before,
+.after\:hidden::after,
+[class*="ripple"] {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--md-sys-color-primary);
+}
+
+/* Scrollbar styling for Material 3 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-sys-color-outline);
+}
+
+/* Focus visible styles for accessibility */
+:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
