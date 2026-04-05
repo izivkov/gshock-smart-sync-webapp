@@ -14,7 +14,6 @@ import {
 import TimeIcon from '@mui/icons-material/AccessTime';
 import AlarmsIcon from '@mui/icons-material/Alarm';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
-import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WatchIcon from '@mui/icons-material/Watch';
 
@@ -24,7 +23,6 @@ const NAV_ITEMS = [
     { label: 'Time', icon: <TimeIcon />, path: '/time/Time' },
     { label: 'Alarms', icon: <AlarmsIcon />, path: '/alarms/Alarms' },
     { label: 'Events', icon: <CalendarIcon />, path: '/reminders/Reminders' },
-    { label: 'Actions', icon: <DirectionsRunIcon />, path: '/' },
     { label: 'Settings', icon: <SettingsIcon />, path: '/settings/Settings' },
 ];
 

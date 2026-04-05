@@ -13,7 +13,6 @@ import {
 import TimeIcon from '@mui/icons-material/AccessTime';
 import AlarmsIcon from '@mui/icons-material/Alarm';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
-import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SideNavigation, { SIDEBAR_WIDTH } from './SideNavigation';
 
@@ -25,7 +24,6 @@ const NAV_ITEMS = [
     { label: 'Time', icon: <TimeIcon />, path: '/time/Time' },
     { label: 'Alarms', icon: <AlarmsIcon />, path: '/alarms/Alarms' },
     { label: 'Events', icon: <CalendarIcon />, path: '/reminders/Reminders' },
-    { label: 'Actions', icon: <DirectionsRunIcon />, path: '/' },
     { label: 'Settings', icon: <SettingsIcon />, path: '/settings/Settings' },
 ];
 
@@ -39,13 +37,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         router.push(path);
     };
 
-    // Map current path to nav index; default to Actions (index 3) for home
+    // Map current path to nav index; default to Time (index 0) for home
     const currentTabIndex = (() => {
         const idx = NAV_ITEMS.findIndex(item => item.path === pathname);
         if (idx !== -1) return idx;
-        // Home page maps to Actions tab
-        if (pathname === '/') return 3;
-        return 3;
+        // Home page maps to Time tab
+        return 0;
     })();
 
     return (
