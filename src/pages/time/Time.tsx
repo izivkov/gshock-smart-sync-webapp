@@ -1,13 +1,13 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Card, CardContent, IconButton, Tooltip, Divider } from '@mui/material';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import TimerIcon from '@mui/icons-material/Timer';
+import { Box, Typography, IconButton, Tooltip } from '@mui/material';
 import WatchIcon from '@mui/icons-material/Watch';
-import ThermostatIcon from '@mui/icons-material/Thermostat';
-import PublicIcon from '@mui/icons-material/Public';
 import SyncIcon from '@mui/icons-material/Sync';
+import TimerIcon from '@mui/icons-material/Timer';
+import PublicIcon from '@mui/icons-material/Public';
+import ThermostatIcon from '@mui/icons-material/Thermostat';
+import BluetoothConnectedIcon from '@mui/icons-material/BluetoothConnected';
 import TimerInput from './TimerInput';
 import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
@@ -47,158 +47,264 @@ const Time: React.FC = () => {
         GShockAPI.setTimer(timeInSeconds);
     };
 
-    // Shared card styles
-    const cardStyle = {
-        borderRadius: '16px',
-        boxShadow: '0 1px 3px rgba(139, 94, 60, 0.08)',
-        backgroundColor: '#FCEEE6',
-        height: '100%',
-    };
-
-    const sectionLabelStyle = {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
-        color: '#7A5C44',
-        fontSize: '0.75rem',
-        fontWeight: 500,
-        textTransform: 'uppercase' as const,
-        letterSpacing: '0.05em',
-        mb: 1.5,
-    };
-
     return (
         <Box sx={{ 
             px: { xs: 2, md: 3 }, 
             pt: { xs: 2, md: 3 }, 
-            pb: { xs: 10, md: 3 }, 
-            maxWidth: { xs: '100%', md: 520 }, 
+            pb: { xs: 12, md: 3 }, 
+            maxWidth: 480, 
             mx: 'auto', 
             width: '100%' 
         }}>
-            {/* Watch Name Header */}
-            <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                mb: 3,
-                px: 1,
-            }}>
+            {/* Watch Header */}
+            <Box 
+                sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    mb: 3,
+                }}
+            >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <WatchIcon sx={{ color: '#8B5E3C', fontSize: 28 }} />
+                    <Box
+                        sx={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: '12px',
+                            backgroundColor: 'rgba(139, 94, 60, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <WatchIcon sx={{ color: '#8B5E3C', fontSize: 24 }} />
+                    </Box>
                     <Box>
-                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#2D1A0E', lineHeight: 1.2 }}>
+                        <Typography 
+                            variant="h6" 
+                            sx={{ 
+                                fontWeight: 600, 
+                                color: '#2D1A0E', 
+                                lineHeight: 1.2,
+                                fontSize: '1.125rem',
+                            }}
+                        >
                             {watchInfo.name || 'G-Shock'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#7A5C44' }}>
-                            Connected
-                        </Typography>
-                    </Box>
-                </Box>
-            </Box>
-
-            {/* Current Time Card - Hero */}
-            <Card sx={{ ...cardStyle, mb: 2 }}>
-                <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <Box>
-                            <Box sx={sectionLabelStyle}>
-                                <AccessTimeIcon sx={{ fontSize: 16 }} />
-                                <span>Current Time</span>
-                            </Box>
-                            <DigitalClock />
-                            <Typography variant="body2" sx={{ color: '#7A5C44', mt: 0.5 }}>
-                                {timeZone}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <BluetoothConnectedIcon sx={{ fontSize: 12, color: '#4CAF50' }} />
+                            <Typography variant="caption" sx={{ color: '#4CAF50', fontWeight: 500 }}>
+                                Connected
                             </Typography>
                         </Box>
-                        <Tooltip title="Sync time to watch">
+                    </Box>
+                </Box>
+                <BatteryLevel level={batteryLevel} />
+            </Box>
+
+            {/* Main Time Display */}
+            <Box 
+                sx={{ 
+                    backgroundColor: '#FCEEE6',
+                    borderRadius: '20px',
+                    p: 3,
+                    mb: 2,
+                    position: 'relative',
+                    overflow: 'hidden',
+                }}
+            >
+                {/* Decorative element */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: -40,
+                        right: -40,
+                        width: 120,
+                        height: 120,
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(139, 94, 60, 0.05)',
+                    }}
+                />
+                
+                <Box sx={{ position: 'relative', zIndex: 1 }}>
+                    <Typography 
+                        sx={{ 
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            color: '#8B5E3C',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                            mb: 1,
+                        }}
+                    >
+                        Current Time
+                    </Typography>
+                    
+                    <Box sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                        <Box>
+                            <DigitalClock size="large" showSeconds={true} />
+                            <Typography 
+                                sx={{ 
+                                    fontSize: '0.8125rem',
+                                    color: '#7A5C44',
+                                    mt: 0.5,
+                                }}
+                            >
+                                {timeZone.replace('_', ' ')}
+                            </Typography>
+                        </Box>
+                        
+                        <Tooltip title="Sync to watch" arrow>
                             <IconButton 
                                 onClick={handleSetTime}
                                 sx={{ 
                                     backgroundColor: '#8B5E3C',
                                     color: '#FFFFFF',
-                                    width: 44,
-                                    height: 44,
-                                    '&:hover': { backgroundColor: '#5C3A1E' },
+                                    width: 48,
+                                    height: 48,
+                                    boxShadow: '0 4px 12px rgba(139, 94, 60, 0.3)',
+                                    '&:hover': { 
+                                        backgroundColor: '#5C3A1E',
+                                        transform: 'scale(1.05)',
+                                    },
+                                    transition: 'all 0.2s ease',
                                 }}
                             >
                                 <SyncIcon />
                             </IconButton>
                         </Tooltip>
                     </Box>
-                </CardContent>
-            </Card>
-
-            {/* Timer Card */}
-            <Card sx={{ ...cardStyle, mb: 2 }}>
-                <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <Box>
-                            <Box sx={sectionLabelStyle}>
-                                <TimerIcon sx={{ fontSize: 16 }} />
-                                <span>Timer</span>
-                            </Box>
-                            <TimerInput initialValue={timerValue} onUpdate={handleTimerChange} />
-                        </Box>
-                        <Tooltip title="Set timer on watch">
-                            <IconButton 
-                                onClick={handleSetTimer}
-                                sx={{ 
-                                    backgroundColor: '#8B5E3C',
-                                    color: '#FFFFFF',
-                                    width: 44,
-                                    height: 44,
-                                    mt: 2.5,
-                                    '&:hover': { backgroundColor: '#5C3A1E' },
-                                }}
-                            >
-                                <SyncIcon />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
-                </CardContent>
-            </Card>
-
-            {/* Watch Status Row - Two columns */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                {/* Home Time */}
-                <Card sx={cardStyle}>
-                    <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                        <Box sx={sectionLabelStyle}>
-                            <PublicIcon sx={{ fontSize: 16 }} />
-                            <span>Home</span>
-                        </Box>
-                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#2D1A0E' }}>
-                            {homeTime || '--:--'}
-                        </Typography>
-                    </CardContent>
-                </Card>
-
-                {/* Temperature */}
-                <Card sx={cardStyle}>
-                    <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                        <Box sx={sectionLabelStyle}>
-                            <ThermostatIcon sx={{ fontSize: 16 }} />
-                            <span>Temp</span>
-                        </Box>
-                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#2D1A0E' }}>
-                            {temperature}°C
-                        </Typography>
-                    </CardContent>
-                </Card>
+                </Box>
             </Box>
 
-            {/* Battery Status */}
-            <Card sx={{ ...cardStyle, mt: 2 }}>
-                <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="body2" sx={{ color: '#7A5C44', fontWeight: 500 }}>
-                            Battery
+            {/* Timer Section */}
+            <Box 
+                sx={{ 
+                    backgroundColor: '#FCEEE6',
+                    borderRadius: '20px',
+                    p: 3,
+                    mb: 2,
+                }}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    <TimerIcon sx={{ fontSize: 18, color: '#8B5E3C' }} />
+                    <Typography 
+                        sx={{ 
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            color: '#8B5E3C',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                        }}
+                    >
+                        Timer
+                    </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <TimerInput initialValue={timerValue} onUpdate={handleTimerChange} />
+                    
+                    <Tooltip title="Set timer" arrow>
+                        <IconButton 
+                            onClick={handleSetTimer}
+                            sx={{ 
+                                backgroundColor: 'rgba(139, 94, 60, 0.1)',
+                                color: '#8B5E3C',
+                                width: 44,
+                                height: 44,
+                                '&:hover': { 
+                                    backgroundColor: 'rgba(139, 94, 60, 0.2)',
+                                },
+                            }}
+                        >
+                            <SyncIcon sx={{ fontSize: 20 }} />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            </Box>
+
+            {/* Info Cards Grid */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+                {/* Home Time Card */}
+                <Box 
+                    sx={{ 
+                        backgroundColor: '#FCEEE6',
+                        borderRadius: '16px',
+                        p: 2,
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
+                        <PublicIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
+                        <Typography 
+                            sx={{ 
+                                fontSize: '0.6875rem',
+                                fontWeight: 600,
+                                color: '#8B5E3C',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                            }}
+                        >
+                            Home Time
                         </Typography>
-                        <BatteryLevel level={batteryLevel} />
                     </Box>
-                </CardContent>
-            </Card>
+                    <Typography 
+                        sx={{ 
+                            fontSize: '1.5rem',
+                            fontWeight: 600,
+                            color: '#2D1A0E',
+                            fontFamily: '"SF Mono", "Roboto Mono", monospace',
+                            fontVariantNumeric: 'tabular-nums',
+                        }}
+                    >
+                        {homeTime || '--:--'}
+                    </Typography>
+                </Box>
+
+                {/* Temperature Card */}
+                <Box 
+                    sx={{ 
+                        backgroundColor: '#FCEEE6',
+                        borderRadius: '16px',
+                        p: 2,
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
+                        <ThermostatIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
+                        <Typography 
+                            sx={{ 
+                                fontSize: '0.6875rem',
+                                fontWeight: 600,
+                                color: '#8B5E3C',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                            }}
+                        >
+                            Temperature
+                        </Typography>
+                    </Box>
+                    <Typography 
+                        sx={{ 
+                            fontSize: '1.5rem',
+                            fontWeight: 600,
+                            color: '#2D1A0E',
+                            fontFamily: '"SF Mono", "Roboto Mono", monospace',
+                        }}
+                    >
+                        {temperature}
+                        <Typography 
+                            component="span" 
+                            sx={{ 
+                                fontSize: '1rem',
+                                fontWeight: 500,
+                                color: '#7A5C44',
+                                ml: 0.25,
+                            }}
+                        >
+                            °C
+                        </Typography>
+                    </Typography>
+                </Box>
+            </Box>
         </Box>
     );
 };
