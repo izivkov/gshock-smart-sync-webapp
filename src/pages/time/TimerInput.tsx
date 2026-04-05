@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, ChangeEvent, useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
 
 interface TimerValues {
     hours: number;
@@ -48,32 +49,69 @@ const TimerInput: React.FC<TimerInputParams> = ({ initialValue, onUpdate }) => {
         }
     };
 
+    const inputStyle = {
+        width: '48px',
+        height: '40px',
+        textAlign: 'center' as const,
+        fontSize: '1.125rem',
+        fontWeight: 500,
+        fontFamily: 'inherit',
+        border: '1px solid rgba(139, 94, 60, 0.3)',
+        borderRadius: '8px',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        color: '#2D1A0E',
+        outline: 'none',
+        MozAppearance: 'textfield' as const,
+        WebkitAppearance: 'none' as const,
+    };
+
+    const labelStyle = {
+        fontSize: '0.625rem',
+        fontWeight: 500,
+        color: '#7A5C44',
+        textTransform: 'uppercase' as const,
+        letterSpacing: '0.05em',
+        marginBottom: '4px',
+    };
+
     return (
-        <div className="flex space-x-2 items-center">
-            <input
-                type="number"
-                placeholder="HH"
-                value={hours}
-                onChange={(e) => handleHoursChange(e)}
-                className="w-16 h-14 text-center text-2xl border border-gray-300 rounded-md"
-            />
-            <span className="text-2xl">:</span>
-            <input
-                type="number"
-                placeholder="MM"
-                value={minutes}
-                onChange={(e) => handleMinutesChange(e)}
-                className="w-16 h-14 text-center text-2xl border border-gray-300 rounded-md p-1"
-            />
-            <span className="text-2xl">:</span>
-            <input
-                type="number"
-                placeholder="SS"
-                value={seconds}
-                onChange={(e) => handleSecondsChange(e)}
-                className="w-16 h-14 text-center text-2xl border border-gray-300 rounded-md p-1"
-            />
-        </div>
+        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Typography sx={labelStyle}>Hr</Typography>
+                <input
+                    type="number"
+                    min={0}
+                    max={23}
+                    value={hours.toString().padStart(2, '0')}
+                    onChange={handleHoursChange}
+                    style={inputStyle}
+                />
+            </Box>
+            <Typography sx={{ fontSize: '1.25rem', fontWeight: 500, color: '#7A5C44', pb: '8px' }}>:</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Typography sx={labelStyle}>Min</Typography>
+                <input
+                    type="number"
+                    min={0}
+                    max={59}
+                    value={minutes.toString().padStart(2, '0')}
+                    onChange={handleMinutesChange}
+                    style={inputStyle}
+                />
+            </Box>
+            <Typography sx={{ fontSize: '1.25rem', fontWeight: 500, color: '#7A5C44', pb: '8px' }}>:</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Typography sx={labelStyle}>Sec</Typography>
+                <input
+                    type="number"
+                    min={0}
+                    max={59}
+                    value={seconds.toString().padStart(2, '0')}
+                    onChange={handleSecondsChange}
+                    style={inputStyle}
+                />
+            </Box>
+        </Box>
     );
 };
 

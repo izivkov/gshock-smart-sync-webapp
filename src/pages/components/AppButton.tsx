@@ -6,25 +6,45 @@ import Button from '@mui/material/Button';
 interface ButtonProps {
     label: string;
     onClick?: () => void;
+    size?: 'small' | 'medium' | 'large';
+    variant?: 'contained' | 'outlined' | 'text';
+    startIcon?: React.ReactNode;
+    fullWidth?: boolean;
 }
 
-const AppButton: React.FC<ButtonProps> = ({ label, onClick }) => {
+const AppButton: React.FC<ButtonProps> = ({ 
+    label, 
+    onClick, 
+    size = 'medium',
+    variant = 'contained',
+    startIcon,
+    fullWidth = false,
+}) => {
+    const sizeStyles = {
+        small: { padding: '6px 16px', fontSize: '0.8125rem' },
+        medium: { padding: '8px 20px', fontSize: '0.875rem' },
+        large: { padding: '12px 28px', fontSize: '1rem' },
+    };
+
     return (
         <Button
-            variant="contained"
+            variant={variant}
             onClick={onClick}
+            startIcon={startIcon}
+            fullWidth={fullWidth}
             sx={{
-                backgroundColor: '#6366f1', // Indigo 500
-                background: 'linear-gradient(45deg, #6366f1 30%, #a855f7 90%)',
+                backgroundColor: variant === 'contained' ? '#8B5E3C' : 'transparent',
+                color: variant === 'contained' ? '#FFFFFF' : '#8B5E3C',
+                border: variant === 'outlined' ? '1px solid rgba(139, 94, 60, 0.5)' : 'none',
                 '&:hover': {
-                    background: 'linear-gradient(45deg, #4f46e5 30%, #9333ea 90%)',
-                    boxShadow: '0 0 20px rgba(99, 102, 241, 0.4)',
+                    backgroundColor: variant === 'contained' ? '#5C3A1E' : 'rgba(139, 94, 60, 0.08)',
+                    borderColor: variant === 'outlined' ? '#8B5E3C' : undefined,
                 },
-                borderRadius: '12px',
+                borderRadius: '100px',
                 textTransform: 'none',
-                padding: '12px 28px',
-                fontWeight: 'bold',
-                boxShadow: '0 4px 14px 0 rgba(0,0,0,0.1)',
+                fontWeight: 500,
+                boxShadow: variant === 'contained' ? '0 1px 3px rgba(139, 94, 60, 0.2)' : 'none',
+                ...sizeStyles[size],
             }}
         >
             {label}

@@ -32,7 +32,11 @@ const DigitalClock: React.FC = () => {
     }, []);
 
     return (
-        <div className="text-4xl font-semibold text-center" suppressHydrationWarning>
+        <div 
+            className="text-3xl font-semibold tabular-nums" 
+            style={{ color: '#2D1A0E', letterSpacing: '-0.02em' }}
+            suppressHydrationWarning
+        >
             {currentTime}
         </div>
     );
