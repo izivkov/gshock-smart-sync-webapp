@@ -70,12 +70,25 @@ const Settings: React.FC = () => {
     }
 
     return (
-        <Box sx={{ pt: 3, pb: 10, maxWidth: 500, mx: 'auto', width: '100%' }}>
+        <Box sx={{ 
+            px: { xs: 0, md: 4 },
+            pt: { xs: 3, md: 4 }, 
+            pb: { xs: 10, md: 4 }, 
+            maxWidth: { xs: 500, md: 600 }, 
+            mx: 'auto', 
+            width: '100%' 
+        }}>
             {/* Page title */}
             <Typography
                 variant="h5"
-                align="center"
-                sx={{ mb: 2.5, fontWeight: 500, color: 'text.primary', letterSpacing: 0.2 }}
+                sx={{ 
+                    mb: 3, 
+                    fontWeight: 500, 
+                    color: 'text.primary', 
+                    letterSpacing: 0.2,
+                    textAlign: { xs: 'center', md: 'left' },
+                    px: { xs: 1, md: 0 }
+                }}
             >
                 Settings
             </Typography>

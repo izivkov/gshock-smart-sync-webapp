@@ -10,12 +10,24 @@ import WatchNameCard from './WatchNameCard';
 
 const Time: React.FC = () => {
     return (
-        <Box sx={{ px: 2, pt: 3, pb: 2, maxWidth: 500, mx: 'auto', width: '100%' }}>
+        <Box sx={{ 
+            px: { xs: 2, md: 4 }, 
+            pt: { xs: 3, md: 4 }, 
+            pb: { xs: 2, md: 4 }, 
+            maxWidth: { xs: 500, md: 600 }, 
+            mx: 'auto', 
+            width: '100%' 
+        }}>
             {/* Page title — matches Android */}
             <Typography
                 variant="h5"
-                align="center"
-                sx={{ mb: 2.5, fontWeight: 500, color: 'text.primary', letterSpacing: 0.2 }}
+                sx={{ 
+                    mb: 3, 
+                    fontWeight: 500, 
+                    color: 'text.primary', 
+                    letterSpacing: 0.2,
+                    textAlign: { xs: 'center', md: 'left' }
+                }}
             >
                 Time
             </Typography>

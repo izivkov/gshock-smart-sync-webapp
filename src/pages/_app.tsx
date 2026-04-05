@@ -5,58 +5,81 @@ import { ThemeProvider as MUIThemeProvider, createTheme } from '@mui/material/st
 import CssBaseline from '@mui/material/CssBaseline';
 import MainLayout from './components/MainLayout';
 
-// Warm brown/peach theme matching the Android G-Shock app
+// Material 3 Design Tokens - Warm brown/peach theme matching the Android G-Shock app
 const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#8B5E3C',       // warm brown
-      light: '#FCEEE6',      // peach card background
-      dark: '#5C3A1E',       // deep brown
-      contrastText: '#FFF8F4',
+      main: '#8B5E3C',           // warm brown
+      light: '#B8896A',          // lighter warm brown
+      dark: '#5C3A1E',           // deep brown
+      contrastText: '#FFFFFF',
     },
     secondary: {
       main: '#7A5C44',
-      light: '#F5EDE4',
+      light: '#A68B73',
       dark: '#4A3628',
+      contrastText: '#FFFFFF',
     },
     background: {
-      default: '#F5EDE4',    // warm linen — static, never changes
-      paper: '#FCEEE6',      // slightly lighter peach for cards
+      default: '#F5EDE4',        // warm linen — surface
+      paper: '#FCEEE6',          // peach — surface-container
     },
     text: {
-      primary: '#2D1A0E',
-      secondary: '#7A5C44',
+      primary: '#2D1A0E',        // on-surface
+      secondary: '#7A5C44',      // on-surface-variant
     },
     divider: 'rgba(139, 94, 60, 0.15)',
+    action: {
+      hover: 'rgba(139, 94, 60, 0.08)',
+      selected: 'rgba(139, 94, 60, 0.12)',
+      focus: 'rgba(139, 94, 60, 0.12)',
+    },
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: { fontWeight: 700 },
-    h2: { fontWeight: 700 },
-    h3: { fontWeight: 600 },
-    h4: { fontWeight: 600 },
-    h5: { fontWeight: 600 },
-    h6: { fontWeight: 600 },
+    // Material 3 Type Scale
+    h1: { fontSize: '2.25rem', fontWeight: 400, lineHeight: 1.2, letterSpacing: '-0.01em' },
+    h2: { fontSize: '1.75rem', fontWeight: 400, lineHeight: 1.3, letterSpacing: 0 },
+    h3: { fontSize: '1.5rem', fontWeight: 400, lineHeight: 1.3, letterSpacing: 0 },
+    h4: { fontSize: '1.25rem', fontWeight: 500, lineHeight: 1.4, letterSpacing: '0.01em' },
+    h5: { fontSize: '1.125rem', fontWeight: 500, lineHeight: 1.4, letterSpacing: '0.01em' },
+    h6: { fontSize: '1rem', fontWeight: 500, lineHeight: 1.5, letterSpacing: '0.01em' },
+    subtitle1: { fontSize: '1rem', fontWeight: 500, lineHeight: 1.5, letterSpacing: '0.01em' },
+    subtitle2: { fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.5, letterSpacing: '0.01em' },
+    body1: { fontSize: '1rem', fontWeight: 400, lineHeight: 1.5, letterSpacing: '0.03em' },
+    body2: { fontSize: '0.875rem', fontWeight: 400, lineHeight: 1.5, letterSpacing: '0.03em' },
+    button: { fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.75, letterSpacing: '0.03em', textTransform: 'none' as const },
+    caption: { fontSize: '0.75rem', fontWeight: 400, lineHeight: 1.5, letterSpacing: '0.03em' },
+    overline: { fontSize: '0.75rem', fontWeight: 500, lineHeight: 2, letterSpacing: '0.08em', textTransform: 'uppercase' as const },
   },
   shape: {
-    borderRadius: 16,
+    borderRadius: 12, // M3 medium rounding
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 100,
+          borderRadius: 100, // M3 full rounding for buttons
           textTransform: 'none',
-          fontWeight: 600,
-          padding: '10px 28px',
+          fontWeight: 500,
+          padding: '10px 24px',
+          boxShadow: 'none',
+          '&:hover': {
+            boxShadow: 'none',
+          },
+        },
+        contained: {
+          '&:hover': {
+            boxShadow: '0 1px 3px rgba(139, 94, 60, 0.2)',
+          },
         },
         outlined: {
-          borderColor: '#8B5E3C',
+          borderColor: 'rgba(139, 94, 60, 0.5)',
           color: '#8B5E3C',
           '&:hover': {
             background: 'rgba(139, 94, 60, 0.08)',
-            borderColor: '#5C3A1E',
+            borderColor: '#8B5E3C',
           },
         },
       },
@@ -64,8 +87,8 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 20,
-          boxShadow: '0 2px 12px rgba(139, 94, 60, 0.10)',
+          borderRadius: 16, // M3 large rounding for cards
+          boxShadow: '0 1px 2px rgba(139, 94, 60, 0.08)',
           background: '#FCEEE6',
           border: 'none',
         },
@@ -77,6 +100,12 @@ const theme = createTheme({
           backgroundImage: 'none',
           background: '#FCEEE6',
         },
+        elevation1: {
+          boxShadow: '0 1px 2px rgba(139, 94, 60, 0.08)',
+        },
+        elevation2: {
+          boxShadow: '0 1px 3px rgba(139, 94, 60, 0.12)',
+        },
       },
     },
     MuiSwitch: {
@@ -86,8 +115,12 @@ const theme = createTheme({
             color: '#8B5E3C',
             '& + .MuiSwitch-track': {
               backgroundColor: '#8B5E3C',
+              opacity: 1,
             },
           },
+        },
+        track: {
+          borderRadius: 100,
         },
       },
     },
@@ -95,7 +128,8 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           background: '#FCEEE6',
-          borderTop: '1px solid rgba(139, 94, 60, 0.15)',
+          borderTop: '1px solid rgba(139, 94, 60, 0.12)',
+          height: 80,
         },
       },
     },
@@ -103,9 +137,41 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           color: '#7A5C44',
+          minWidth: 0,
+          padding: '8px 12px 12px',
           '&.Mui-selected': {
             color: '#8B5E3C',
           },
+          '& .MuiBottomNavigationAction-label': {
+            fontSize: '0.75rem',
+            '&.Mui-selected': {
+              fontSize: '0.75rem',
+            },
+          },
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 100, // M3 pill shape for nav items
+          '&.Mui-selected': {
+            backgroundColor: 'rgba(139, 94, 60, 0.12)',
+            '&:hover': {
+              backgroundColor: 'rgba(139, 94, 60, 0.16)',
+            },
+          },
+          '&:hover': {
+            backgroundColor: 'rgba(139, 94, 60, 0.08)',
+          },
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#FCEEE6',
+          borderRight: '1px solid rgba(139, 94, 60, 0.12)',
         },
       },
     },

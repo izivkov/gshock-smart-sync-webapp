@@ -143,7 +143,14 @@ function Home() {
   const footer = <ConnectButton />
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+    <Box sx={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: { xs: 'flex-start', md: 'center' },
+      px: { xs: 2, md: 4 },
+      py: { xs: 3, md: 4 },
+      minHeight: { md: '100vh' }
+    }}>
       <AppCard header={header} body={textBody} footer={footer} />
     </Box>
   )
