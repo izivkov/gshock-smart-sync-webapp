@@ -12,7 +12,7 @@ import { Edit } from '@mui/icons-material';
 interface Alarm {
     hour: number,
     minute: number,
-    hourlyChime: boolean,
+    hasHourlyChime: boolean,
     enabled: boolean
 }
 
@@ -27,14 +27,14 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm, onChange }) => {
     const [hour, setHour] = useState(alarm.hour);
     const [minute, setMinute] = useState(alarm.minute);
     const [enabled, setEnabled] = useState(alarm.enabled);
-    const [hourlyChime, setHourlyChime] = useState(alarm.hourlyChime);
+    const [hasHourlyChime, setHasHourlyChime] = useState(alarm.hasHourlyChime);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [time, setTime] = useState(dayjs().hour(hour).minute(minute));
 
     useEffect(() => {
         setHour(alarm.hour);
         setMinute(alarm.minute);
-        setHourlyChime(alarm.hourlyChime);
+        setHasHourlyChime(alarm.hasHourlyChime);
         setEnabled(alarm.enabled);
         setTime(dayjs().hour(alarm.hour).minute(alarm.minute));
     }, [alarm]);
@@ -51,7 +51,7 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm, onChange }) => {
             alarm = {
                 hour: time.hour(),
                 minute: time.minute(),
-                hourlyChime: hourlyChime,
+                hasHourlyChime: hasHourlyChime,
                 enabled: enabled
             }
 

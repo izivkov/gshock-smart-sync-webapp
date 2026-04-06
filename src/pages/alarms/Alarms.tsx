@@ -11,13 +11,13 @@ import GShockAPI from '@/api/GShockAPI';
 const Alarms: React.FC = () => {
     const initialized = useRef(false)
     const [alarms, setAlarms] = useState<{
-        hour: number, minute: number, hourlyChime: boolean, enabled: boolean
+        hour: number, minute: number, hasHourlyChime: boolean, enabled: boolean
     }[]>([
-        { hour: 0, minute: 0, hourlyChime: false, enabled: false },
-        { hour: 0, minute: 0, hourlyChime: false, enabled: false },
-        { hour: 0, minute: 0, hourlyChime: false, enabled: false },
-        { hour: 0, minute: 0, hourlyChime: false, enabled: false },
-        { hour: 0, minute: 0, hourlyChime: false, enabled: false },
+        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
+        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
+        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
+        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
+        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
     ]);
 
     useEffect(() => {
@@ -38,7 +38,7 @@ const Alarms: React.FC = () => {
 
     const onChange = (
         alarmnumber: 1 | 2 | 3 | 4 | 5,
-        alarm: { hour: number, minute: number, hourlyChime: boolean, enabled: boolean }
+        alarm: { hour: number, minute: number, hasHourlyChime: boolean, enabled: boolean }
     ) => {
         const newAlarms = [...alarms];
         newAlarms[alarmnumber - 1] = alarm;
@@ -47,8 +47,12 @@ const Alarms: React.FC = () => {
 
     const onSignalChange = (checked: boolean) => {
         const newAlarms = [...alarms];
-        newAlarms[0].hourlyChime = checked;
+        newAlarms[0].hasHourlyChime = checked;
         setAlarms(newAlarms);
+        // Immediately save the change to the watch
+        const updatedAlarms = [...newAlarms];
+        updatedAlarms[0].hasHourlyChime = checked;
+        GShockAPI.setAlarms(updatedAlarms);
     }
 
     if (!alarms || alarms.length === 0) {
@@ -100,7 +104,7 @@ const Alarms: React.FC = () => {
                 <Typography variant="body1" sx={{ color: 'text.primary', mr: 1 }}>
                     Signal (chime)
                 </Typography>
-                <AppSwitch text="" initialValue={alarms[0].hourlyChime} onChange={onSignalChange} />
+                <AppSwitch text="" initialValue={alarms[0].hasHourlyChime} onChange={onSignalChange} />
             </Box>
 
             {/* Bottom action buttons — matching Android */}

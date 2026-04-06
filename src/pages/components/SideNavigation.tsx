@@ -128,11 +128,13 @@ const SideNavigation: React.FC = () => {
                 <List disablePadding sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                     {visibleItems.map((item) => {
                         const active = isActive(item.path);
+                        const isDisabled = !isConnected;
                         return (
                             <ListItemButton
                                 key={item.path}
-                                onClick={() => handleNavigation(item.path)}
+                                onClick={() => !isDisabled && handleNavigation(item.path)}
                                 selected={active}
+                                disabled={isDisabled}
                                 sx={{
                                     py: 1.5,
                                     px: 2,
@@ -148,7 +150,18 @@ const SideNavigation: React.FC = () => {
                                             color: 'primary.main',
                                         },
                                     },
-                                    '&:hover': {
+                                    '&.Mui-disabled': {
+                                        opacity: 0.5,
+                                        backgroundColor: 'transparent',
+                                        '& .MuiListItemIcon-root': {
+                                            color: 'text.disabled',
+                                        },
+                                        '& .MuiListItemText-primary': {
+                                            color: 'text.disabled',
+                                        },
+                                        cursor: 'not-allowed',
+                                    },
+                                    '&:hover:not(.Mui-disabled)': {
                                         backgroundColor: active
                                             ? 'rgba(139, 94, 60, 0.16)'
                                             : 'rgba(139, 94, 60, 0.08)',
@@ -158,7 +171,9 @@ const SideNavigation: React.FC = () => {
                                 <ListItemIcon
                                     sx={{
                                         minWidth: 40,
-                                        color: active ? 'primary.main' : 'text.secondary',
+                                        color: isDisabled 
+                                            ? 'text.disabled'
+                                            : active ? 'primary.main' : 'text.secondary',
                                     }}
                                 >
                                     {item.icon}
@@ -168,7 +183,9 @@ const SideNavigation: React.FC = () => {
                                     primaryTypographyProps={{
                                         fontSize: '0.9375rem',
                                         fontWeight: active ? 600 : 500,
-                                        color: active ? 'primary.main' : 'text.primary',
+                                        color: isDisabled 
+                                            ? 'text.disabled'
+                                            : active ? 'primary.main' : 'text.primary',
                                     }}
                                 />
                             </ListItemButton>

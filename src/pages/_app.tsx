@@ -7,6 +7,7 @@ import MainLayout from './components/MainLayout';
 import { useRouter } from 'next/router';
 import { useEffect, useState, createContext, useContext } from 'react';
 import { connection } from '@api/Connection';
+import { progressEvents, EventAction } from '@api/ProgressEvents';
 
 // Material 3 Design Tokens - Warm brown/peach theme matching the Android G-Shock app
 const theme = createTheme({
@@ -191,20 +192,23 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const [isConnected, setIsConnected] = useState(false);
 
+  // Listen for connection events from the watch
   useEffect(() => {
-    // Example: Replace with actual connection status logic
-    const checkConnection = async () => {
-      const connected = await fetchConnectionStatus(); // Replace with actual API or state
-      setIsConnected(connected);
+    const connectionActions: EventAction[] = [
+      { label: "Connected", action: () => setIsConnected(true) },
+      { label: "Disconnected", action: () => setIsConnected(false) },
+    ];
 
-      const restrictedPaths = ['/time', '/alarms', '/events', '/settings'];
-      if (!connected && restrictedPaths.includes(router.pathname)) {
-        router.push('/');
-      }
-    };
+    progressEvents.runEventActions("AppRoot", connectionActions);
+  }, []);
 
-    checkConnection();
-  }, [router.pathname]);
+  // Route protection: redirect to home if visiting restricted paths while disconnected
+  useEffect(() => {
+    const restrictedPaths = ['/time', '/alarms', '/events', '/settings'];
+    if (!isConnected && restrictedPaths.some(path => router.pathname.startsWith(path))) {
+      router.push('/');
+    }
+  }, [isConnected, router]);
 
   return (
     <ConnectionContext.Provider value={{ isConnected, setIsConnected }}>
@@ -220,7 +224,4 @@ export default function App({ Component, pageProps }: AppProps) {
   );
 }
 
-async function fetchConnectionStatus() {
-  // Use the connection object to check if the watch is connected
-  return connection.isConnected();
-}
+

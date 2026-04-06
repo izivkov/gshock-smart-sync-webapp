@@ -9,11 +9,13 @@ interface AlarmData {
     hour: number;
     minute: number;
     enabled: boolean;
-    hourlyChime: boolean;
+    hasHourlyChime: boolean;
 }
 
 let deferredResult: Promise<void>;
 let resolver: ((value?: Alarm[] | PromiseLike<string>) => void);
+let receivedCharacteristics = 0;
+let allAlarmData: any[] = [];
 
 const AlarmsIO = {
     async request(): Promise<void> {
@@ -23,6 +25,8 @@ const AlarmsIO = {
     async getAlarms(key: string): Promise<void> {
         connection.sendMessage(`{"action": "${key}" }`);
         Alarm.clear();
+        receivedCharacteristics = 0;
+        allAlarmData = [];
 
         deferredResult = new Promise<void>((resolve) => {
             resolver = resolve as ((value?: Alarm[] | PromiseLike<string>) => void);
@@ -32,11 +36,6 @@ const AlarmsIO = {
     },
 
     async set(alarms: AlarmData[]): Promise<void> {
-        if (Alarm.alarms.length === 0) {
-            console.log("Alarm model not initialized! Cannot set alarm");
-            return;
-        }
-
         function toJson(): string {
             return JSON.stringify(alarms);
         }
@@ -53,11 +52,14 @@ const AlarmsIO = {
         function fromJson(jsonStr: string): void {
             const alarmArr = JSON.parse(jsonStr);
             Alarm.alarms.push(...alarmArr);
+            allAlarmData.push(...alarmArr);
         }
 
         fromJson(JSON.stringify(data));
 
-        if (Alarm.alarms.length > 1) {
+        receivedCharacteristics++;
+        // Wait for both characteristic responses (ALM and ALM2) before resolving
+        if (receivedCharacteristics >= 2 && allAlarmData.length === 5) {
             resolver!(Alarm.alarms);
         }
     },
@@ -113,12 +115,12 @@ const AlarmsIO = {
 
         createJsonAlarm(intArray: number[]): AlarmData {
             const enabled = (intArray[0] & Alarms.ENABLED_MASK) !== 0;
-            const hourlyChime = (intArray[0] & this.HOURLY_CHIME_MASK) !== 0;
+            const hasHourlyChime = (intArray[0] & this.HOURLY_CHIME_MASK) !== 0;
             const alarm: AlarmData = {
                 hour: intArray[2],
                 minute: intArray[3],
                 enabled,
-                hourlyChime,
+                hasHourlyChime,
             };
             return alarm;
         },
