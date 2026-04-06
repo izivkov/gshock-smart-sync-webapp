@@ -29,10 +29,10 @@ const Reminders: React.FC = () => {
             if (!initialized.current) {
                 initialized.current = true;
                 const newReminders = await GShockAPI.getEventsFromWatch();
-                setReminders(newReminders);
+                setReminders(newReminders.slice(0, 5));
             }
         })()
-    }, [reminders]);
+    }, []);
 
     const sendToWatch = async () => {
         await GShockAPI.setEvents(reminders);
@@ -85,19 +85,14 @@ const Reminders: React.FC = () => {
                 ))}
             </Paper>
 
-            {/* Bottom action — matches Android "SEND TO WATCH REMINDERS" */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            {/* Bottom action buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, px: 2 }}>
                 <Button
-                    variant="text"
+                    variant="outlined"
                     onClick={sendToWatch}
-                    sx={{
-                        color: '#8B5E3C',
-                        fontWeight: 700,
-                        fontSize: '0.95rem',
-                        letterSpacing: 1,
-                    }}
+                    sx={{ flexShrink: 0 }}
                 >
-                    SEND TO WATCH REMINDERS
+                    Send to Watch
                 </Button>
             </Box>
         </Box>

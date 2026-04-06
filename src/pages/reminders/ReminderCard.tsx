@@ -1,13 +1,12 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import AppCard from "@components/AppCard";
-import AppText from "@components/AppText";
+import { Box, Typography, Switch, IconButton } from '@mui/material';
+import { Edit } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import Period from './Period';
 import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData, { monthType } from './ReminderData';
-import Edit from '@mui/icons-material/Edit';
 import AppSwitch from '../components/AppSwitch';
 import { calculateEndDateFromOccurences, getFrequencyFormatted, toDayJsDate } from './ReminderUtils';
 
@@ -110,11 +109,6 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         onChange(reminderData, number);
     };
 
-    const header = <div className="flex flex-row w-full justify-between items-center pl-4 pr-4">
-        <AppText text={title} variant='h5' />
-        <Edit className="cursor-pointer" onClick={handleOpenDialog} />
-    </div>
-
     const toDayjsDate = ({ year, month, day }: { year: number, month: string, day: number }): dayjs.Dayjs => {
         return dayjs(`${year}-${month}-${day}`);
     }
@@ -124,26 +118,36 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         onChange({ ...reminder, enabled: value }, number);
     }
 
-    const body =
-        <div className='flex flex-row w-full justify-between items-center'>
-            <div className="flex flex-col justify-between">
-                <Period startDate={startDate} endDate={endDate} />
-            </div>
-            <div className='flex flex-col justify-between items-end'>
-                <AppSwitch initialValue={enabled} onChange={setEnabledValue} />
-                <div className="pt-2 pr-2">
-                    <AppText text={frequency} />
-                </div>
-            </div>
-        </div>
-
-    const footer =
-        <div className="flex w-0">
-            <ReminderEditDialog startDate={toDayjsDate(startDate)} open={dialogOpen} handleClose={handleCloseDialog} initReminderData={reminder} />
-        </div>
-
     return (
-        <AppCard header={header} body={body} footer={footer} />
+        <Box sx={{
+            px: 2,
+            py: 2,
+            bgcolor: 'background.paper',
+            minHeight: 72
+        }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary', minWidth: 65 }}>
+                    Event {number}
+                </Typography>
+                <Box onClick={handleOpenDialog} sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                            {title || 'Untitled'}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                            {frequency}
+                        </Typography>
+                    </Box>
+                    <Edit sx={{ fontSize: 20, color: 'primary.main', opacity: 0.6, ml: 'auto' }} />
+                </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+                <AppSwitch initialValue={enabled} onChange={setEnabledValue} />
+            </Box>
+
+            <ReminderEditDialog startDate={toDayjsDate(startDate)} open={dialogOpen} handleClose={handleCloseDialog} initReminderData={reminder} />
+        </Box>
     );
 }
 

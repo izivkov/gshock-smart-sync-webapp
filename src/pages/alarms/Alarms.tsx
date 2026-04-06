@@ -25,10 +25,11 @@ const Alarms: React.FC = () => {
             if (!initialized.current) {
                 initialized.current = true;
                 const newAlarms = await GShockAPI.getAlarms();
-                setAlarms(newAlarms);
+                // Ensure we only keep the first 5 alarms
+                setAlarms(Array.isArray(newAlarms) ? newAlarms.slice(0, 5) : []);
             }
         })()
-    }, [alarms]);
+    }, []);
 
     const sendToPhone = async () => { /* placeholder */ }
     const sendToWatch = async () => {

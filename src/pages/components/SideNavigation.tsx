@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
     Box,
@@ -16,6 +16,8 @@ import AlarmsIcon from '@mui/icons-material/Alarm';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WatchIcon from '@mui/icons-material/Watch';
+import { ConnectionContext } from '../_app';
+import { watchInfo } from '@api/WatchInfo';
 
 export const SIDEBAR_WIDTH = 260;
 
@@ -29,6 +31,22 @@ const NAV_ITEMS = [
 const SideNavigation: React.FC = () => {
     const router = useRouter();
     const pathname = usePathname();
+    const { isConnected } = useContext(ConnectionContext);
+    const [visibleItems, setVisibleItems] = useState(NAV_ITEMS);
+
+    useEffect(() => {
+        // Only filter based on watch capabilities if a watch is connected
+        if (isConnected) {
+            if (!watchInfo.hasReminders) {
+                setVisibleItems(NAV_ITEMS.filter(item => item.label !== 'Events'));
+            } else {
+                setVisibleItems(NAV_ITEMS);
+            }
+        } else {
+            // If no watch connected, show all items
+            setVisibleItems(NAV_ITEMS);
+        }
+    }, [isConnected]);
 
     const handleNavigation = (path: string) => {
         router.push(path);
@@ -108,7 +126,7 @@ const SideNavigation: React.FC = () => {
             {/* Navigation Items */}
             <Box sx={{ px: 2, py: 2 }}>
                 <List disablePadding sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                    {NAV_ITEMS.map((item) => {
+                    {visibleItems.map((item) => {
                         const active = isActive(item.path);
                         return (
                             <ListItemButton

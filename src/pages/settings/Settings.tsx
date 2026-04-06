@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import { 
     Box, 
     Typography, 
@@ -31,6 +31,7 @@ import WatchIcon from '@mui/icons-material/Watch';
 import GShockAPI from '@/api/GShockAPI';
 import { dateFormatType, languageType, lightDurationType, timeFormatType } from '@api/WatchInfo';
 import { watchInfo } from '@/api/WatchInfo';
+import { ConnectionContext } from '../_app';
 
 interface SettingsData {
     autoLight: boolean;
@@ -158,6 +159,9 @@ const ModernSwitch: React.FC<ModernSwitchProps> = ({ checked, onChange }) => (
 
 const Settings: React.FC = () => {
     const initialized = useRef(false);
+    const { isConnected } = useContext(ConnectionContext);
+    const [renderKey, setRenderKey] = useState(0);
+
     const settingsInit: SettingsData = {
         autoLight: true,
         buttonTone: true,
@@ -170,6 +174,11 @@ const Settings: React.FC = () => {
     };
 
     const [settings, setSettings] = useState<SettingsData>(settingsInit);
+
+    useEffect(() => {
+        // Trigger re-render when connection status changes to update visible settings
+        setRenderKey(prev => prev + 1);
+    }, [isConnected]);
 
     useEffect(() => {
         (async () => {
@@ -283,49 +292,55 @@ const Settings: React.FC = () => {
                 
                 <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
                 
-                <SettingRow 
-                    icon={<LanguageIcon sx={{ fontSize: 22 }} />} 
-                    label="Date Format"
-                >
-                    <OptionToggle
-                        value={settings.dateFormat}
-                        options={[
-                            { value: 'MM:DD', label: 'MM:DD' },
-                            { value: 'DD:MM', label: 'DD:MM' },
-                        ]}
-                        onChange={(value) => updateSettings({ dateFormat: value as dateFormatType })}
-                    />
-                </SettingRow>
-                
-                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                
-                <SettingRow 
-                    icon={<LanguageIcon sx={{ fontSize: 22 }} />} 
-                    label="Language"
-                >
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                        <Select
-                            value={settings.language}
-                            onChange={(e) => updateSettings({ language: e.target.value as languageType })}
-                            sx={{
-                                fontSize: '0.875rem',
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: 'rgba(139, 94, 60, 0.3)',
-                                },
-                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#8B5E3C',
-                                },
-                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#8B5E3C',
-                                },
-                            }}
+                {watchInfo.hasDateFormat && (
+                    <>
+                        <SettingRow 
+                            icon={<LanguageIcon sx={{ fontSize: 22 }} />} 
+                            label="Date Format"
                         >
-                            {languageOptions.map((lang) => (
-                                <MenuItem key={lang} value={lang}>{lang}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </SettingRow>
+                            <OptionToggle
+                                value={settings.dateFormat}
+                                options={[
+                                    { value: 'MM:DD', label: 'MM:DD' },
+                                    { value: 'DD:MM', label: 'DD:MM' },
+                                ]}
+                                onChange={(value) => updateSettings({ dateFormat: value as dateFormatType })}
+                            />
+                        </SettingRow>
+                        
+                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                    </>
+                )}
+                
+                {watchInfo.weekLanguageSupported && (
+                    <SettingRow 
+                        icon={<LanguageIcon sx={{ fontSize: 22 }} />} 
+                        label="Language"
+                    >
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                            <Select
+                                value={settings.language}
+                                onChange={(e) => updateSettings({ language: e.target.value as languageType })}
+                                sx={{
+                                    fontSize: '0.875rem',
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'rgba(139, 94, 60, 0.3)',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#8B5E3C',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#8B5E3C',
+                                    },
+                                }}
+                            >
+                                {languageOptions.map((lang) => (
+                                    <MenuItem key={lang} value={lang}>{lang}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </SettingRow>
+                )}
             </Card>
 
             {/* Display & Sound Section */}
@@ -359,32 +374,36 @@ const Settings: React.FC = () => {
                 
                 <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
                 
-                <SettingRow 
-                    icon={<LightModeIcon sx={{ fontSize: 22 }} />} 
-                    label="Auto Light"
-                    description="Light on wrist rotation"
-                >
-                    <ModernSwitch
-                        checked={settings.autoLight}
-                        onChange={(checked) => updateSettings({ autoLight: checked })}
-                    />
-                </SettingRow>
-                
-                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                
-                <SettingRow 
-                    icon={<LightModeIcon sx={{ fontSize: 22 }} />} 
-                    label="Light Duration"
-                >
-                    <OptionToggle
-                        value={settings.lightDuration}
-                        options={[
-                            { value: shortDuration, label: shortDuration },
-                            { value: longDuration, label: longDuration },
-                        ]}
-                        onChange={(value) => updateSettings({ lightDuration: value as lightDurationType })}
-                    />
-                </SettingRow>
+                {watchInfo.hasAutoLight && (
+                    <>
+                        <SettingRow 
+                            icon={<LightModeIcon sx={{ fontSize: 22 }} />} 
+                            label="Auto Light"
+                            description="Light on wrist rotation"
+                        >
+                            <ModernSwitch
+                                checked={settings.autoLight}
+                                onChange={(checked) => updateSettings({ autoLight: checked })}
+                            />
+                        </SettingRow>
+                        
+                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                        
+                        <SettingRow 
+                            icon={<LightModeIcon sx={{ fontSize: 22 }} />} 
+                            label="Light Duration"
+                        >
+                            <OptionToggle
+                                value={settings.lightDuration}
+                                options={[
+                                    { value: shortDuration, label: shortDuration },
+                                    { value: longDuration, label: longDuration },
+                                ]}
+                                onChange={(value) => updateSettings({ lightDuration: value as lightDurationType })}
+                            />
+                        </SettingRow>
+                    </>
+                )}
             </Card>
 
             {/* Power & Sync Section */}
@@ -405,18 +424,22 @@ const Settings: React.FC = () => {
                     </Typography>
                 </Box>
                 
-                <SettingRow 
-                    icon={<BatterySaverIcon sx={{ fontSize: 22 }} />} 
-                    label="Power Saving"
-                    description="Reduce battery consumption"
-                >
-                    <ModernSwitch
-                        checked={settings.powerSavingMode}
-                        onChange={(checked) => updateSettings({ powerSavingMode: checked })}
-                    />
-                </SettingRow>
-                
-                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                {watchInfo.hasPowerSavingMode && (
+                    <>
+                        <SettingRow 
+                            icon={<BatterySaverIcon sx={{ fontSize: 22 }} />} 
+                            label="Power Saving"
+                            description="Reduce battery consumption"
+                        >
+                            <ModernSwitch
+                                checked={settings.powerSavingMode}
+                                onChange={(checked) => updateSettings({ powerSavingMode: checked })}
+                            />
+                        </SettingRow>
+                        
+                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                    </>
+                )}
                 
                 <SettingRow 
                     icon={<SyncIcon sx={{ fontSize: 22 }} />} 

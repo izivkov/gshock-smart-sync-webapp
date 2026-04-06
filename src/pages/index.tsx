@@ -3,23 +3,26 @@
 import WatchImage from '@pages/home/WatchImage'
 import ConnectButton from '@pages/home/ConnectButton'
 import CopyToClipboardComponent from '@components/CopyToClipboardComponent'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { progressEvents } from "@api/ProgressEvents"
 import { useRouter } from 'next/navigation';
 import { EventAction } from "@api/ProgressEvents";
 
 import Typography from '@mui/material/Typography';
 import AppCard from '../pages/components/AppCard'
-import { Box, List, ListItem, ListItemIcon, ListItemText, Divider, Paper, useTheme } from '@mui/material';
+import { Box, List, ListItem, ListItemIcon, ListItemText, Divider, Paper, useTheme, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import BluetoothIcon from '@mui/icons-material/Bluetooth';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WatchIcon from '@mui/icons-material/Watch';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InfoIcon from '@mui/icons-material/Info';
+import AppDialog from './components/AppDialog';
 
 function Home() {
   const router = useRouter();
   const theme = useTheme();
+  const [isBluetoothSupported, setIsBluetoothSupported] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const navigateToTimePage = useMemo(() => () => {
     router.push('/time/Time');
@@ -35,7 +38,7 @@ function Home() {
   const header = (
     <Box sx={{ py: 2 }}>
       <WatchImage
-        imageSource={{ url: 'https://www.casio.com/content/dam/casio/product-info/locales/intl/en/timepiece/product/watch/G/GW/GWB/GW-B5600BC-1B/assets/GW-B5600BC-1B_Seq1.png.transform/main-visual-pc/image.png' }}
+        imageSource={{ url: 'https://www.casio.com/content/dam/casio/product-info/locales/intl/en/timepiece/product/watch/G/GW/G5600BC-1B/assets/GW-B5600BC-1B_Seq1.png.transform/main-visual-pc/image.png' }}
         name={'G Shock GW-B5600BC-1B'}
         width={200}
       />
@@ -48,8 +51,55 @@ function Home() {
   ], [navigateToHomePage, navigateToTimePage]);
 
   useEffect(() => {
-    progressEvents.runEventActions(WatchImage.name, actions);
+    if (!navigator.bluetooth) {
+      setIsBluetoothSupported(false);
+      setDialogOpen(true);
+    }
+  }, []);
+
+  // Listen for connection events
+  useEffect(() => {
+    progressEvents.runEventActions("Home", actions);
   }, [actions]);
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const unsupportedDialog = (
+    <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="sm">
+      <DialogTitle>Bluetooth Not Supported</DialogTitle>
+      <DialogContent>
+        <Typography variant="body1" gutterBottom>
+          To use this application, your browser must support Web Bluetooth. Please follow the steps below to ensure compatibility:
+        </Typography>
+
+        <Typography variant="h6" gutterBottom>1. Supported Browsers</Typography>
+        <Typography variant="body2" gutterBottom>
+          <strong>Desktop:</strong> Google Chrome, Microsoft Edge, and Opera (Windows, macOS, Linux).<br />
+          <strong>Mobile:</strong> Chrome for Android; <strong>Bluefy</strong> or <strong>WebBLE</strong> for iOS/iPadOS.<br />
+          <strong>Unsupported:</strong> Safari and Firefox.
+        </Typography>
+
+        <Typography variant="h6" gutterBottom>2. Quick Setup Instructions</Typography>
+        <Typography variant="body2" gutterBottom>
+          1. <strong>Enable Flags:</strong> Navigate to <code>chrome://flags</code> (or <code>edge://flags</code>), search for <strong>#web-bluetooth</strong>, and set it to <strong>Enabled</strong>. Restart the browser.<br />
+          2. <strong>Grant Permissions:</strong> Go to <strong>Settings &gt; Privacy &gt; Site Settings &gt; Bluetooth devices</strong> and toggle on <strong>"Sites can ask to connect"</strong>.<br />
+          3. <strong>Check Hardware:</strong> Ensure Bluetooth and <strong>Location Services</strong> (on Android/Windows) are turned <strong>ON</strong>.<br />
+          4. <strong>Pairing:</strong> Click the "Connect" button on the site and select your device from the browser’s pop-up list.
+        </Typography>
+
+        <Typography variant="body2" color="textSecondary">
+          <strong>Note:</strong> Only <strong>Bluetooth Low Energy (BLE)</strong> devices are supported. Ensure the device isn't already paired with another app.
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleCloseDialog} color="primary">Close</Button>
+        <Button onClick={() => window.open('chrome://settings/content/bluetoothDevices', '_blank')} color="primary">Settings</Button>
+        <Button onClick={() => window.open('chrome://flags', '_blank')} color="primary">Enable Flags</Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   const textBody = (
     <Box>
@@ -151,6 +201,7 @@ function Home() {
       py: { xs: 3, md: 4 },
       minHeight: { md: '100vh' }
     }}>
+      {unsupportedDialog}
       <AppCard header={header} body={textBody} footer={footer} />
     </Box>
   )

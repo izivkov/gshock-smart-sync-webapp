@@ -4,6 +4,9 @@ import { ThemeProvider as MTThemeProvider } from "@material-tailwind/react";
 import { ThemeProvider as MUIThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MainLayout from './components/MainLayout';
+import { useRouter } from 'next/router';
+import { useEffect, useState, createContext, useContext } from 'react';
+import { connection } from '@api/Connection';
 
 // Material 3 Design Tokens - Warm brown/peach theme matching the Android G-Shock app
 const theme = createTheme({
@@ -178,15 +181,46 @@ const theme = createTheme({
   },
 });
 
+// Create a context for connection status
+export const ConnectionContext = createContext({
+  isConnected: false,
+  setIsConnected: (status: boolean) => {},
+});
+
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    // Example: Replace with actual connection status logic
+    const checkConnection = async () => {
+      const connected = await fetchConnectionStatus(); // Replace with actual API or state
+      setIsConnected(connected);
+
+      const restrictedPaths = ['/time', '/alarms', '/events', '/settings'];
+      if (!connected && restrictedPaths.includes(router.pathname)) {
+        router.push('/');
+      }
+    };
+
+    checkConnection();
+  }, [router.pathname]);
+
   return (
-    <MUIThemeProvider theme={theme}>
-      <CssBaseline />
-      <MTThemeProvider>
-        <MainLayout>
-          <Component {...pageProps} />
-        </MainLayout>
-      </MTThemeProvider>
-    </MUIThemeProvider>
+    <ConnectionContext.Provider value={{ isConnected, setIsConnected }}>
+      <MUIThemeProvider theme={theme}>
+        <CssBaseline />
+        <MTThemeProvider>
+          <MainLayout>
+            <Component {...pageProps} />
+          </MainLayout>
+        </MTThemeProvider>
+      </MUIThemeProvider>
+    </ConnectionContext.Provider>
   );
+}
+
+async function fetchConnectionStatus() {
+  // Use the connection object to check if the watch is connected
+  return connection.isConnected();
 }

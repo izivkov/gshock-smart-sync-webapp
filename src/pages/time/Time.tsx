@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, IconButton, Tooltip } from '@mui/material';
 import WatchIcon from '@mui/icons-material/Watch';
 import SyncIcon from '@mui/icons-material/Sync';
@@ -14,8 +14,10 @@ import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
 import { progressEvents } from '@api/ProgressEvents';
 import { watchInfo } from '@api/WatchInfo';
+import { ConnectionContext } from '../_app';
 
 const Time: React.FC = () => {
+    const { isConnected } = useContext(ConnectionContext);
     const [timerValue, setTimerValue] = useState({ hours: 0, minutes: 0, seconds: 0 });
     const [homeTime, setHomeTime] = useState<string>("");
     const [batteryLevel, setBatteryLevel] = useState<number>(0);
@@ -32,6 +34,18 @@ const Time: React.FC = () => {
             setBatteryLevel(await GShockAPI.getBatteryLevel());
         })();
     }, []);
+
+    // Refresh battery level and temperature when connection status changes
+    useEffect(() => {
+        if (isConnected) {
+            (async () => {
+                const level = await GShockAPI.getBatteryLevel();
+                const temp = await GShockAPI.getWatchTemperature();
+                setBatteryLevel(level);
+                setTemperature(temp);
+            })();
+        }
+    }, [isConnected]);
 
     const handleTimerChange = (value: { hours: number, minutes: number, seconds: number }) => {
         setTimerValue(value);
@@ -99,7 +113,7 @@ const Time: React.FC = () => {
                         </Box>
                     </Box>
                 </Box>
-                <BatteryLevel level={batteryLevel} />
+                <BatteryLevel key={batteryLevel} level={batteryLevel} />
             </Box>
 
             {/* Main Time Display */}
@@ -224,7 +238,7 @@ const Time: React.FC = () => {
             </Box>
 
             {/* Info Cards Grid */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: watchInfo.hasTemperature ? '1fr 1fr' : '1fr', gap: 1.5 }}>
                 {/* Home Time Card */}
                 <Box 
                     sx={{ 
@@ -260,50 +274,51 @@ const Time: React.FC = () => {
                     </Typography>
                 </Box>
 
-                {/* Temperature Card */}
-                <Box 
-                    sx={{ 
-                        backgroundColor: '#FCEEE6',
-                        borderRadius: '16px',
-                        p: 2,
-                    }}
-                >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
-                        <ThermostatIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
-                        <Typography 
-                            sx={{ 
-                                fontSize: '0.6875rem',
-                                fontWeight: 600,
-                                color: '#8B5E3C',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.1em',
-                            }}
-                        >
-                            Temperature
-                        </Typography>
-                    </Box>
-                    <Typography 
+                {watchInfo.hasTemperature && (
+                    <Box 
                         sx={{ 
-                            fontSize: '1.5rem',
-                            fontWeight: 600,
-                            color: '#2D1A0E',
-                            fontFamily: '"SF Mono", "Roboto Mono", monospace',
+                            backgroundColor: '#FCEEE6',
+                            borderRadius: '16px',
+                            p: 2,
                         }}
                     >
-                        {temperature}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
+                            <ThermostatIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
+                            <Typography 
+                                sx={{ 
+                                    fontSize: '0.6875rem',
+                                    fontWeight: 600,
+                                    color: '#8B5E3C',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.1em',
+                                }}
+                            >
+                                Temperature
+                            </Typography>
+                        </Box>
                         <Typography 
-                            component="span" 
                             sx={{ 
-                                fontSize: '1rem',
-                                fontWeight: 500,
-                                color: '#7A5C44',
-                                ml: 0.25,
+                                fontSize: '1.5rem',
+                                fontWeight: 600,
+                                color: '#2D1A0E',
+                                fontFamily: '"SF Mono", "Roboto Mono", monospace',
                             }}
                         >
-                            °C
+                            {temperature}
+                            <Typography 
+                                component="span" 
+                                sx={{ 
+                                    fontSize: '1rem',
+                                    fontWeight: 500,
+                                    color: '#7A5C44',
+                                    ml: 0.25,
+                                }}
+                            >
+                                °C
+                            </Typography>
                         </Typography>
-                    </Typography>
-                </Box>
+                    </Box>
+                )}
             </Box>
         </Box>
     );

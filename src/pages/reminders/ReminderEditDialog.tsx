@@ -1,18 +1,34 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Divider, Typography } from '@mui/material';
-import AppDialog from '../components/AppDialog';
-import AppDatePicker from '../components/AppDatePicker';
-import AppSelect from '../components/AppSelect';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Box,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    RadioGroup,
+    FormControlLabel,
+    Radio,
+    FormGroup,
+    Checkbox,
+    FormHelperText,
+    Button,
+    Typography,
+    Divider
+} from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import ReminderData, { dayOfWeekType, monthType, repeatPeriodType } from './ReminderData';
-import AppDialogButton from '../components/AppDialogButton';
-import AppCheckboxList from '../components/AppCheckboxList';
-import AppRadioButtonList from '../components/AppRadioButtonList';
-import AppText from '../components/AppText';
-import AppInput from '../components/AppInput';
 import { fromDayJsDate, toDayJsDate } from './ReminderUtils';
 import { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 interface ReminderEditDialogProps {
     open: boolean;
@@ -28,20 +44,17 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const [endOnIndex, setOnIndex] = useState(0);
     const [repeatEventsVisible, setRepeatEventsVisible] = useState(false);
     const [weeklyEventsVisible, setWeeklyEventsVisible] = useState(false);
-    const [endDateVisible, setEndDateVisible] = useState(false);
     const [endDate, setEndDate] = useState(initReminderData.endDate ? toDayJsDate(initReminderData.endDate) : startDate);
+    const [currentStartDate, setCurrentStartDate] = useState(startDate);
     const [error, setError] = useState({ state: false, message: "" });
-    const [dialogOpen, setDialogOpen] = React.useState(open);
-    const [frequency, setFrequency] = React.useState(initReminderData.repeatPeriod);
+    const [frequency, setFrequency] = useState(initReminderData.repeatPeriod);
     const [reminderData, setReminderData] = useState<ReminderData>(initReminderData);
-
-    useEffect(() => {
-        setDialogOpen(open)
-    }, [open]);
+    const [title, setTitle] = useState(initReminderData.title);
 
     useEffect(() => {
         setReminderData(initReminderData);
-        condigureDialog(initReminderData);
+        setTitle(initReminderData.title);
+        configureDialog(initReminderData);
     }, [initReminderData]);
 
     const frequencyDisplayOptions: frequencyDisplayType[] = ["Does not repeat", "Weekly", "Monthly", "Yearly"];
@@ -66,28 +79,37 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         return reverseMap[str];
     };
 
-    const condigureDialog = (reminderData: ReminderData) => {
+    const configureDialog = (reminderData: ReminderData) => {
         const start = toDayJsDate(reminderData.startDate);
-        const end = toDayJsDate(reminderData.endDate);
+        const end = reminderData.endDate ? toDayJsDate(reminderData.endDate) : start;
 
-        if (reminderData.endDate && !end.isSame(start)) {
-            setOnIndex(1)
+        setCurrentStartDate(start);
+        setEndDate(end);
+
+        if (reminderData.occurrences > 0) {
+            setOnIndex(2);
+        } else if (reminderData.endDate && !end.isSame(start)) {
+            setOnIndex(1);
         } else {
-            setOnIndex(0)
+            setOnIndex(0);
         }
-        if (reminderData.repeatPeriod !== "NEVER") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
-        if (reminderData.repeatPeriod === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
+        
+        if (reminderData.repeatPeriod !== "NEVER") { 
+            setRepeatEventsVisible(true) 
+        } else { 
+            setRepeatEventsVisible(false) 
+        }
+        
+        if (reminderData.repeatPeriod === "WEEKLY") { 
+            setWeeklyEventsVisible(true) 
+        } else { 
+            setWeeklyEventsVisible(false) 
+        }
 
-        setFrequency(reminderData.repeatPeriod)
-        setEndDate(toDayJsDate(reminderData.endDate));
+        setFrequency(reminderData.repeatPeriod);
     }
 
-    interface CheckboxValues {
-        value: dayOfWeekType;
-        displayValue: string;
-    }
-
-    const checkBoxes: CheckboxValues[] = [
+    const checkBoxes = [
         { value: "MONDAY", displayValue: "Mon" },
         { value: "TUESDAY", displayValue: "Tue" },
         { value: "WEDNESDAY", displayValue: "Wed" },
@@ -97,170 +119,210 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         { value: "SUNDAY", displayValue: "Sun" }
     ]
 
-    const startDateSelected = (startDate: Dayjs) => {
-        reminderData.startDate = fromDayJsDate(startDate);
-        if (!reminderData.endDate) {
-            reminderData.endDate = { year: startDate.year(), month: startDate.format("MMMM") as monthType, day: startDate.date() };
-        }
-    };
-
-    const endDateSelected = (endDate: Dayjs) => {
-        setOnIndex(1)
-
-        const startDate = toDayJsDate(reminderData.startDate);
-        if (endDate < startDate) {
-            setError({ state: true, message: "End date must be after start date" })
-            reminderData.endDate = fromDayJsDate(startDate);
-            setError({ state: true, message: "Error: End date must be same or after start date" })
-        } else {
-            setError({ state: false, message: "" })
-            reminderData.endDate = fromDayJsDate(endDate)
-        }
-    };
-
     const handleSelectFrequency = (displayValue: frequencyDisplayType) => {
-        const frequency = getRepeatPeriodType(displayValue)
-        setFrequency(frequency);
+        const freq = getRepeatPeriodType(displayValue)
+        setFrequency(freq);
 
-        if (frequency !== "NEVER") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
-        if (frequency === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
+        if (freq !== "NEVER") { setRepeatEventsVisible(true) } else { setRepeatEventsVisible(false) }
+        if (freq === "WEEKLY") { setWeeklyEventsVisible(true) } else { setWeeklyEventsVisible(false) }
 
-        const newReminderData: ReminderData = {
+        setReminderData({
             ...reminderData,
-            repeatPeriod: frequency,
-        }
-        setReminderData(newReminderData)
+            repeatPeriod: freq,
+        })
     }
 
-    function onOccurencesChange(value: string): void {
+    const handleEndOnChange = (index: number) => {
+        setOnIndex(index);
+    }
+
+    const handleOccurrencesChange = (value: string) => {
         const num = parseInt(value, 10);
         if (!isNaN(num) && num > 0) {
             reminderData.occurrences = num;
             reminderData.endDate = { year: startDate.year(), month: startDate.format("MMMM") as monthType, day: startDate.date() }
-            setOnIndex(2)
             setError({ state: false, message: "" })
-            setEndDateVisible(false)
         } else {
             reminderData.occurrences = 0
             setError({ state: true, message: "Please enter a number greater than 0" })
         }
     }
 
-    function daysOfWeekSelected(selected: string[]): void {
-        function getValuesByDisplayValues(displayValues: string[]): dayOfWeekType[] {
-            const values: dayOfWeekType[] = [];
-
-            displayValues.forEach(displayValue => {
-                const foundCheckBox = checkBoxes.find(checkBox => checkBox.displayValue === displayValue);
-                if (foundCheckBox) {
-                    values.push(foundCheckBox.value);
-                }
-            });
-
-            return values;
+    const handleDaysOfWeekChange = (day: string, checked: boolean) => {
+        if (checked) {
+            reminderData.daysOfWeek = [...reminderData.daysOfWeek, day as dayOfWeekType];
+        } else {
+            reminderData.daysOfWeek = reminderData.daysOfWeek.filter(d => d !== day);
         }
-
-        reminderData.daysOfWeek = getValuesByDisplayValues(selected)
     }
 
-    const onEndsSelected = ((index: number, checked: boolean) => {
-        setOnIndex(index)
-    })
-
-    const onSave = (reminderData: any) => {
-        if (!reminderData.title || reminderData.title == "") {
-            reminderData.title = "No Title"
-        }
-        if (!reminderData.endDate) {
-            reminderData.endDate = reminderData.startDate
-        }
-        handleClose(reminderData)
-    }
-
-    const lookupDisplayValues = (values: string[]): string[] => {
-        const displayValues: string[] = [];
-
-        values.forEach(value => {
-            const foundCheckbox = checkBoxes.find(cb => cb.value === value);
-            if (foundCheckbox) {
-                displayValues.push(foundCheckbox.displayValue);
-            } else {
-                displayValues.push("N/A");
-            }
-        });
-
-        return displayValues;
+    const handleSave = () => {
+        const data = {
+            ...reminderData,
+            title: title || "No Title",
+            endDate: reminderData.endDate || reminderData.startDate
+        };
+        handleClose(data);
     }
 
     return (
-        <AppDialog open={dialogOpen} onClose={() => handleClose(reminderData)} title="Edit Reminder">
-            <Paper elevation={0} sx={{ p: 1, bgcolor: 'transparent' }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
-                    <AppInput label='Title' size="lg" initialValue={reminderData.title} onChange={(value) => reminderData.title = value} className="w-full max-w-sm" />
+        <Dialog open={open} onClose={() => handleClose(reminderData)} fullWidth maxWidth="sm">
+            <DialogTitle>Edit Event</DialogTitle>
+            <DialogContent sx={{ pt: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <TextField
+                        fullWidth
+                        label="Title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        variant="outlined"
+                    />
 
-                    <AppSelect label='Frequency' value={forDisplay(reminderData.repeatPeriod)} items={frequencyDisplayOptions} className="w-full max-w-sm" onSelected={handleSelectFrequency} />
+                    <FormControl fullWidth>
+                        <InputLabel>Frequency</InputLabel>
+                        <Select
+                            value={forDisplay(frequency)}
+                            label="Frequency"
+                            onChange={(e) => handleSelectFrequency(e.target.value as frequencyDisplayType)}
+                        >
+                            {frequencyDisplayOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 'sm', alignItems: 'center' }}>
-                        <AppDatePicker open={open} label='Start Date' initialDate={startDate} onDateSelected={date => startDateSelected(date)} />
-                    </Box>
-
-                    {endDateVisible && (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 'sm', alignItems: 'center' }}>
-                            <AppDatePicker open={open} label='End Date' initialDate={endDate} onDateSelected={date => endDateSelected(date)} />
-                        </Box>
-                    )}
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label="Start Date"
+                            value={currentStartDate}
+                            onChange={(newDate) => {
+                                if (newDate) {
+                                    setCurrentStartDate(newDate);
+                                    reminderData.startDate = fromDayJsDate(newDate);
+                                    if (!reminderData.endDate) {
+                                        reminderData.endDate = { year: newDate.year(), month: newDate.format("MMMM") as monthType, day: newDate.date() };
+                                    }
+                                }
+                            }}
+                            slotProps={{
+                                textField: { fullWidth: true }
+                            }}
+                        />
+                    </LocalizationProvider>
 
                     {repeatEventsVisible && (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, mt: 2, width: '100%', maxWidth: 'sm' }}>
-                            <Box sx={{ flex: 1, borderBottom: '1px solid rgba(139, 94, 60, 0.15)', pb: 2 }}>
-                                <AppRadioButtonList
-                                    selectedIndexInit={endOnIndex}
-                                    name="endsOn"
-                                    label='Ends on'
-                                    orientation="vertical"
-                                    onChange={onEndsSelected}
-                                    radioButtons={[
-                                        <AppText key="never" text="Never" variant='paragraph' disabled={endOnIndex !== 0} />,
-                                        <Box key="on" sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                                            <AppText text="On" variant='paragraph' disabled={endOnIndex !== 1} />
-                                            <AppDatePicker disabled={endOnIndex !== 1} label={""} onDateSelected={endDateSelected} initialDate={startDate} open={false} />
-                                        </Box>,
-                                        <Box key="after" sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                                            <AppText text="After" variant='paragraph' disabled={endOnIndex !== 2} />
-                                            <AppInput disabled={endOnIndex !== 2} type="number" label='Occurrences' onChange={onOccurencesChange} className="w-24" />
-                                        </Box>
-                                    ]}
+                        <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+                                Ends on
+                            </Typography>
+                            <RadioGroup
+                                value={endOnIndex.toString()}
+                                onChange={(e) => handleEndOnChange(parseInt(e.target.value))}
+                            >
+                                <FormControlLabel
+                                    value="0"
+                                    control={<Radio />}
+                                    label="Never"
                                 />
-                            </Box>
+                                <FormControlLabel
+                                    value="1"
+                                    control={<Radio />}
+                                    label="On a specific date"
+                                />
+                                <FormControlLabel
+                                    value="2"
+                                    control={<Radio />}
+                                    label="After a number of occurrences"
+                                />
+                            </RadioGroup>
+
+                            {endOnIndex === 1 && (
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        label="End Date"
+                                        value={endDate}
+                                        onChange={(newDate) => {
+                                            if (newDate) {
+                                                const startDayJs = toDayJsDate(reminderData.startDate);
+                                                if (newDate < startDayJs) {
+                                                    setError({ state: true, message: "End date must be after start date" });
+                                                    reminderData.endDate = fromDayJsDate(startDayJs);
+                                                } else {
+                                                    setError({ state: false, message: "" });
+                                                    setEndDate(newDate);
+                                                    reminderData.endDate = fromDayJsDate(newDate);
+                                                }
+                                            }
+                                        }}
+                                        slotProps={{
+                                            textField: { fullWidth: true, sx: { mt: 2 } }
+                                        }}
+                                    />
+                                </LocalizationProvider>
+                            )}
+
+                            {endOnIndex === 2 && (
+                                <TextField
+                                    type="number"
+                                    label="Number of Occurrences"
+                                    inputProps={{ min: 1 }}
+                                    onChange={(e) => handleOccurrencesChange(e.target.value)}
+                                    sx={{ mt: 2, width: 200 }}
+                                    error={error.state}
+                                    helperText={error.message}
+                                />
+                            )}
 
                             {weeklyEventsVisible && (
-                                <Box sx={{ flex: 1 }}>
-                                    <AppCheckboxList
-                                        label='Repeat on'
-                                        displayValues={checkBoxes.map(checkBox => checkBox.displayValue)}
-                                        selectedSetInit={lookupDisplayValues(reminderData.daysOfWeek)}
-                                        onChange={daysOfWeekSelected}
-                                    />
+                                <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+                                        Repeat on
+                                    </Typography>
+                                    <FormGroup row>
+                                        {checkBoxes.map((day) => (
+                                            <FormControlLabel
+                                                key={day.value}
+                                                control={
+                                                    <Checkbox
+                                                        checked={reminderData.daysOfWeek.includes(day.value as dayOfWeekType)}
+                                                        onChange={(e) => handleDaysOfWeekChange(day.value, e.target.checked)}
+                                                    />
+                                                }
+                                                label={day.displayValue}
+                                            />
+                                        ))}
+                                    </FormGroup>
                                 </Box>
                             )}
                         </Box>
                     )}
 
-                    <Divider sx={{ width: '100%', my: 1 }} />
-
                     {error.state && (
-                        <Typography color="error" variant="caption" sx={{ mt: -1 }}>
+                        <FormHelperText error>
                             {error.message}
-                        </Typography>
+                        </FormHelperText>
                     )}
-
-                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, pt: 2, width: '100%' }}>
-                        <AppDialogButton label="Cancel" onClick={() => handleClose(null)} />
-                        <AppDialogButton label="Save" onClick={() => onSave(reminderData)} />
-                    </Box>
                 </Box>
-            </Paper>
-        </AppDialog>
+            </DialogContent>
+            <DialogActions sx={{ p: 2, gap: 2 }}>
+                <Button
+                    variant="outlined"
+                    onClick={() => handleClose(null)}
+                    sx={{ flexShrink: 0 }}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={handleSave}
+                    sx={{ flexShrink: 0 }}
+                >
+                    Save
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 
