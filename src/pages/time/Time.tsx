@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useContext } from 'react';
-import { Box, Typography, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, IconButton, Tooltip, Snackbar, Alert } from '@mui/material';
 import WatchIcon from '@mui/icons-material/Watch';
 import SyncIcon from '@mui/icons-material/Sync';
 import TimerIcon from '@mui/icons-material/Timer';
@@ -22,6 +22,9 @@ const Time: React.FC = () => {
     const [homeTime, setHomeTime] = useState<string>("");
     const [batteryLevel, setBatteryLevel] = useState<number>(0);
     const [temperature, setTemperature] = useState<number>(0);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
 
@@ -52,13 +55,31 @@ const Time: React.FC = () => {
     };
 
     const handleSetTime = () => {
-        GShockAPI.setTime();
-        progressEvents.onNext("HomeTimeUpdated");
+        try {
+            GShockAPI.setTime();
+            progressEvents.onNext("HomeTimeUpdated");
+            setSnackbarMessage('Time sent to watch');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+        } catch (error) {
+            setSnackbarMessage('Failed to send time');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
     };
 
     const handleSetTimer = () => {
-        const timeInSeconds = timerValue.hours * 3600 + timerValue.minutes * 60 + timerValue.seconds;
-        GShockAPI.setTimer(timeInSeconds);
+        try {
+            const timeInSeconds = timerValue.hours * 3600 + timerValue.minutes * 60 + timerValue.seconds;
+            GShockAPI.setTimer(timeInSeconds);
+            setSnackbarMessage('Timer sent to watch');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+        } catch (error) {
+            setSnackbarMessage('Failed to send timer');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
     };
 
     return (
@@ -320,6 +341,17 @@ const Time: React.FC = () => {
                     </Box>
                 )}
             </Box>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setSnackbarOpen(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

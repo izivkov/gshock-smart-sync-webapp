@@ -100,13 +100,22 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
                 reminderData.daysOfWeek));
         }
 
-        // get data from the current card
-        reminderData.enabled = enabled
-
         setDialogOpen(false);
 
+        // Create a complete reminder data object with all fields
+        const updatedReminderData: ReminderData = {
+            title: reminderData.title,
+            startDate: reminderData.startDate,
+            endDate: reminderData.endDate,
+            repeatPeriod: reminderData.repeatPeriod,
+            daysOfWeek: reminderData.daysOfWeek,
+            enabled: reminderData.enabled !== undefined ? reminderData.enabled : enabled,
+            incompatible: reminderData.incompatible || false,
+            occurrences: reminderData.occurrences || 0
+        };
+
         // pass data back to Remiders component
-        onChange(reminderData, number);
+        onChange(updatedReminderData, number);
     };
 
     const toDayjsDate = ({ year, month, day }: { year: number, month: string, day: number }): dayjs.Dayjs => {

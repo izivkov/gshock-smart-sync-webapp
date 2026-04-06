@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Box, Typography, Switch, Divider, Button, Paper
+    Box, Typography, Switch, Divider, Button, Paper, Snackbar, Alert
 } from '@mui/material';
 import AlarmCard from './AlarmCard';
 import AppSwitch from '@components/AppSwitch';
@@ -19,6 +19,9 @@ const Alarms: React.FC = () => {
         { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
         { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
     ]);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
     useEffect(() => {
         (async () => {
@@ -33,7 +36,16 @@ const Alarms: React.FC = () => {
 
     const sendToPhone = async () => { /* placeholder */ }
     const sendToWatch = async () => {
-        await GShockAPI.setAlarms(alarms);
+        try {
+            await GShockAPI.setAlarms(alarms);
+            setSnackbarMessage('Alarms sent to watch');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+        } catch (error) {
+            setSnackbarMessage('Failed to send alarms');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
     }
 
     const onChange = (
@@ -124,6 +136,17 @@ const Alarms: React.FC = () => {
                     Send to Watch
                 </Button>
             </Box>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setSnackbarOpen(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

@@ -17,7 +17,9 @@ import {
     Divider,
     IconButton,
     Tooltip,
-    alpha
+    alpha,
+    Snackbar,
+    Alert
 } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
@@ -161,6 +163,9 @@ const Settings: React.FC = () => {
     const initialized = useRef(false);
     const { isConnected } = useContext(ConnectionContext);
     const [renderKey, setRenderKey] = useState(0);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
     const settingsInit: SettingsData = {
         autoLight: true,
@@ -200,7 +205,16 @@ const Settings: React.FC = () => {
     };
 
     const onSave = async () => {
-        await GShockAPI.setSettings(settings);
+        try {
+            await GShockAPI.setSettings(settings);
+            setSnackbarMessage('Settings sent to watch');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+        } catch (error) {
+            setSnackbarMessage('Failed to send settings');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
     };
 
     const languageOptions: languageType[] = [
@@ -498,6 +512,17 @@ const Settings: React.FC = () => {
                     Send to Watch
                 </Button>
             </Box>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setSnackbarOpen(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

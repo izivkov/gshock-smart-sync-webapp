@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Box, Typography, Divider, Button, Paper
+    Box, Typography, Divider, Button, Paper, Snackbar, Alert
 } from '@mui/material';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
@@ -23,6 +23,9 @@ const Reminders: React.FC = () => {
     }
     const initialReminders = Array.from({ length: 5 }, () => ({ ...reminderInit }));
     const [reminders, setReminders] = useState<ReminderData[]>(initialReminders);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
     useEffect(() => {
         (async () => {
@@ -35,7 +38,16 @@ const Reminders: React.FC = () => {
     }, []);
 
     const sendToWatch = async () => {
-        await GShockAPI.setEvents(reminders);
+        try {
+            await GShockAPI.setEvents(reminders);
+            setSnackbarMessage('Events sent to watch');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+        } catch (error) {
+            setSnackbarMessage('Failed to send events');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
     }
 
     const onChange = (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => {
@@ -95,6 +107,17 @@ const Reminders: React.FC = () => {
                     Send to Watch
                 </Button>
             </Box>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setSnackbarOpen(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

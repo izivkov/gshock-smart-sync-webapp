@@ -49,11 +49,6 @@ const EventsIO = {
     },
 
     async setEvents(events: Event[]): Promise<void> {
-        if (events.length === 0) {
-            console.log("Events model not initialized! Cannot set reminders");
-            return;
-        }
-
         function toJson(events: Event[]): Event[] {
             return events;
         }
