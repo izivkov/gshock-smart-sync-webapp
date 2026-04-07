@@ -1,38 +1,103 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# G-Shock Smart Sync Web Application
 
-## Getting Started
+A web application for managing and synchronizing G-Shock smartwatches via Bluetooth. Built with Next.js and React, featuring Material Design 3 UI.
 
-First, run the development server:
+## Try It Online (Experimental)
+
+You can try the application from our experimental server:
+
+🌐 **[http://192.168.1.100:3000](http://192.168.1.100:3000)** (Experimental - may be shut down if traffic becomes high)
+
+⚠️ **Important:** This is an experimental server running on a Raspberry Pi. Please be aware:
+- Service may be intermittently unavailable
+- High traffic may cause it to be shut down temporarily or permanently
+- For production use, please deploy locally following the instructions below
+- No guarantees on uptime or data persistence
+
+## Development
+
+To run the application in development mode:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+The application will auto-reload as you make changes to the source files.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Deploy on Your Own Hardware
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+For reliable production use, deploy this application to any Linux, Windows, or Mac machine with Node.js:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Quick Deployment
 
-## Learn More.
+```bash
+# 1. Verify prerequisites
+./check-deploy.sh
 
-To learn more about Next.js, take a look at the following resources:
+# 2. Deploy to your server
+./deploy-rpi.sh
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# 3. Access at http://your-server-ip:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+**Supported Platforms:**
+- Linux (Ubuntu, Debian, Raspberry Pi OS, etc.)
+- macOS
+- Windows (with WSL or native Node.js)
 
-## Deploy on Vercel
+**Prerequisites:**
+- Node.js 18+ on development machine
+- Node.js 18+ on target server
+- rsync and SSH client
+- SSH access to target server
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Configuration:**
+Edit the deployment script variables to match your server:
+```bash
+RPI_USER="ivo"                    # SSH username
+RPI_HOST="192.168.1.100"          # Server IP or hostname
+RPI_PATH="/home/ivo/gshock-smart-sync"  # Installation path
+APP_PORT="3000"                   # Application port
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Documentation
+
+- **[DEPLOYMENT-README.md](./DEPLOYMENT-README.md)** - Navigation guide for all deployment docs
+- **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** - Overview and quick 3-step deployment
+- **[QUICK-START.md](./QUICK-START.md)** - Comprehensive step-by-step guide
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - In-depth technical reference
+
+### Files Included
+
+- `deploy-rpi.sh` - Automated one-command deployment
+- `setup-rpi.sh` - Standalone server setup script
+- `check-deploy.sh` - Pre-flight system verification
+
+## Features
+
+- ✅ Material Design 3 UI with warm brown color scheme
+- ✅ Bluetooth connectivity to 19 G-Shock watch models
+- ✅ Time synchronization and Battery display
+- ✅ Alarm management (up to 5 alarms)
+- ✅ Event/Reminder management (up to 5 reminders)
+- ✅ Settings configuration
+- ✅ Real-time user feedback (Snackbar notifications)
+- ✅ Dynamic UI based on watch capabilities
+- ✅ Auto-navigation on watch connection
+- ✅ Systemd service for auto-start on reboot
+
+## Supported Watches
+
+The application supports 19 G-Shock models including:
+- GA series (Classic, Basic)
+- GW series (Radio-controlled, Solar)
+- DW series (Digital)
+- GMW series (Module)
+- And more...
+
+Each model has intelligent capability detection for feature adaptation.
+
+```

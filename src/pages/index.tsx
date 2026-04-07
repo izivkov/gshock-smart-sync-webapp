@@ -2,7 +2,6 @@
 
 import WatchImage from '@pages/home/WatchImage'
 import ConnectButton from '@pages/home/ConnectButton'
-import CopyToClipboardComponent from '@components/CopyToClipboardComponent'
 import React, { useEffect, useMemo, useState } from 'react'
 import { progressEvents } from "@api/ProgressEvents"
 import { useRouter } from 'next/navigation';
@@ -12,7 +11,6 @@ import Typography from '@mui/material/Typography';
 import AppCard from '../pages/components/AppCard'
 import { Box, List, ListItem, ListItemIcon, ListItemText, Divider, Paper, useTheme, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import BluetoothIcon from '@mui/icons-material/Bluetooth';
-import SettingsIcon from '@mui/icons-material/Settings';
 import WatchIcon from '@mui/icons-material/Watch';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InfoIcon from '@mui/icons-material/Info';
@@ -32,13 +30,10 @@ function Home() {
     router.push('/');
   }, [router]);
 
-  const bluetoothSettingUrl = "chrome://settings/content/bluetoothDevices"
-  const experimentalFlagsUrl = "chrome://flags/#enable-experimental-web-platform-features"
-
   const header = (
     <Box sx={{ py: 2 }}>
       <WatchImage
-        imageSource={{ url: 'https://www.casio.com/content/dam/casio/product-info/locales/intl/en/timepiece/product/watch/G/GW/G5600BC-1B/assets/GW-B5600BC-1B_Seq1.png.transform/main-visual-pc/image.png' }}
+        imageSource={{ url: 'https://shockbase.org/pics2/5600/GW-B5600/GW-B5600BC-1B.png' }}
         name={'G Shock GW-B5600BC-1B'}
         width={200}
       />
@@ -86,17 +81,15 @@ function Home() {
           1. <strong>Enable Flags:</strong> Navigate to <code>chrome://flags</code> (or <code>edge://flags</code>), search for <strong>#web-bluetooth</strong>, and set it to <strong>Enabled</strong>. Restart the browser.<br />
           2. <strong>Grant Permissions:</strong> Go to <strong>Settings &gt; Privacy &gt; Site Settings &gt; Bluetooth devices</strong> and toggle on <strong>"Sites can ask to connect"</strong>.<br />
           3. <strong>Check Hardware:</strong> Ensure Bluetooth and <strong>Location Services</strong> (on Android/Windows) are turned <strong>ON</strong>.<br />
-          4. <strong>Pairing:</strong> Click the "Connect" button on the site and select your device from the browser’s pop-up list.
+          4. <strong>Pairing:</strong> Click the "Pair Watch" button and select your device from the browser’s pop-up list.
         </Typography>
 
         <Typography variant="body2" color="textSecondary">
-          <strong>Note:</strong> Only <strong>Bluetooth Low Energy (BLE)</strong> devices are supported. Ensure the device isn't already paired with another app.
+          <strong>Note:</strong> Ensure the device isn't already paired with another app.
         </Typography>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleCloseDialog} color="primary">Close</Button>
-        <Button onClick={() => window.open('chrome://settings/content/bluetoothDevices', '_blank')} color="primary">Settings</Button>
-        <Button onClick={() => window.open('chrome://flags', '_blank')} color="primary">Enable Flags</Button>
       </DialogActions>
     </Dialog>
   );
@@ -104,50 +97,17 @@ function Home() {
   const textBody = (
     <Box>
       <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main', mb: 3 }}>
-        Quick Setup
+        Get Started
       </Typography>
 
       <List sx={{ '& .MuiListItem-root': { mb: 2 } }}>
-        <ListItem disableGutters alignItems="flex-start">
-          <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-            <SettingsIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText
-            primary={<Typography variant="subtitle1" sx={{ fontWeight: 600 }}>1. Enable Web Bluetooth</Typography>}
-            secondary={
-              <Box sx={{ mt: 1 }}>
-                <Typography variant="body2" color="textSecondary" gutterBottom>
-                  Ensure Bluetooth is enabled in your browser settings:
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, gap: 1, bgcolor: 'rgba(0,0,0,0.04)', p: 1, borderRadius: 1 }}>
-                  <code style={{ flexGrow: 1, fontSize: '0.8rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {bluetoothSettingUrl}
-                  </code>
-                  <CopyToClipboardComponent textToCopy={bluetoothSettingUrl} />
-                </Box>
-                <Box sx={{ mt: 2, p: 1.5, bgcolor: alpha(theme.palette.error.main, 0.05), borderLeft: `4px solid ${theme.palette.error.main}`, borderRadius: 1 }}>
-                  <Typography variant="caption" color="error" component="div">
-                    <strong>Linux Users:</strong> You may need to enable experimental features if Bluetooth is not detected:
-                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, gap: 1 }}>
-                      <code style={{ flexGrow: 1, fontSize: '0.75rem' }}>
-                        {experimentalFlagsUrl}
-                      </code>
-                      <CopyToClipboardComponent textToCopy={experimentalFlagsUrl} />
-                    </Box>
-                  </Typography>
-                </Box>
-              </Box>
-            }
-          />
-        </ListItem>
-
         <ListItem disableGutters>
           <ListItemIcon sx={{ minWidth: 40 }}>
             <BluetoothIcon color="primary" />
           </ListItemIcon>
           <ListItemText
-            primary={<Typography variant="subtitle1" sx={{ fontWeight: 600 }}>2. Pair Your Watch</Typography>}
-            secondary="Press 'Pair Watch' below. A Bluetooth search box will appear."
+            primary={<Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Pair Your Watch</Typography>}
+            secondary="Press 'Pair Watch' below. A Bluetooth search dialog will appear."
           />
         </ListItem>
 
@@ -156,8 +116,8 @@ function Home() {
             <WatchIcon color="primary" />
           </ListItemIcon>
           <ListItemText
-            primary={<Typography variant="subtitle1" sx={{ fontWeight: 600 }}>3. Connect/Configure</Typography>}
-            secondary="Long-press LOWER-LEFT button on your watch. Select it when it appears and press 'Pair'."
+            primary={<Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Activate Watch Mode</Typography>}
+            secondary="Long-press the LOWER-LEFT button on your watch, then select it from the list and press 'Pair'."
           />
         </ListItem>
 
@@ -166,23 +126,23 @@ function Home() {
             <AccessTimeIcon color="primary" />
           </ListItemIcon>
           <ListItemText
-            primary={<Typography variant="subtitle1" sx={{ fontWeight: 600 }}>4. Sync Time</Typography>}
-            secondary="...or short-press LOWER-RIGHT button to just sync time."
+            primary={<Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Sync or Configure</Typography>}
+            secondary="After connecting, manage time, alarms, events, and settings."
           />
         </ListItem>
       </List>
 
-      <Divider sx={{ my: 4 }} />
+      <Divider sx={{ my: 3 }} />
 
       <Paper elevation={0} sx={{ p: 2, bgcolor: alpha(theme.palette.info.main, 0.05), borderRadius: 3, border: `1px solid ${alpha(theme.palette.info.main, 0.1)}` }}>
         <Box sx={{ display: 'flex', alignItems: 'start', gap: 1.5 }}>
           <InfoIcon fontSize="small" color="info" />
           <Box>
             <Typography variant="body2" color="textPrimary" sx={{ fontWeight: 600 }}>
-              Browser Compatibility
+              Browser Configuration Required
             </Typography>
             <Typography variant="caption" color="textSecondary">
-              Currently supports <strong>Chrome, Edge, and Opera</strong> on Windows, Mac, and Linux.
+              If this is your first time, click 'Pair Watch' and follow the browser setup instructions in the dialog that appears.
             </Typography>
           </Box>
         </Box>

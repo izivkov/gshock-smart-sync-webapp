@@ -12,7 +12,7 @@
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
         "@material-tailwind/react": "^2.1.10",
-        "@mui/icons-material": "^7.3.8",
+        "@mui/icons-material": "^7.3.9",
         "@mui/material": "^7.3.8",
         "@mui/x-date-pickers": "^8.27.0",
         "@types/node": "20.3.1",
