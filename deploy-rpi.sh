@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# G-Shock Smart Sync - Raspberry Pi Production Deployment Script
+# G-Shock Smart Sync Webapp - Raspberry Pi Production Deployment Script
 # Deploys a minimal production version to Raspberry Pi
 # Usage: ./deploy-rpi.sh
 
@@ -53,7 +53,7 @@ cat > package.json << 'EOF'
 {
   "name": "gshock-smart-sync-webapp",
   "version": "1.0.0",
-  "description": "G-Shock Smart Sync Web Application",
+  "description": "G-Shock Smart Sync Webapp",
   "scripts": {
     "start": "next start -p 3000"
   },
@@ -97,7 +97,7 @@ npm install --production
 echo "Creating systemd service..."
 sudo tee /etc/systemd/system/gshock-webapp.service > /dev/null << 'SERVICE'
 [Unit]
-Description=G-Shock Smart Sync Web Application
+Description=G-Shock Smart Sync Webapp
 After=network.target
 
 [Service]

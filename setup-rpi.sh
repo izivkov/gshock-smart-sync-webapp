@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# G-Shock Smart Sync - Raspberry Pi Setup Script
+# G-Shock Smart Sync Webapp - Raspberry Pi Setup Script
 # Run this on the Raspberry Pi after deploying files
 # Usage: ./setup-rpi.sh
 
@@ -10,7 +10,7 @@ APP_PATH="/home/ivo/gshock-smart-sync"
 APP_PORT="3000"
 
 echo "=========================================="
-echo "G-Shock Smart Sync - RPi Setup"
+echo "G-Shock Smart Sync Webapp - RPi Setup"
 echo "=========================================="
 echo ""
 
@@ -38,7 +38,7 @@ npm install --production
 echo "[3/5] Setting up systemd service..."
 sudo tee /etc/systemd/system/gshock-webapp.service > /dev/null << EOF
 [Unit]
-Description=G-Shock Smart Sync Web Application
+Description=G-Shock Smart Sync Webapp
 After=network.target
 
 [Service]
