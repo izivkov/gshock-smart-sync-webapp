@@ -1,12 +1,21 @@
-# G-Shock Smart Sync
+# G-Shock Smart Sync Web App
 
-**The easy way to manage your G-Shock watch directly from your browser.**
+**Manage your G-Shock watch directly from your browser—no phone app required.**
+
+G-Shock Smart Sync is a lightweight, privacy-focused web tool that lets you set the time, manage alarms, and configure reminders on your watch using only your browser. It provides a clean, modern alternative to official mobile apps, working seamlessly on any device that supports Web Bluetooth.
 
 ---
 
 ### 🚀 [Start Using the App Now](https://gshock.avmedia.org)
 
 ---
+
+## ✨ Core Features
+- **⏰ Precise Time Sync**: Synchronize your watch with atomic-clock precision.
+- **📅 Alarm Management**: Easily set and toggle all 5 watch alarms.
+- **🔔 Reminders**: Configure and name your watch reminders/events.
+- **⚙️ Watch Settings**: Adjust illumination, sound, and display options.
+- **🔌 No App Needed**: No installation, no accounts, and no tracking.
 
 ## 📱 How to Use
 1.  **Open the link** above (Chrome, Edge, or Opera recommended).

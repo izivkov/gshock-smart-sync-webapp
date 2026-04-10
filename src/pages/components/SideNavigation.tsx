@@ -110,7 +110,7 @@ const SideNavigation: React.FC = () => {
                             lineHeight: 1.2,
                         }}
                     >
-                        G-Shock Smart Sync
+                        G-Shock Smart Sync Webapp
                     </Typography>
                     <Typography
                         variant="caption"
