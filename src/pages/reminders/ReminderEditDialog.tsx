@@ -268,7 +268,7 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                                 <TextField
                                     type="number"
                                     label="Number of Occurrences"
-                                    inputProps={{ min: 1 }}
+                                    slotProps={{ htmlInput: { min: 1 } }}
                                     onChange={(e) => handleOccurrencesChange(e.target.value)}
                                     sx={{ mt: 2, width: 200 }}
                                     error={error.state}

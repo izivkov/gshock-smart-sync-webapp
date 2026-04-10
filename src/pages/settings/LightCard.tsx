@@ -73,8 +73,8 @@ const LightCard: React.FC<LightCardProps> = ({ autoLightInit, illuminationPeriod
             <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl">
                 <AppRadioButtonList label="Illumination" selectedIndexInit={getIlluminationPeriodIndex(illuminationPeriod)} name="illiminationPeriod"
                     orientation="horizontal" onChange={onIlluminationPeriodChange} radioButtons={[
-                        <AppText key="short" text={shortDuration} variant='paragraph' />,
-                        <AppText key="long" text={longDuration} variant='paragraph' />
+                        <AppText key="short" text={shortDuration} variant='body2' />,
+                        <AppText key="long" text={longDuration} variant='body2' />
                     ]} />
             </div>
         </div>

@@ -23,19 +23,19 @@ fi
 echo "[1/4] Checking Node.js installation..."
 if ! command -v node &> /dev/null; then
     echo "Installing Node.js..."
-    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo apt-get install -y nodejs
 else
     echo "Node.js already installed: $(node --version)"
 fi
 
 # Step 2: Install application dependencies
-echo "[2/4] Installing application dependencies..."
+echo "[2/5] Installing application dependencies..."
 cd "${APP_PATH}"
 npm install --production
 
 # Step 3: Create systemd service
-echo "[3/4] Setting up systemd service..."
+echo "[3/5] Setting up systemd service..."
 sudo tee /etc/systemd/system/gshock-webapp.service > /dev/null << EOF
 [Unit]
 Description=G-Shock Smart Sync Web Application
@@ -61,8 +61,24 @@ sudo systemctl daemon-reload
 sudo systemctl enable gshock-webapp.service
 
 # Step 4: Start the service
-echo "[4/4] Starting application..."
+echo "[4/5] Starting application..."
 sudo systemctl restart gshock-webapp.service
+
+# Step 5: (Optional) Setup Cloudflare Tunnel for Secure HTTPS
+echo "[5/5] Checking for Cloudflare Tunnel (cloudflared)..."
+if ! command -v cloudflared &> /dev/null; then
+    echo "Installing cloudflared..."
+    # Note: Using arm64 for RPi 4/5. Change to arm for older models if needed.
+    curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64.deb
+    sudo dpkg -i cloudflared.deb
+    rm cloudflared.deb
+fi
+
+echo ""
+echo "To enable secure HTTPS access (required for Bluetooth WITHOUT browser flags):"
+echo "1. Run: cloudflared tunnel --url http://localhost:${APP_PORT}"
+echo "2. Copy the generated 'https://...trycloudflare.com' link"
+echo ""
 
 # Verify
 sleep 3

@@ -10,7 +10,7 @@ const WatchNameCard: React.FC = () => {
     const body =
         <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl">
             <AppText text="Watch Name" variant='h6' />
-            <AppText text={`${watchInfo.name}`} variant='paragraph' className="font-semibold" />
+            <AppText text={`${watchInfo.name}`} variant='body1' className="font-semibold" />
         </div>
 
     return (

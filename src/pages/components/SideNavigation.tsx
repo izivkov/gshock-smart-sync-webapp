@@ -179,14 +179,19 @@ const SideNavigation: React.FC = () => {
                                     <item.icon />
                                 </ListItemIcon>
                                 <ListItemText
-                                    primary={item.label}
-                                    primaryTypographyProps={{
-                                        fontSize: '0.9375rem',
-                                        fontWeight: active ? 600 : 500,
-                                        color: isDisabled
-                                            ? 'text.disabled'
-                                            : active ? 'primary.main' : 'text.primary',
-                                    }}
+                                    primary={
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.9375rem',
+                                                fontWeight: active ? 600 : 500,
+                                                color: isDisabled
+                                                    ? 'text.disabled'
+                                                    : active ? 'primary.main' : 'text.primary',
+                                            }}
+                                        >
+                                            {item.label}
+                                        </Typography>
+                                    }
                                 />
                             </ListItemButton>
                         );

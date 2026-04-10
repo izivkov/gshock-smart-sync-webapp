@@ -18,7 +18,7 @@ const TimeCard: React.FC = () => {
             <SetTimeButton label="Set Time" />
         </div>
         <div>
-            <AppText text={`${timeZone}`} variant='lead' />
+            <AppText text={`${timeZone}`} variant='h6' />
         </div>
     </div>
 

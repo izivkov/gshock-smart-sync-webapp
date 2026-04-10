@@ -40,12 +40,13 @@ mkdir -p deploy-package
 cd deploy-package
 
 # Copy necessary files
-cp -r ../out .
-cp -r ../public .
+cp -r ../.next .
+[ -d "../public" ] && cp -r ../public . || echo "No public directory to copy"
 cp ../package.json .
 cp ../package-lock.json .
 cp ../next.config.js .
 cp ../tsconfig.json .
+cp ../setup-rpi.sh .
 
 # Create production package.json with only production dependencies
 cat > package.json << 'EOF'
@@ -57,15 +58,17 @@ cat > package.json << 'EOF'
     "start": "next start -p 3000"
   },
   "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "@mui/material": "^5.14.0",
-    "@mui/icons-material": "^5.14.0",
-    "@mui/x-date-pickers": "^6.0.0",
-    "@emotion/react": "^11.11.0",
-    "@emotion/styled": "^11.11.0",
-    "dayjs": "^1.11.0"
+    "next": "^16.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "@mui/material": "^9.0.0",
+    "@mui/icons-material": "^9.0.0",
+    "@mui/x-date-pickers": "^9.0.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "dayjs": "^1.11.20",
+    "rxjs": "^7.8.2",
+    "object-hash": "^3.0.0"
   }
 }
 EOF

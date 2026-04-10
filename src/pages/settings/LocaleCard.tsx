@@ -89,14 +89,14 @@ const LocaleCard: React.FC<LocaleCardProps> = ({ languageInit, dateFormatInit, t
         <div className="flex flex-col w-full gap-2 px-1 py-0.5">
             <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl">
                 <AppRadioButtonList selectedIndexInit={getTimeFormatIndex(timeFormat)} label='Time Format' name="timeFormat" orientation="horizontal" onChange={onTimeFormatChange} radioButtons={[
-                    <AppText key="12h" text="12h" variant='paragraph' />,
-                    <AppText key="24h" text="24h" variant='paragraph' />
+                    <AppText key="12h" text="12h" variant='body2' />,
+                    <AppText key="24h" text="24h" variant='body2' />
                 ]} />
             </div>
             <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl">
                 <AppRadioButtonList selectedIndexInit={getDateFormatIndex(dateFormat)} label='Date Format' name="dateFormat" orientation="horizontal" onChange={onDateFormatChange} radioButtons={[
-                    <AppText key="MMDD" text="MM:DD" variant='paragraph' />,
-                    <AppText key="DDMM" text="DD:MM" variant='paragraph' />
+                    <AppText key="MMDD" text="MM:DD" variant='body2' />,
+                    <AppText key="DDMM" text="DD:MM" variant='body2' />
                 ]} />
             </div>
             <div className="flex flex-row w-full justify-between items-center py-1.5 px-4 bg-white rounded-xl gap-4">

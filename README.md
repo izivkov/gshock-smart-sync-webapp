@@ -1,18 +1,60 @@
 # G-Shock Smart Sync Web Application
 
+**⚠️ WARNING: This is an EXPERIMENTAL project.** It is currently under active development and may undergo significant changes.
+
 A web application for managing and synchronizing G-Shock smartwatches via Bluetooth. Built with Next.js and React, featuring Material Design 3 UI.
 
-## Try It Online (Experimental)
+## 🌐 Try It Online
 
-You can try the application from our experimental server:
+For the best experience (including automatic Bluetooth support), always access the application via **HTTPS**.
 
-🌐 **[http://192.168.1.100:3000](http://192.168.1.100:3000)** (Experimental - may be shut down if traffic becomes high)
+🔗 **[https://avmedia.org:3000](https://avmedia.org:3000)** (Static Domain)
+🔗 **[https://your-tunnel-name.trycloudflare.com](https://your-tunnel-name.trycloudflare.com)** (Ephemeral Tunnel)
+🔗 **[http://avmedia.org:3000](http://avmedia.org:3000)** (HTTP Fallback)
 
-⚠️ **Important:** This is an experimental server running on a Raspberry Pi. Please be aware:
-- Service may be intermittently unavailable
-- High traffic may cause it to be shut down temporarily or permanently
-- For production use, please deploy locally following the instructions below
-- No guarantees on uptime or data persistence
+*Note: The application is running on a Raspberry Pi and may be intermittently unavailable. The HTTPS tunnel is recommended for seamless Bluetooth support.*
+
+## 🔒 Privacy & Security
+
+**Your privacy is our priority.** This application runs **strictly in your browser**.
+- **No data is sent to our servers.** All communication occurs directly between your browser and your watch via the Web Bluetooth API.
+- Your settings, alarms, and reminders are processed locally.
+- Use of an HTTPS tunnel (like Cloudflare) ensures that the traffic between your browser and the server is encrypted.
+
+## 🔧 Secure Remote Access (Recommended)
+
+Web Bluetooth requires a **Secure Context** (HTTPS) to function. If you are hosting this application locally and want others to connect easily, we recommend using a **Cloudflare Tunnel**.
+
+### Benefits
+*   **Automatic HTTPS**: Cloudflare handles the SSL certificates for you.
+*   **No Port Forwarding**: You don't need to open ports on your router.
+*   **Bypasses Browser Flags**: Users don't need to configure `chrome://flags` if they access via HTTPS.
+
+### Quick Setup (using `cloudflared`)
+1.  **Install `cloudflared`** (included in `setup-rpi.sh`).
+2.  **Start a tunnel**:
+    ```bash
+    cloudflared tunnel --url http://localhost:3000
+    ```
+3.  **Share the link**: Copy the generated `https://your-unique-name.trycloudflare.com` URL and share it with your users.
+
+---
+
+## ⚙️ Browser Configuration (fallback for HTTP)
+
+To use this application, your browser must support **Web Bluetooth**. If you are accessing via a non-secure connection (HTTP), you must manually enable support:
+
+### 1. Supported Browsers
+- **Desktop:** Google Chrome, Microsoft Edge, and Opera (Windows, macOS, Linux).
+- **Mobile:** Chrome for Android; **Bluefy** or **WebBLE** for iOS/iPadOS.
+- **Unsupported:** Safari and Firefox.
+
+### 2. Quick Setup
+1. **Enable Flags:** Navigate to `chrome://flags` (or `edge://flags`), search for **#web-bluetooth**, and set it to **Enabled**. Restart your browser.
+2. **Grant Permissions:** Ensure Bluetooth and **Location Services** (on Android/Windows) are turned **ON**.
+3. **Pairing:** Click the "Pair Watch" button in the app and select your device from the browser's pop-up list.
+
+---
 
 ## Development
 
@@ -27,41 +69,49 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 The application will auto-reload as you make changes to the source files.
 
-## Deploy on Your Own Hardware
+## 🖥️ Deploy on Your Own Hardware
 
-For reliable production use, deploy this application to any Linux, Windows, or Mac machine with Node.js:
+You can run this application on any machine that supports Node.js (Linux, Windows, or macOS).
 
-### Quick Deployment
+### Standard Deployment (Linux, macOS, Windows)
 
-```bash
-# 1. Verify prerequisites
-./check-deploy.sh
+1. **Clone and Install:**
+   ```bash
+   git clone https://github.com/izivkov/gshock-smart-sync-webapp.git
+   cd gshock-smart-sync-webapp
+   npm install
+   ```
+2. **Build and Start:**
+   ```bash
+   npm run build
+   npm start
+   ```
+   The application will be available at `http://localhost:3000`.
 
-# 2. Deploy to your server
-./deploy-rpi.sh
+---
 
-# 3. Access at http://your-server-ip:3000
-```
+### 🍓 Raspberry Pi (Automated Deployment)
 
-**Supported Platforms:**
-- Linux (Ubuntu, Debian, Raspberry Pi OS, etc.)
-- macOS
-- Windows (with WSL or native Node.js)
+If you are deploying to a remote Raspberry Pi, we provide automated scripts to simplify the process.
 
-**Prerequisites:**
-- Node.js 18+ on development machine
-- Node.js 18+ on target server
-- rsync and SSH client
-- SSH access to target server
+1. **Configure your Pi's details** in `deploy-rpi.sh`:
+   ```bash
+   RPI_USER="your-username"
+   RPI_HOST="your-pi-ip-address"
+   ```
+2. **Run the deployment:**
+   ```bash
+   # On your local machine
+   ./deploy-rpi.sh
+   ```
+3. **One-time setup (on the Pi):**
+   ```bash
+   cd /home/your-username/gshock-smart-sync
+   chmod +x setup-rpi.sh
+   ./setup-rpi.sh
+   ```
 
-**Configuration:**
-Edit the deployment script variables to match your server:
-```bash
-RPI_USER="ivo"                    # SSH username
-RPI_HOST="192.168.1.100"          # Server IP or hostname
-RPI_PATH="/home/ivo/gshock-smart-sync"  # Installation path
-APP_PORT="3000"                   # Application port
-```
+---
 
 ### Documentation
 

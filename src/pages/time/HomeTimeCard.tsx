@@ -22,7 +22,7 @@ const HomeTimeCard: React.FC = () => {
 
         <div>
             <div className="flex flex-row justify-center">
-                <AppText text={`${homeTime}`} variant='lead' />
+                <AppText text={`${homeTime}`} variant='h6' />
             </div>
         </div>
     </div>
