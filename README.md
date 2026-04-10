@@ -1,46 +1,48 @@
-# G-Shock Smart Sync Web Application
+# G-Shock Smart Sync
 
-**⚠️ WARNING: This is an EXPERIMENTAL project.** It is currently under active development and may undergo significant changes.
-
-A web application for managing and synchronizing G-Shock smartwatches via Bluetooth. Built with Next.js and React, featuring Material Design 3 UI.
-
-## 🌐 Try It Online
-
-For the best experience (including automatic Bluetooth support), always access the application via **HTTPS**.
-
-🔗 **[https://avmedia.org:3000](https://avmedia.org:3000)** (Static Domain)
-🔗 **[https://your-tunnel-name.trycloudflare.com](https://your-tunnel-name.trycloudflare.com)** (Ephemeral Tunnel)
-🔗 **[http://avmedia.org:3000](http://avmedia.org:3000)** (HTTP Fallback)
-
-*Note: The application is running on a Raspberry Pi and may be intermittently unavailable. The HTTPS tunnel is recommended for seamless Bluetooth support.*
-
-## 🔒 Privacy & Security
-
-**Your privacy is our priority.** This application runs **strictly in your browser**.
-- **No data is sent to our servers.** All communication occurs directly between your browser and your watch via the Web Bluetooth API.
-- Your settings, alarms, and reminders are processed locally.
-- Use of an HTTPS tunnel (like Cloudflare) ensures that the traffic between your browser and the server is encrypted.
-
-## 🔧 Secure Remote Access (Recommended)
-
-Web Bluetooth requires a **Secure Context** (HTTPS) to function. If you are hosting this application locally and want others to connect easily, we recommend using a **Cloudflare Tunnel**.
-
-### Benefits
-*   **Automatic HTTPS**: Cloudflare handles the SSL certificates for you.
-*   **No Port Forwarding**: You don't need to open ports on your router.
-*   **Bypasses Browser Flags**: Users don't need to configure `chrome://flags` if they access via HTTPS.
-
-### Quick Setup (using `cloudflared`)
-1.  **Install `cloudflared`** (included in `setup-rpi.sh`).
-2.  **Start a tunnel**:
-    ```bash
-    cloudflared tunnel --url http://localhost:3000
-    ```
-3.  **Share the link**: Copy the generated `https://your-unique-name.trycloudflare.com` URL and share it with your users.
+**The easy way to manage your G-Shock watch directly from your browser.**
 
 ---
 
-## ⚙️ Browser Configuration (fallback for HTTP)
+### 🚀 [Start Using the App Now](https://gshock.avmedia.org)
+
+---
+
+## 📱 How to Use
+1.  **Open the link** above (Chrome, Edge, or Opera recommended).
+2.  **Enable Bluetooth** on your computer or phone.
+3.  **Click "Pair Watch"** and select your G-Shock from the list.
+
+### Supported Browsers
+*   **Desktop:** Chrome, Edge, Opera.
+*   **Android:** Chrome.
+*   **iOS/iPhone:** Use the **Bluefy** or **WebBLE** browsers from the App Store.
+*   *Note: Safari and Firefox do not currently support Bluetooth syncing.*
+
+## 🔒 Privacy & Security
+This application is **strictly private**. 
+- **No data is ever sent to a server.** 
+- All communication happens directly between your browser and your watch. 
+- Your personal settings, alarms, and reminders are never tracked or stored outside your own device.
+
+---
+
+## 🛠 For Developers & Advanced Users
+
+### Development
+To run locally for development:
+```bash
+npm install
+npm run dev
+```
+
+### Deployment
+Detailed instructions for hosting this yourself on a Raspberry Pi or other hardware can be found in the documentation files below.
+
+### Documentation Index
+- **[QUICK-START.md](./QUICK-START.md)** - Step-by-step setup guide
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Technical reference
+- **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** - 3-step deployment summary
 
 To use this application, your browser must support **Web Bluetooth**. If you are accessing via a non-secure connection (HTTP), you must manually enable support:
 

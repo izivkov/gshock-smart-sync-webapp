@@ -1,0 +1,13 @@
+# Cloudflare Tunnel Configuration for G-Shock Smart Sync
+# Save this file on your Pi at ~/.cloudflared/config.yml
+
+tunnel: YOUR_TUNNEL_ID_HERE
+credentials-file: /home/ivo/.cloudflared/YOUR_TUNNEL_ID_HERE.json
+
+ingress:
+  # Map your subdomain to the local Next.js server
+  - hostname: gshock.avmedia.org
+    service: http://localhost:3000
+  
+  # Catch-all rule (required)
+  - service: http_status:404
