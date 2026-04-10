@@ -22,7 +22,7 @@ Transfer files manually and run setup script on the Raspberry Pi.
 ### Step 1: Prepare Raspberry Pi (One-time setup)
 ```bash
 # SSH into your Raspberry Pi and run these commands:
-ssh ivo@192.168.1.100
+ssh [USERNAME]@[IP of your server]
 
 # Update system
 sudo apt-get update
@@ -79,13 +79,13 @@ cd ..
 ### Step 3: Transfer to Raspberry Pi
 ```bash
 # From development machine
-rsync -avz --delete deploy-package/ ivo@192.168.1.100:/home/ivo/gshock-smart-sync/
+rsync -avz --delete deploy-package/ [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/
 ```
 
 ### Step 4: Setup on Raspberry Pi
 ```bash
 # SSH into Raspberry Pi
-ssh ivo@192.168.1.100
+ssh [USERNAME]@[IP of your server]
 
 # Download and run setup script
 cd ~
@@ -94,8 +94,8 @@ chmod +x setup-rpi.sh
 ./setup-rpi.sh
 
 # Or manually:
-chmod +x /home/ivo/gshock-smart-sync/setup-rpi.sh
-/home/ivo/gshock-smart-sync/setup-rpi.sh
+chmod +x /home/[USERNAME]/gshock-smart-sync/setup-rpi.sh
+/home/[USERNAME]/gshock-smart-sync/setup-rpi.sh
 ```
 
 ### Step 5: Access the Application
@@ -111,39 +111,39 @@ After deployment, the app runs as a systemd service `gshock-webapp`.
 
 ### View Service Status
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
 ```
 
 ### View Application Logs (Real-time)
 ```bash
-ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -f'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -f'
 ```
 
 ### View Last 50 Log Lines
 ```bash
-ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -n 50'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 50'
 ```
 
 ### Stop Application
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl stop gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl stop gshock-webapp'
 ```
 
 ### Start Application
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl start gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl start gshock-webapp'
 ```
 
 ### Restart Application
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 ```
 
 ### Check Service Logs on Startup Failure
 If the service fails to start, check for errors:
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl status gshock-webapp'
-ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -n 100'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 100'
 ```
 
 ---
@@ -154,24 +154,24 @@ ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -n 100'
 
 **Check if service is running:**
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
 ```
 
 **Check if port 3000 is listening:**
 ```bash
-ssh ivo@192.168.1.100 'sudo netstat -tlnp | grep 3000'
+ssh [USERNAME]@[IP of your server] 'sudo netstat -tlnp | grep 3000'
 ```
 
 **Check application logs:**
 ```bash
-ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -n 100'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 100'
 ```
 
 ### Out of Memory Errors
 
 Raspberry Pi may have limited RAM. Check and create swap:
 ```bash
-ssh ivo@192.168.1.100 << 'EOF'
+ssh [USERNAME]@[IP of your server] << 'EOF'
 # Check current memory
 free -h
 
@@ -197,14 +197,14 @@ sudo systemctl enable ssh
 
 **Test SSH connection:**
 ```bash
-ssh -v ivo@192.168.1.100
+ssh -v [USERNAME]@[IP of your server]
 ```
 
 ### Application Crashes Immediately
 
 Check if Node.js is installed:
 ```bash
-ssh ivo@192.168.1.100 'node --version'
+ssh [USERNAME]@[IP of your server] 'node --version'
 ```
 
 If not, reinstall Node.js as shown in "Prepare Raspberry Pi" section.
@@ -224,8 +224,8 @@ To deploy a new version:
 ### Option 2: Quick Update
 ```bash
 # For code-only changes (no build changes)
-rsync -avz --delete out/ ivo@192.168.1.100:/home/ivo/gshock-smart-sync/out/
-ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
+rsync -avz --delete out/ [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/out/
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 ```
 
 ---
@@ -236,7 +236,7 @@ ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
 
 **Increase swap:**
 ```bash
-ssh ivo@192.168.1.100 << 'EOF'
+ssh [USERNAME]@[IP of your server] << 'EOF'
 echo "CONF_SWAPSIZE=2048" | sudo tee /etc/dphys-swapfile
 sudo dphys-swapfile setup
 sudo dphys-swapfile swapon
@@ -245,12 +245,12 @@ EOF
 
 **Monitor resource usage:**
 ```bash
-ssh ivo@192.168.1.100 'top'
+ssh [USERNAME]@[IP of your server] 'top'
 ```
 
 **Enable Node.js heap size limiting:**
 ```bash
-ssh ivo@192.168.1.100 << 'EOF'
+ssh [USERNAME]@[IP of your server] << 'EOF'
 sudo sed -i 's/ExecStart=/ExecStart=NODE_OPTIONS=--max-old-space-size=256 /' /etc/systemd/system/gshock-webapp.service
 sudo systemctl daemon-reload
 sudo systemctl restart gshock-webapp
@@ -268,23 +268,23 @@ EOF
 ### Backup Application
 ```bash
 # On Raspberry Pi
-ssh ivo@192.168.1.100 << 'EOF'
-tar czf ~/gshock-backup-$(date +%Y%m%d-%H%M%S).tar.gz /home/ivo/gshock-smart-sync
+ssh [USERNAME]@[IP of your server] << 'EOF'
+tar czf ~/gshock-backup-$(date +%Y%m%d-%H%M%S).tar.gz /home/[USERNAME]/gshock-smart-sync
 EOF
 
 # Download backup to dev machine
-scp ivo@192.168.1.100:~/gshock-backup-*.tar.gz ./backups/
+scp [USERNAME]@[IP of your server]:~/gshock-backup-*.tar.gz ./backups/
 ```
 
 ### Restore from Backup
 ```bash
 # Upload backup
-scp ./backups/gshock-backup-YYYYMMDD-HHMMSS.tar.gz ivo@192.168.1.100:~/
+scp ./backups/gshock-backup-YYYYMMDD-HHMMSS.tar.gz [USERNAME]@[IP of your server]:~/
 
 # Restore on Raspberry Pi
-ssh ivo@192.168.1.100 << 'EOF'
+ssh [USERNAME]@[IP of your server] << 'EOF'
 sudo systemctl stop gshock-webapp
-sudo rm -rf /home/ivo/gshock-smart-sync
+sudo rm -rf /home/[USERNAME]/gshock-smart-sync
 tar xzf ~/gshock-backup-YYYYMMDD-HHMMSS.tar.gz -C /
 sudo systemctl start gshock-webapp
 EOF
@@ -295,7 +295,7 @@ EOF
 ## File Locations on Raspberry Pi
 
 ```
-/home/ivo/gshock-smart-sync/          - Application root
+/home/[USERNAME]/gshock-smart-sync/          - Application root
 ├── out/                               - Built Next.js static files
 ├── public/                            - Static assets
 ├── package.json                       - Dependencies
@@ -313,7 +313,7 @@ EOF
 To remove the application from Raspberry Pi:
 
 ```bash
-ssh ivo@192.168.1.100 << 'EOF'
+ssh [USERNAME]@[IP of your server] << 'EOF'
 # Stop service
 sudo systemctl stop gshock-webapp
 sudo systemctl disable gshock-webapp
@@ -338,22 +338,22 @@ If you encounter issues:
 
 1. **Check logs first:**
    ```bash
-   ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -n 100'
+   ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 100'
    ```
 
 2. **Verify all prerequisites are met** (Node.js 18+, SSH, rsync)
 
 3. **Test SSH connection independently:**
    ```bash
-   ssh ivo@192.168.1.100 'uname -a'
+   ssh [USERNAME]@[IP of your server] 'uname -a'
    ```
 
 4. **Ensure network connectivity:**
    ```bash
-   ping 192.168.1.100
+   ping [IP of your server]
    ```
 
 5. **Check Raspberry Pi resource availability:**
    ```bash
-   ssh ivo@192.168.1.100 'free -h && df -h'
+   ssh [USERNAME]@[IP of your server] 'free -h && df -h'
    ```
