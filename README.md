@@ -6,7 +6,10 @@ G-Shock Smart Sync Webapp is a lightweight, privacy-focused web tool that lets y
 
 ---
 
-### 🚀 [Start Using the App Now](https://gshock.avmedia.org)
+### 🧪 [Try the Experimental Demo](https://gshock.avmedia.org)
+*URL: **https://gshock.avmedia.org***
+
+**Note:** This server is provided for **evaluation only**. It runs on limited hardware and may be shut down temporarily or permanently if traffic levels become too high. For a stable, permanent experience, we recommend [hosting the app on your own hardware](#🖥️-deploy-on-your-own-hardware).
 
 ---
 

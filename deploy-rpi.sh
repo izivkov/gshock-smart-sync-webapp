@@ -20,7 +20,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}G-Shock Smart Sync - RPi Deployment${NC}"
+echo -e "${GREEN}G-Shock Smart Sync Webapp - RPi Deployment${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo "Target: ${RPI_USER}@${RPI_HOST}"
