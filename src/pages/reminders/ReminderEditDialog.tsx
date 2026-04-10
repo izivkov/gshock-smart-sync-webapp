@@ -37,7 +37,7 @@ interface ReminderEditDialogProps {
     initReminderData: ReminderData;
 }
 
-type frequencyDisplayType = "Does not repeat" | "Weekly" | "Monthly" | "Yearly";
+type frequencyDisplayType = "Does not repeat" | "Daily" | "Weekly" | "Monthly" | "Yearly";
 
 const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClose, startDate, initReminderData }) => {
 
@@ -57,9 +57,10 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
         configureDialog(initReminderData);
     }, [initReminderData]);
 
-    const frequencyDisplayOptions: frequencyDisplayType[] = ["Does not repeat", "Weekly", "Monthly", "Yearly"];
+    const frequencyDisplayOptions: frequencyDisplayType[] = ["Does not repeat", "Daily", "Weekly", "Monthly", "Yearly"];
     const displayMap: Record<repeatPeriodType, frequencyDisplayType> = {
         "NEVER": "Does not repeat",
+        "DAILY": "Daily",
         "WEEKLY": "Weekly",
         "MONTHLY": "Monthly",
         "YEARLY": "Yearly"

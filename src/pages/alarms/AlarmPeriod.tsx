@@ -7,6 +7,7 @@ interface AlarmPeriodProps {
 }
 
 const AlarmPeriod: React.FC<AlarmPeriodProps> = ({ period }) => {
+  if (typeof period !== 'string') return null;
   return (
     <AppText text={period} />
   )

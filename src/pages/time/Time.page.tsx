@@ -14,7 +14,7 @@ import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
 import { progressEvents } from '@api/ProgressEvents';
 import { watchInfo } from '@api/WatchInfo';
-import { ConnectionContext } from '../_app';
+import { ConnectionContext } from '../_app.page';
 
 const Time: React.FC = () => {
     const { isConnected } = useContext(ConnectionContext);
@@ -356,4 +356,5 @@ const Time: React.FC = () => {
     );
 };
 
+export const getServerSideProps = async () => ({ props: {} });
 export default Time;

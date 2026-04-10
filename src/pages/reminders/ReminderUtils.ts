@@ -16,7 +16,7 @@ export const toDayJsDate = (date: { year: number, month: string, day: number } |
 
 export const fromDayJsDate = (date: Dayjs): { year: number, month: monthType, day: number } => {
     const dayjsDate = dayjs(date);
-    return { year: dayjsDate.year(), month: dayjsDate.format("MMMM"), day: dayjsDate.date() }
+    return { year: dayjsDate.year(), month: stringToMonth(dayjsDate.format("MMMM")), day: dayjsDate.date() }
 }
 
 export const getFrequencyFormatted = (

@@ -1,52 +1,50 @@
 "use client"
 
-import React, { Component, useEffect, useState } from 'react';
-
-import { Checkbox, List, ListItem, ListItemPrefix, Typography } from "@material-tailwind/react";
+import React, { useEffect, useState } from 'react';
+import { List, ListItem, ListItemIcon, Typography } from "@mui/material";
 import AppText from './AppText';
 import AppCheckbox from './AppCheckbox';
 
 interface AppCheckboxListProps {
     displayValues: string[];
     label: string;
-    selectedSetInit: string[]
+    selectedSetInit: string[];
     onChange: (selected: string[]) => void;
-    className?: string
+    className?: string;
 }
 
 const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label, onChange, className, selectedSetInit }) => {
-
     const [selectedSet, setSelectedSet] = useState(new Set<string>(selectedSetInit));
 
     useEffect(() => {
-        setSelectedSet(new Set<string>(selectedSetInit))
+        setSelectedSet(new Set<string>(selectedSetInit));
     }, [selectedSetInit]);
 
     const toggleCheckbox = (checked: boolean, index: number) => {
+        const newSet = new Set(selectedSet);
         if (checked) {
-            selectedSet.add(displayValues[index]);
+            newSet.add(displayValues[index]);
         } else {
-            selectedSet.delete(displayValues[index]);
+            newSet.delete(displayValues[index]);
         }
-        onChange(Array.from(selectedSet.values()));
-    }
-
-    const checkboxClass = className ? `${className}` : "flex inline-block"
+        setSelectedSet(newSet);
+        onChange(Array.from(newSet.values()));
+    };
 
     return (
         <div>
             <AppText text={label} variant='h6' />
-            <List className={className}>
+            <List dense disablePadding className={className}>
                 {displayValues.map((displayValue: string, index: number) => (
-                    <ListItem className="p-0 before:hidden after:hidden" key={index} ripple={false}>
+                    <ListItem key={index} disablePadding>
                         <label
                             htmlFor={displayValue}
-                            className="flex w-full cursor-pointer items-center px-3 py-2"
+                            className="flex w-full cursor-pointer items-center px-1 py-0"
                         >
-                            <ListItemPrefix className="p-0 hover:before:opacity-0">
-                                <AppCheckbox text={""} checked={selectedSet.has(displayValue)} index={index} onChange={toggleCheckbox} />
-                            </ListItemPrefix>
-                            <Typography color="blue-gray" className="font-medium">
+                            <ListItemIcon sx={{ minWidth: 36 }}>
+                                <AppCheckbox text="" checked={selectedSet.has(displayValue)} index={index} onChange={toggleCheckbox} />
+                            </ListItemIcon>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
                                 {displayValue}
                             </Typography>
                         </label>
@@ -54,7 +52,7 @@ const AppCheckboxList: React.FC<AppCheckboxListProps> = ({ displayValues, label,
                 ))}
             </List>
         </div>
-    )
-}
+    );
+};
 
 export default AppCheckboxList;

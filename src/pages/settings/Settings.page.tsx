@@ -33,7 +33,7 @@ import WatchIcon from '@mui/icons-material/Watch';
 import GShockAPI from '@/api/GShockAPI';
 import { dateFormatType, languageType, lightDurationType, timeFormatType } from '@api/WatchInfo';
 import { watchInfo } from '@/api/WatchInfo';
-import { ConnectionContext } from '../_app';
+import { ConnectionContext } from '../_app.page';
 
 interface SettingsData {
     autoLight: boolean;
@@ -527,4 +527,5 @@ const Settings: React.FC = () => {
     );
 };
 
+export const getServerSideProps = async () => ({ props: {} });
 export default Settings;

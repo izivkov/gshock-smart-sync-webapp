@@ -1,13 +1,12 @@
 "use client"
 
-// components/BottomNavigationMenu.js
 import { useRouter } from 'next/router';
-import { Card, Typography } from '@material-tailwind/react';
+import { Typography } from '@mui/material';
 
 interface MenuItemProps {
     title: string;
     description: string;
-    icon: any
+    icon: any;
 }
 
 const MenuItemApp: React.FC<MenuItemProps> = ({ title, description, icon }) => {
@@ -18,10 +17,10 @@ const MenuItemApp: React.FC<MenuItemProps> = ({ title, description, icon }) => {
             <div className="text-2xl mb-1 opacity-90">
                 {icon}
             </div>
-            <Typography variant="h6" className="font-bold text-sm">
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.875rem' }}>
                 {title}
             </Typography>
-            <Typography variant="caption" className="opacity-60 text-[10px] text-center hidden md:block">
+            <Typography variant="caption" sx={{ opacity: 0.6, fontSize: '0.625rem', textAlign: 'center', display: { xs: 'none', md: 'block' } }}>
                 {description}
             </Typography>
         </div>

@@ -98,7 +98,7 @@ const TimeIO = {
         const timeData = TimeEncoder.prepareCurrentTime(dateTime);
         const timeCommand = [
             CasioConstants.CHARACTERISTICS.CASIO_CURRENT_TIME,
-            ...timeData,
+            ...Array.from(timeData),
         ];
 
         CasioIO.writeCmd(0x000e, timeCommand);

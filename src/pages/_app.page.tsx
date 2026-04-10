@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { ThemeProvider as MTThemeProvider } from "@material-tailwind/react";
+
 import { ThemeProvider as MUIThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MainLayout from './components/MainLayout';
@@ -214,11 +214,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <ConnectionContext.Provider value={{ isConnected, setIsConnected }}>
       <MUIThemeProvider theme={theme}>
         <CssBaseline />
-        <MTThemeProvider>
           <MainLayout>
             <Component {...pageProps} />
           </MainLayout>
-        </MTThemeProvider>
       </MUIThemeProvider>
     </ConnectionContext.Provider>
   );

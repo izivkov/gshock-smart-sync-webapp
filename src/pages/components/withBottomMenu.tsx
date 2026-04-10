@@ -4,7 +4,7 @@ import BottomMenuApp from './BottomMenuApp';
 
 const withBottomMenu = (WrappedComponent: React.ComponentType) => {
 
-    return (props: any) => {
+    const ComponentWithMenu = (props: any) => {
         return (
             <div>
                 <WrappedComponent {...props} />
@@ -12,6 +12,8 @@ const withBottomMenu = (WrappedComponent: React.ComponentType) => {
             </div>
         );
     };
+    ComponentWithMenu.displayName = `withBottomMenu(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+    return ComponentWithMenu;
 };
 
 export default withBottomMenu;

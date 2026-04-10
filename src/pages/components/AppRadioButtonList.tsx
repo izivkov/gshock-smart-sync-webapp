@@ -1,6 +1,6 @@
 "use client"
 
-import { List, ListItem, ListItemPrefix, Radio, Typography } from "@material-tailwind/react";
+import { List, ListItem, ListItemIcon } from "@mui/material";
 import AppText from './AppText';
 import AppRadioButton from './AppRadioButton';
 import { useEffect, useState } from "react";
@@ -11,41 +11,45 @@ interface AppRadioButtonListProps {
     onChange: (index: number, checked: boolean) => void;
     selectedIndexInit: number;
     orientation: "horizontal" | "vertical";
-    name: string
+    name: string;
 }
 
 const AppRadioButtonList: React.FC<AppRadioButtonListProps> = ({ radioButtons, label, onChange, selectedIndexInit, orientation, name }) => {
-
     const [selectedIndex, setSelectedIndex] = useState(selectedIndexInit);
 
     useEffect(() => {
         setSelectedIndex(selectedIndexInit);
     }, [selectedIndexInit]);
 
-    const radioButtonClass = orientation === "vertical" ? "flex flex-col inline-block" : "flex flex-row";
+    const handleChange = (index: number, checked: boolean) => {
+        if (checked) setSelectedIndex(index);
+        onChange(index, checked);
+    };
 
     return (
         <div className="flex flex-row w-full justify-between items-center">
             <AppText text={label} variant='h6' />
-            <List className={radioButtonClass}>
+            <List
+                disablePadding
+                sx={{ display: 'flex', flexDirection: orientation === 'vertical' ? 'column' : 'row', gap: 0 }}
+            >
                 {radioButtons.map((radioButton, index) => (
-                    <ListItem key={index} ripple={false} className="p-0 justify-start before:hidden after:hidden">
-                        <ListItemPrefix className="gap-0">
+                    <ListItem key={index} disablePadding sx={{ justifyContent: 'flex-start', width: 'auto' }}>
+                        <ListItemIcon sx={{ minWidth: 'auto' }}>
                             <AppRadioButton
                                 name={name}
-                                className="hover:before:opacity-0"
-                                label={""}
+                                label=""
                                 index={index}
                                 checkedInit={index === selectedIndex}
-                                onChange={onChange} />
-                        </ListItemPrefix>
+                                onChange={handleChange}
+                            />
+                        </ListItemIcon>
                         {radioButton}
                     </ListItem>
-                ))
-                }
-            </List >
-        </div >
-    )
-}
+                ))}
+            </List>
+        </div>
+    );
+};
 
 export default AppRadioButtonList;

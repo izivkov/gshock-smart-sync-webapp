@@ -44,13 +44,13 @@ const ConnectButton: React.FC = () => {
                 <Typography variant="h6" gutterBottom>2. Quick Setup Instructions</Typography>
                 <Typography variant="body2" gutterBottom>
                     1. <strong>Enable Flags:</strong> Navigate to <code>chrome://flags</code> (or <code>edge://flags</code>), search for <strong>#web-bluetooth</strong>, and set it to <strong>Enabled</strong>. Restart the browser.<br />
-                    2. <strong>Grant Permissions:</strong> Go to <strong>Settings &gt; Privacy &gt; Site Settings &gt; Bluetooth devices</strong> and toggle on <strong>"Sites can ask to connect"</strong>.<br />
+                    2. <strong>Grant Permissions:</strong> Go to <strong>Settings &gt; Privacy &gt; Site Settings &gt; Bluetooth devices</strong> and toggle on <strong>&quot;Sites can ask to connect&quot;</strong>.<br />
                     3. <strong>Check Hardware:</strong> Ensure Bluetooth and <strong>Location Services</strong> (on Android/Windows) are turned <strong>ON</strong>.<br />
-                    4. <strong>Pairing:</strong> Click the "Pair Watch" button and select your device from the browser’s pop-up list.
+                    4. <strong>Pairing:</strong> Click the &quot;Pair Watch&quot; button and select your device from the browser&apos;s pop-up list.
                 </Typography>
 
                 <Typography variant="body2" color="textSecondary">
-                    <strong>Note:</strong>Ensure the device isn't already paired with another app.
+                    <strong>Note:</strong>Ensure the device isn&apos;t already paired with another app.
                 </Typography>
             </DialogContent>
             <DialogActions>

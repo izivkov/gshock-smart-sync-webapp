@@ -1,8 +1,7 @@
 "use client"
 
-import React, { Component } from 'react';
-
-import { Button } from "@material-tailwind/react";
+import React from 'react';
+import { Button } from "@mui/material";
 
 interface AppDialogButtonProps {
     label: string;
@@ -11,11 +10,11 @@ interface AppDialogButtonProps {
 
 const AppDialogButton: React.FC<AppDialogButtonProps> = ({ label, onClick }) => {
     return (
-        <Button variant="text" size="md"
-            className="focus:outline-none font-large rounded-lg text-sm px-5 py-2.5" onClick={onClick}>
+        <Button variant="text" size="medium" onClick={onClick}
+            sx={{ fontWeight: 500, borderRadius: 2, textTransform: 'none', px: 2.5, py: 1 }}>
             {label}
         </Button>
-    )
-}
+    );
+};
 
 export default AppDialogButton;

@@ -24,7 +24,9 @@ const Utils = {
             return retArr.slice(0, maxLen);
         }
         if (retArr.length < maxLen) {
-            retArr = new Uint8Array([...retArr, ...new Uint8Array(maxLen - retArr.length)]);
+            const newArr = new Uint8Array(maxLen);
+            newArr.set(retArr);
+            retArr = newArr;
         }
         return retArr;
     },

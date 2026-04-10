@@ -16,16 +16,16 @@ import AlarmsIcon from '@mui/icons-material/Alarm';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WatchIcon from '@mui/icons-material/Watch';
-import { ConnectionContext } from '../_app';
+import { ConnectionContext } from '../_app.page';
 import { watchInfo } from '@api/WatchInfo';
 
 export const SIDEBAR_WIDTH = 260;
 
 const NAV_ITEMS = [
-    { label: 'Time', icon: <TimeIcon />, path: '/time/Time' },
-    { label: 'Alarms', icon: <AlarmsIcon />, path: '/alarms/Alarms' },
-    { label: 'Events', icon: <CalendarIcon />, path: '/reminders/Reminders' },
-    { label: 'Settings', icon: <SettingsIcon />, path: '/settings/Settings' },
+    { label: 'Time', icon: TimeIcon, path: '/time/Time' },
+    { label: 'Alarms', icon: AlarmsIcon, path: '/alarms/Alarms' },
+    { label: 'Events', icon: CalendarIcon, path: '/reminders/Reminders' },
+    { label: 'Settings', icon: SettingsIcon, path: '/settings/Settings' },
 ];
 
 const SideNavigation: React.FC = () => {
@@ -110,7 +110,7 @@ const SideNavigation: React.FC = () => {
                             lineHeight: 1.2,
                         }}
                     >
-                        G-Shock Sync
+                        G-Shock Smaprt Sync
                     </Typography>
                     <Typography
                         variant="caption"
@@ -118,7 +118,7 @@ const SideNavigation: React.FC = () => {
                             color: 'text.secondary',
                         }}
                     >
-                        Smart Watch Manager
+                        Watch Manager
                     </Typography>
                 </Box>
             </Box>
@@ -171,19 +171,19 @@ const SideNavigation: React.FC = () => {
                                 <ListItemIcon
                                     sx={{
                                         minWidth: 40,
-                                        color: isDisabled 
+                                        color: isDisabled
                                             ? 'text.disabled'
                                             : active ? 'primary.main' : 'text.secondary',
                                     }}
                                 >
-                                    {item.icon}
+                                    <item.icon />
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={item.label}
                                     primaryTypographyProps={{
                                         fontSize: '0.9375rem',
                                         fontWeight: active ? 600 : 500,
-                                        color: isDisabled 
+                                        color: isDisabled
                                             ? 'text.disabled'
                                             : active ? 'primary.main' : 'text.primary',
                                     }}

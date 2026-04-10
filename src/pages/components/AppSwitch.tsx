@@ -1,7 +1,7 @@
 "use client"
 
-import { Switch } from "@material-tailwind/react";
-import { useEffect, useRef, useState } from "react";
+import { Switch as MuiSwitch } from "@mui/material";
+import { useEffect, useState } from "react";
 import AppText from "./AppText";
 
 interface AppSwitchProps {
@@ -11,38 +11,29 @@ interface AppSwitchProps {
 }
 
 const AppSwitch: React.FC<AppSwitchProps> = ({ text, initialValue, onChange }) => {
-
   const [checked, setChecked] = useState<boolean>(initialValue);
 
   useEffect(() => {
     setChecked(initialValue);
   }, [initialValue]);
 
-  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = event.target.checked;
     setChecked(isChecked);
-    // Pass back the state to the parent component
-    if (onChange) {
-      onChange(isChecked);
-    }
+    if (onChange) onChange(isChecked);
   };
 
   return (
     <div className="flex flex-row justify-between gap-6 items-center">
-      <AppText text={text ? text : ""} />
-      <Switch
+      <AppText text={text ?? ""} />
+      <MuiSwitch
         checked={checked}
-        onChange={handleSwitchChange}
-        ripple={false}
-        className="h-full w-full checked:bg-[purple] before:hidden after:hidden"
-        containerProps={{
-          className: "w-11 h-6 before:hidden after:hidden",
-        }}
-        circleProps={{
-          className: "before:hidden after:hidden left-0.5 border-none",
-        }} />
-    </div >
-  )
-}
+        onChange={handleChange}
+        disableRipple
+        size="small"
+      />
+    </div>
+  );
+};
 
 export default AppSwitch;

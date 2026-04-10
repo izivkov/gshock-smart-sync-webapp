@@ -1,6 +1,6 @@
 "use client"
 
-import { Checkbox } from "@material-tailwind/react";
+import { Checkbox as MuiCheckbox } from "@mui/material";
 import { useEffect, useState } from "react";
 import AppText from "./AppText";
 
@@ -13,36 +13,30 @@ interface AppCheckboxProps {
 }
 
 const AppCheckbox: React.FC<AppCheckboxProps> = ({ text, checked, className, onChange, index }) => {
-
   const [checkboxState, setCheckboxState] = useState(checked);
 
   useEffect(() => {
     setCheckboxState(checked);
   }, [checked]);
 
-  const toggleCheckbox = (e: any) => {
-    setCheckboxState(!checkboxState);
+  const toggleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCheckboxState(e.target.checked);
     onChange(e.target.checked, index);
-  }
-
-  const checkboxClass = className ? className : "p-0";
+  };
 
   return (
-    <div className="flex flex-row justify-between gap-0 items-center inline-block">
-      <AppText text={text ? text : ""} />
-      <Checkbox
-        color="purple"
+    <div className="flex flex-row justify-between gap-0 items-center">
+      <AppText text={text ?? ""} />
+      <MuiCheckbox
         checked={checkboxState}
-        className={`${checkboxClass} before:hidden after:hidden`}
         onChange={toggleCheckbox}
-        containerProps={{
-          className: `${checkboxClass} before:hidden after:hidden`,
-        }}
-        ripple={false}
+        className={className}
+        disableRipple
+        size="small"
+        sx={{ color: 'primary.main', '&.Mui-checked': { color: 'primary.main' } }}
       />
-    </div >
-  )
-}
+    </div>
+  );
+};
 
 export default AppCheckbox;
-

@@ -122,4 +122,7 @@ const Reminders: React.FC = () => {
     );
 };
 
+// Force server-side rendering — avoids null React context during static prerendering
+export const getServerSideProps = async () => ({ props: {} });
 export default Reminders;
+

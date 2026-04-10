@@ -151,4 +151,5 @@ const Alarms: React.FC = () => {
     );
 };
 
+export const getServerSideProps = async () => ({ props: {} });
 export default Alarms;
