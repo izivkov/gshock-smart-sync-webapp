@@ -27,51 +27,74 @@ class Connection {
   }
 
   start = async (): Promise<void> => {
-
-    const isExperimentalFeatureEnabled = this.isExperimentalFeatureEnabled();
-    console.log("Bluetooth is experimental feature enabled: " + isExperimentalFeatureEnabled);
-
     try {
       const device = await navigator.bluetooth.requestDevice({
         filters: [
           {
-            services: [
-              CasioConstants.CASIO_SERVICE,
-              // CasioConstants.WATCH_FEATURES_SERVICE_UUID,
-            ],
+            services: [CasioConstants.CASIO_SERVICE],
           },
         ],
         optionalServices: [CasioConstants.WATCH_FEATURES_SERVICE_UUID],
       });
 
-      // Connect to the device
-      const server = await device.gatt!.connect();
+      await this.initDevice(device);
+    } catch (error) {
+      console.error('Bluetooth error:', error);
+    }
+  };
 
-      device.addEventListener('gattserverdisconnected', () => {
-        this.device = null;
-        this.server = null;
-        this.service = null;
-        this.readCharacteristic = null;
-        this.writeCharacteristic = null;
-        this.writeCharacteristicSetValue = null;
-        this.notifyCharacteristic = null;
+  reconnect = async (): Promise<void> => {
+    if (!navigator.bluetooth || !navigator.bluetooth.getDevices) {
+      console.log("getDevices() is not supported in this browser.");
+      return;
+    }
 
-        progressEvents.onNext("Disconnected");
-      })
+    try {
+      const devices = await navigator.bluetooth.getDevices();
+      if (devices.length > 0) {
+        const device = devices[0]; // Try the first available device
+        console.log(`Found previously paired device: ${device.name}. Attemping to connect...`);
+        await this.initDevice(device);
+      }
+    } catch (error) {
+      console.error('Bluetooth reconnection error:', error);
+    }
+  };
 
-      watchInfo.setNameAndModel(device.name!);
+  private initDevice = async (device: BluetoothDevice): Promise<void> => {
+    this.device = device;
+    
+    // Connect to the device
+    const server = await device.gatt!.connect();
+    this.server = server;
 
+    device.addEventListener('gattserverdisconnected', () => {
+      this.device = null;
+      this.server = null;
+      this.service = null;
+      this.readCharacteristic = null;
+      this.writeCharacteristic = null;
+      this.writeCharacteristicSetValue = null;
+      this.notifyCharacteristic = null;
+
+      progressEvents.onNext("Disconnected");
+    });
+
+    watchInfo.setNameAndModel(device.name!);
+
+    try {
       this.service = await server.getPrimaryService(CasioConstants.WATCH_FEATURES_SERVICE_UUID);
 
-      // Enable notifications for a characteristic (if needed)
+      // Enable notifications for a characteristic
       this.notifyCharacteristic = await this.service.getCharacteristic(CasioConstants.CASIO_ALL_FEATURES_CHARACTERISTIC_UUID);
       await this.notifyCharacteristic.startNotifications();
 
       console.log(`Connected to ${device.name}`);
       progressEvents.onNext("Connected");
-
-    } catch (error) {
-      console.error('Bluetooth error:', error);
+    } catch (e) {
+      console.error("Failed to get services/characteristics", e);
+      // Even if characteristics fail, we are connected at the GATT level
+      progressEvents.onNext("Connected");
     }
   };
 

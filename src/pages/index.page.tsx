@@ -3,6 +3,7 @@
 import WatchImage from '@pages/home/WatchImage'
 import ConnectButton from '@pages/home/ConnectButton'
 import React, { useEffect, useMemo, useState } from 'react'
+import { connection } from '@api/Connection';
 import { progressEvents } from "@api/ProgressEvents"
 import { useRouter } from 'next/navigation';
 import { EventAction } from "@api/ProgressEvents";
@@ -56,6 +57,13 @@ function Home() {
   useEffect(() => {
     progressEvents.runEventActions("Home", actions);
   }, [actions]);
+
+  // If already connected (e.g. after a refresh or auto-reconnect), redirect immediately
+  useEffect(() => {
+    if (connection.isConnected()) {
+      navigateToTimePage();
+    }
+  }, [navigateToTimePage]);
 
   const handleCloseDialog = () => {
     setDialogOpen(false);

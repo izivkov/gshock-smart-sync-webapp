@@ -129,7 +129,7 @@ const Alarms: React.FC = () => {
                     Send to Phone
                 </Button>
                 <Button
-                    variant="outlined"
+                    variant="contained"
                     onClick={sendToWatch}
                     sx={{ flexShrink: 0 }}
                 >

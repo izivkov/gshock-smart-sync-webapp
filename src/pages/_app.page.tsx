@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState, createContext, useContext, use } from 'react';
 import { connection } from '@api/Connection';
 import { progressEvents, EventAction } from '@api/ProgressEvents';
+import GShockAPI from '@/api/GShockAPI';
 
 // Material 3 Design Tokens - Warm brown/peach theme matching the Android G-Shock app
 const theme = createTheme({
@@ -192,7 +193,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const [isConnected, setIsConnected] = useState(false);
 
-  // Listen for connection events from the watch
+  // Listen for connection events from the watch and try to auto-reconnect
   useEffect(() => {
     const connectionActions: EventAction[] = [
       { label: "Connected", action: () => setIsConnected(true) },
@@ -200,6 +201,17 @@ export default function App({ Component, pageProps }: AppProps) {
     ];
 
     progressEvents.runEventActions("AppRoot", connectionActions);
+
+    // Try to auto-reconnect to a previously paired device if we're not already connected
+    (async () => {
+      if (!connection.isConnected()) {
+        await connection.reconnect();
+        if (connection.isConnected()) {
+          await GShockAPI.init();
+          setIsConnected(true);
+        }
+      }
+    })();
   }, []);
 
   // Route protection: redirect to home if visiting restricted paths while disconnected

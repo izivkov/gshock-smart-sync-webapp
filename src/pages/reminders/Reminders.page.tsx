@@ -100,7 +100,7 @@ const Reminders: React.FC = () => {
             {/* Bottom action buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, px: 2 }}>
                 <Button
-                    variant="outlined"
+                    variant="contained"
                     onClick={sendToWatch}
                     sx={{ flexShrink: 0 }}
                 >

@@ -1,9 +1,8 @@
 "use client"
 
 import React, { useState, useEffect, useContext } from 'react';
-import { Box, Typography, IconButton, Tooltip, Snackbar, Alert } from '@mui/material';
+import { Box, Typography, Button, Snackbar, Alert } from '@mui/material';
 import WatchIcon from '@mui/icons-material/Watch';
-import SyncIcon from '@mui/icons-material/Sync';
 import TimerIcon from '@mui/icons-material/Timer';
 import PublicIcon from '@mui/icons-material/Public';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
@@ -175,39 +174,30 @@ const Time: React.FC = () => {
                         Current Time
                     </Typography>
                     
-                    <Box sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-                        <Box>
-                            <DigitalClock size="large" showSeconds={true} />
-                            <Typography 
-                                sx={{ 
-                                    fontSize: '0.8125rem',
-                                    color: '#7A5C44',
-                                    mt: 0.5,
-                                }}
-                            >
-                                {timeZone.replace('_', ' ')}
-                            </Typography>
+                    <Box sx={{ mt: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', mb: 3 }}>
+                            <Box>
+                                <DigitalClock size="large" showSeconds={true} />
+                                <Typography 
+                                    sx={{ 
+                                        fontSize: '0.8125rem',
+                                        color: '#7A5C44',
+                                        mt: 0.5,
+                                    }}
+                                >
+                                    {timeZone.replace('_', ' ')}
+                                </Typography>
+                            </Box>
                         </Box>
                         
-                        <Tooltip title="Sync to watch" arrow>
-                            <IconButton 
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                            <Button 
+                                variant="contained" 
                                 onClick={handleSetTime}
-                                sx={{ 
-                                    backgroundColor: '#8B5E3C',
-                                    color: '#FFFFFF',
-                                    width: 48,
-                                    height: 48,
-                                    boxShadow: '0 4px 12px rgba(139, 94, 60, 0.3)',
-                                    '&:hover': { 
-                                        backgroundColor: '#5C3A1E',
-                                        transform: 'scale(1.05)',
-                                    },
-                                    transition: 'all 0.2s ease',
-                                }}
                             >
-                                <SyncIcon />
-                            </IconButton>
-                        </Tooltip>
+                                Send to Watch
+                            </Button>
+                        </Box>
                     </Box>
                 </Box>
             </Box>
@@ -236,25 +226,17 @@ const Time: React.FC = () => {
                     </Typography>
                 </Box>
                 
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <TimerInput initialValue={timerValue} onUpdate={handleTimerChange} />
                     
-                    <Tooltip title="Set timer" arrow>
-                        <IconButton 
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                        <Button 
+                            variant="contained" 
                             onClick={handleSetTimer}
-                            sx={{ 
-                                backgroundColor: 'rgba(139, 94, 60, 0.1)',
-                                color: '#8B5E3C',
-                                width: 44,
-                                height: 44,
-                                '&:hover': { 
-                                    backgroundColor: 'rgba(139, 94, 60, 0.2)',
-                                },
-                            }}
                         >
-                            <SyncIcon sx={{ fontSize: 20 }} />
-                        </IconButton>
-                    </Tooltip>
+                            Send to Watch
+                        </Button>
+                    </Box>
                 </Box>
             </Box>
 
