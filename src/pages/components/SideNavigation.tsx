@@ -110,7 +110,7 @@ const SideNavigation: React.FC = () => {
                             lineHeight: 1.2,
                         }}
                     >
-                        G-Shock Smaprt Sync
+                        G-Shock Smart Sync
                     </Typography>
                     <Typography
                         variant="caption"
@@ -118,7 +118,7 @@ const SideNavigation: React.FC = () => {
                             color: 'text.secondary',
                         }}
                     >
-                        Watch Manager
+                        G-Shock Watch Manager
                     </Typography>
                 </Box>
             </Box>
