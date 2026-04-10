@@ -23,7 +23,7 @@ This guide explains how to deploy the G-Shock Smart Sync web application to a Ra
 Connect to your Raspberry Pi and run initial setup:
 
 ```bash
-ssh ivo@192.168.1.100
+ssh [USERNAME]@[IP of your server]
 
 # Update system packages
 sudo apt-get update && sudo apt-get upgrade -y
@@ -70,44 +70,44 @@ The deployment script sets up a systemd service called `gshock-webapp` for autom
 
 ### View logs in real-time:
 ```bash
-ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -f'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -f'
 ```
 
 ### Stop the application:
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl stop gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl stop gshock-webapp'
 ```
 
 ### Start the application:
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl start gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl start gshock-webapp'
 ```
 
 ### Restart the application:
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 ```
 
 ### Check service status:
 ```bash
-ssh ivo@192.168.1.100 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
 ```
 
 ### Enable/disable auto-start:
 ```bash
 # Enable auto-start on boot
-ssh ivo@192.168.1.100 'sudo systemctl enable gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl enable gshock-webapp'
 
 # Disable auto-start on boot
-ssh ivo@192.168.1.100 'sudo systemctl disable gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl disable gshock-webapp'
 ```
 
 ## File Locations on Raspberry Pi
 
-- **Application root**: `/home/ivo/gshock-smart-sync`
+- **Application root**: `/home/[USERNAME]/gshock-smart-sync`
 - **Service file**: `/etc/systemd/system/gshock-webapp.service`
 - **Logs**: `journalctl -u gshock-webapp`
-- **Node modules**: `/home/ivo/gshock-smart-sync/node_modules`
+- **Node modules**: `/home/[USERNAME]/gshock-smart-sync/node_modules`
 
 ## Production Optimization
 
@@ -161,10 +161,10 @@ sudo systemctl restart nginx
 ### Application won't start
 ```bash
 # Check logs
-ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -n 50'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 50'
 
 # Check service status
-ssh ivo@192.168.1.100 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
 ```
 
 ### Out of memory errors
@@ -180,7 +180,7 @@ ssh ivo@192.168.1.100 'sudo systemctl status gshock-webapp'
 ### Port 3000 already in use
 Change the port in the systemd service file:
 ```bash
-ssh ivo@192.168.1.100 'sudo nano /etc/systemd/system/gshock-webapp.service'
+ssh [USERNAME]@[IP of your server] 'sudo nano /etc/systemd/system/gshock-webapp.service'
 # Change: ExecStart=/usr/bin/npm start -- -p 3001
 sudo systemctl restart gshock-webapp
 ```
@@ -201,15 +201,15 @@ The script will redeploy and restart the service automatically.
 
 ### Create a backup
 ```bash
-ssh ivo@192.168.1.100 'tar -czf gshock-backup-$(date +%Y%m%d).tar.gz /home/ivo/gshock-smart-sync'
-scp ivo@192.168.1.100:gshock-backup-*.tar.gz ./backups/
+ssh [USERNAME]@[IP of your server] 'tar -czf gshock-backup-$(date +%Y%m%d).tar.gz /home/[USERNAME]/gshock-smart-sync'
+scp [USERNAME]@[IP of your server]:gshock-backup-*.tar.gz ./backups/
 ```
 
 ### Restore from backup
 ```bash
-scp ./backups/gshock-backup-*.tar.gz ivo@192.168.1.100:
-ssh ivo@192.168.1.100 'tar -xzf gshock-backup-*.tar.gz -C /'
-ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
+scp ./backups/gshock-backup-*.tar.gz [USERNAME]@[IP of your server]:
+ssh [USERNAME]@[IP of your server] 'tar -xzf gshock-backup-*.tar.gz -C /'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 ```
 
 ## Support

@@ -29,8 +29,8 @@ Dev Machine:
 □ rsync installed
 
 Raspberry Pi:
-□ Running at 192.168.1.100
-□ SSH enabled and accessible (user: ivo)
+□ Running at [IP of your server]
+□ SSH enabled and accessible (user: USERNAME)
 □ Internet connection
 □ Raspberry Pi OS Bullseye or newer
 ```
@@ -39,7 +39,7 @@ Raspberry Pi:
 
 **Step 1: Prepare Raspberry Pi (First time only)**
 ```bash
-ssh ivo@192.168.1.100
+ssh [USERNAME]@[IP of your server]
 sudo apt-get update && sudo apt-get upgrade -y
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
@@ -54,7 +54,7 @@ cd ~/projects/gshock-smart-sync-webapp
 
 **Step 3: Access Application**
 ```
-http://192.168.1.100:3000
+http://[IP of your server]:3000
 ```
 
 ---
@@ -72,23 +72,23 @@ http://192.168.1.100:3000
 ## After Deployment
 
 ### Access Application
-- Open browser: `http://192.168.1.100:3000`
+- Open browser: `http://[IP of your server]:3000`
 - Connect your G-Shock watch via Bluetooth
 - Manage time, alarms, events, settings
 
 ### Monitor Application
 ```bash
 # View live logs
-ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -f'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -f'
 
 # Check status
-ssh ivo@192.168.1.100 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
 
 # Stop if needed
-ssh ivo@192.168.1.100 'sudo systemctl stop gshock-webapp'
+ssh [USERNAME]@[  hock-webapp'
 
 # Start/Restart
-ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 ```
 
 ---
@@ -121,7 +121,7 @@ ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
 | Issue | Solution |
 |-------|----------|
 | Cannot access http://192.168.1.100:3000 | See QUICK-START.md → "Cannot Connect" |
-| Service won't start | Check logs: `ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -n 100'` |
+| Service won't start | Check logs: `ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 100'` |
 | Out of memory | See QUICK-START.md → "Out of Memory Errors" |
 | SSH connection fails | See QUICK-START.md → "SSH Connection Issues" |
 
@@ -136,8 +136,8 @@ To deploy updated code:
 ./deploy-rpi.sh
 
 # Option 2: Quick code update only
-rsync -avz --delete out/ ivo@192.168.1.100:/home/ivo/gshock-smart-sync/out/
-ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
+rsync -avz --delete out/ [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/out/
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 ```
 
 ---
@@ -161,9 +161,9 @@ ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
 ## Next Steps
 
 1. **Verify prerequisites** - Ensure dev machine has SSH, rsync, Node.js
-2. **Test SSH access** - `ssh ivo@192.168.1.100`
+2. **Test SSH access** - `ssh [USERNAME]@[IP of your server]`
 3. **Run deployment** - `./deploy-rpi.sh`
-4. **Access application** - Open `http://192.168.1.100:3000`
+4. **Access application** - Open `http://[IP of your server]:3000`
 5. **Connect watch** - Use Bluetooth to pair G-Shock
 6. **Test features** - Time sync, alarms, events, settings
 
@@ -172,7 +172,7 @@ ssh ivo@192.168.1.100 'sudo systemctl restart gshock-webapp'
 ## File Structure After Deployment
 
 ```
-Raspberry Pi (/home/ivo/gshock-smart-sync/):
+Raspberry Pi (/home/[USERNAME]/gshock-smart-sync/):
 ├── out/                    ← Compiled Next.js app
 ├── public/                 ← Static assets
 ├── package.json            ← Production dependencies
@@ -204,7 +204,7 @@ You now have:
 ✅ Comprehensive documentation
 ✅ Ready for production deployment to Raspberry Pi
 
-**To deploy:** Simply run `./deploy-rpi.sh` and access at `http://192.168.1.100:3000`
+**To deploy:** Simply run `./deploy-rpi.sh` and access at `http://[IP of your server]:3000`
 
 ---
 
