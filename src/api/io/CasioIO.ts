@@ -27,8 +27,8 @@ const CasioIO = {
         await WatchDataListener.init();
     },
 
-    request: function (request: string): void {
-        this.writeCmdFromString(0xC, request);
+    request: async function (request: string): Promise<void> {
+        await this.writeCmdFromString(0xC, request);
     },
 
     writeCmd: async (handle: number, bytesArray: number[]): Promise<void> => {
@@ -43,13 +43,13 @@ const CasioIO = {
         );
     },
 
-    writeCmdFromString: function (handle: number, bytesStr: string): void {
+    writeCmdFromString: async function (handle: number, bytesStr: string): Promise<void> {
         const resolvedHandle = CasioIO.handlesMap.get(handle);
         if (resolvedHandle === undefined) {
             progressEvents.onNext("ApiError");
             return;
         }
-        connection.write(
+        await connection.write(
             resolvedHandle,
             this.toCasioCmd(bytesStr)
         );

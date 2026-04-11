@@ -9,7 +9,6 @@ import GShockAPI from '@/api/GShockAPI';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
 
 const Reminders: React.FC = () => {
-    const initialized = useRef(false)
 
     const reminderInit = {
         daysOfWeek: [],
@@ -29,12 +28,9 @@ const Reminders: React.FC = () => {
 
     useEffect(() => {
         (async () => {
-            if (!initialized.current) {
-                initialized.current = true;
-                const newReminders = await GShockAPI.getEventsFromWatch();
-                setReminders(newReminders.slice(0, 5));
-            }
-        })()
+            const newReminders = await GShockAPI.getEventsFromWatch();
+            setReminders(newReminders.slice(0, 5));
+        })();
     }, []);
 
     const sendToWatch = async () => {
@@ -43,6 +39,10 @@ const Reminders: React.FC = () => {
             setSnackbarMessage('Events sent to watch');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
+            
+            // Re-fetch to confirm and update UI
+            const newReminders = await GShockAPI.getEventsFromWatch();
+            setReminders(newReminders.slice(0, 5));
         } catch (error) {
             setSnackbarMessage('Failed to send events');
             setSnackbarSeverity('error');
@@ -51,7 +51,6 @@ const Reminders: React.FC = () => {
     }
 
     const onChange = (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => {
-        if (!initialized.current) return;
         const newReminders = JSON.parse(JSON.stringify(reminders));
         newReminders[number - 1] = reminder;
         setReminders(newReminders);

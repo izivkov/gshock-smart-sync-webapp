@@ -37,10 +37,13 @@ const EventsIO = {
     },
 
     async getEventFromWatch(eventNumber: string): Promise<Event> {
-        CasioIO.request("30" + eventNumber); // reminder title
-        CasioIO.request("31" + eventNumber); // reminder time
+        await CasioIO.request("30" + eventNumber); // reminder title
+        
+        // Small delay to ensure the watch processes the first request
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        await CasioIO.request("31" + eventNumber); // reminder time
 
-        const key = "310" + eventNumber;
         deferredResult = new Promise<Event>((resolve) => {
             resolver = resolve as ((value?: Event | PromiseLike<Event>) => void);
         });
@@ -57,6 +60,9 @@ const EventsIO = {
             return events;
         }
 
+        // Clear entire cache after saving to ensure all screens show fresh data
+        cachedIO.clearCache();
+
         await connection.sendMessage(JSON.stringify({
             action: "SET_REMINDERS",
             value: getSelectedEvents(events),
@@ -64,10 +70,12 @@ const EventsIO = {
     },
 
     onReceived(data: any): any {
-        const decoded: any = ReminderDecoder.reminderTimeToJson(data + 2)
+        const decoded: any = ReminderDecoder.reminderTimeToJson(data.slice(2))
         decoded["title"] = accumulatedValueHolder.title
         const event = Event.createEvent(decoded)
-        resolver!(event);
+        if (resolver) {
+            resolver(event);
+        }
     },
 
     onReceivedTitle(data: any): any {
@@ -77,6 +85,7 @@ const EventsIO = {
 
     async sendToWatchSet(message: string): Promise<void> {
         const remindersJsonArr = JSON.parse(message).value;
+        console.log("EventsIO: Sending reminders to watch...", remindersJsonArr);
 
         for (let index = 0; index < remindersJsonArr.length; index++) {
             const reminderJson = remindersJsonArr[index];
@@ -88,41 +97,38 @@ const EventsIO = {
                 ...ReminderEncoder.reminderTimeFromJson(reminderJson),
             ];
 
-            // const encodedTitle = new Uint8Array(title.split('').map((char: string) => char.charCodeAt(0)));
             const encodedTitle = Utils.toByteArray(title, 18);
 
+            console.log(`EventsIO: Writing title for reminder ${index + 1}: ${title}`);
             await CasioIO.writeCmd(0x000e, [
                 CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TITLE,
                 index + 1,
                 ...Array.from(encodedTitle),
             ]);
 
+            // Delay between title and time
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            console.log(`EventsIO: Writing time for reminder ${index + 1}`);
             await CasioIO.writeCmd(0x000e, reminderTime);
+
+            // Delay between reminders
+            await new Promise(resolve => setTimeout(resolve, 150));
         }
 
-        console.log("Got reminders", remindersJsonArr);
+        console.log("EventsIO: Done sending reminders");
     },
 }
 
 const ReminderDecoder = {
     reminderTimeToJson(reminderStr: any): { end: string } | { time: Reminder } {
-        const intArr = Utils.toIntArray(reminderStr);
-        if (intArr[3] === 0xFF) {
+        const intArr = reminderStr;
+        if (intArr[1] === 0xFF) {
             // 0XFF indicates the end of reminders
             return { "end": "" };
         }
 
-        const reminderStrInt = Utils.parseStringToIntArray(reminderStr);
-        const shortStr = Utils.toCompactString(reminderStrInt);
-
-        // Get the first byte of the returned data, which indicates the data content.
-        const key = shortStr.substring(0, 4).toUpperCase();
-
-        const reminderAll = reminderStrInt;
-
-        // Remove the first 2 chars:
-        // 0x31 05 <--- 00 23 02 21 23 02 21 00 00
-        const reminder = reminderAll.slice(2);
+        const reminder = intArr;
 
         const reminderJson: Reminder = {
             enabled: false,

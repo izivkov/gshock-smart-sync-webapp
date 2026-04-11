@@ -15,6 +15,8 @@ class Connection {
   writeCharacteristicSetValue: BluetoothRemoteGATTCharacteristic | null;
   notifyCharacteristic: BluetoothRemoteGATTCharacteristic | null;
 
+  private characteristicCache: Map<string, BluetoothRemoteGATTCharacteristic>;
+
   constructor() {
     this.name = "";
     this.device = null;
@@ -24,6 +26,7 @@ class Connection {
     this.writeCharacteristic = null;
     this.writeCharacteristicSetValue = null;
     this.notifyCharacteristic = null;
+    this.characteristicCache = new Map();
   }
 
   start = async (): Promise<void> => {
@@ -77,6 +80,8 @@ class Connection {
       this.writeCharacteristicSetValue = null;
       this.notifyCharacteristic = null;
 
+      this.characteristicCache.clear();
+
       progressEvents.onNext("Disconnected");
     });
 
@@ -107,8 +112,12 @@ class Connection {
 
   write = async (handle: BluetoothCharacteristicUUID, value: any): Promise<void> => {
     if (this.service) {
-      const service = await this.service.getCharacteristic(handle);
-      await service.writeValue(new Uint8Array(value));
+      let characteristic = this.characteristicCache.get(handle.toString());
+      if (!characteristic) {
+        characteristic = await this.service.getCharacteristic(handle);
+        this.characteristicCache.set(handle.toString(), characteristic);
+      }
+      await characteristic.writeValue(new Uint8Array(value));
       console.log(`Write: ${handle} | value: ${value.toString(16)}`);
     }
   };
