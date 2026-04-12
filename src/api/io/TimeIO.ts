@@ -5,6 +5,7 @@ import DstForWorldCitiesIO from "@io/DstForWorldCitiesIO";
 import WorldCitiesIO from "@io/WorldCitiesIO";
 import { CasioConstants } from "@api/CasioConstants";
 import { connection } from "@api/Connection";
+import Utils from "../utils/Utils";
 
 interface TimeEncoder {
     prepareCurrentTime(date: Date): Uint8Array;
@@ -32,11 +33,13 @@ const TimeIO = {
         return await WorldCitiesIO.request(cityNum);
     },
 
-    getWorldCitiesWithTZ: async (cityNum: number): Promise<string> => {
-        const newCity = WorldCitiesIO.parseCity("America/Toronto");
-        const encoded = WorldCitiesIO.encodeAndPad(newCity, cityNum);
+    getWorldCitiesWithTZ: async (cityNum: number): Promise<number[]> => {
+        const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+        const newCity: string = WorldCitiesIO.parseCity(timeZone);
+        const encoded: string = WorldCitiesIO.encodeAndPad(newCity, cityNum);
         CasioIO.removeFromCache(encoded);
-        return encoded;
+
+        return Utils.hexToBytes(encoded);
     },
 
     async initializeForSettingTime(): Promise<void> {
@@ -79,7 +82,7 @@ const TimeIO = {
 
     async writeWorldCities(): Promise<void> {
         const worldCities = [
-            { function: this.getWorldCities, param: 0 },
+            { function: this.getWorldCitiesWithTZ, param: 0 },
             { function: this.getWorldCities, param: 1 },
             { function: this.getWorldCities, param: 2 },
             { function: this.getWorldCities, param: 3 },
@@ -115,7 +118,6 @@ const TimeEncoder = {
         const second = date.getSeconds();
         const dayOfWeek = date.getDay();
         const millisecond = date.getMilliseconds();
-        // Determine the last byte value as needed
         const lastByte = 1;
 
         const arr = new Uint8Array(10);
@@ -132,7 +134,6 @@ const TimeEncoder = {
 
         return arr;
     },
-}
-
+};
 
 export default TimeIO;
