@@ -7,17 +7,12 @@ import {
     Button, 
     Card, 
     Switch, 
-    FormControlLabel,
     ToggleButton,
     ToggleButtonGroup,
     Select,
     MenuItem,
     FormControl,
-    InputLabel,
     Divider,
-    IconButton,
-    Tooltip,
-    alpha,
     Snackbar,
     Alert
 } from '@mui/material';
@@ -28,12 +23,13 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import BatterySaverIcon from '@mui/icons-material/BatterySaver';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SyncIcon from '@mui/icons-material/Sync';
-import DownloadIcon from '@mui/icons-material/Download';
-import WatchIcon from '@mui/icons-material/Watch';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import GShockAPI from '@/api/GShockAPI';
 import { dateFormatType, languageType, lightDurationType, timeFormatType } from '@api/WatchInfo';
 import { watchInfo } from '@/api/WatchInfo';
 import { ConnectionContext } from '../_app.page';
+import ScreenTitle from '../components/ScreenTitle';
+import { getSmartDefaultsForSettings } from './smartDefaults';
 
 interface SettingsData {
     autoLight: boolean;
@@ -199,9 +195,18 @@ const Settings: React.FC = () => {
         setSettings(prev => ({ ...prev, ...partial }));
     };
 
-    const onAutoFill = async () => {
-        const newSettings = await GShockAPI.getSettings();
-        setSettings(newSettings);
+    const applySmartDefaults = async () => {
+        try {
+            const patch = await getSmartDefaultsForSettings(settings);
+            setSettings((prev) => ({ ...prev, ...patch }));
+            setSnackbarMessage('Applied Auto Fill from this device');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+        } catch {
+            setSnackbarMessage('Could not apply Auto Fill');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
     };
 
     const onSave = async () => {
@@ -233,44 +238,7 @@ const Settings: React.FC = () => {
             mx: 'auto', 
             width: '100%' 
         }}>
-            {/* Header */}
-            <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                mb: 3 
-            }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <WatchIcon sx={{ color: '#8B5E3C', fontSize: 28 }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600, color: '#2D1A0E' }}>
-                        Settings
-                    </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Tooltip title="Load from watch">
-                        <IconButton 
-                            onClick={onAutoFill}
-                            sx={{ 
-                                bgcolor: 'rgba(139, 94, 60, 0.08)',
-                                '&:hover': { bgcolor: 'rgba(139, 94, 60, 0.16)' },
-                            }}
-                        >
-                            <DownloadIcon sx={{ color: '#8B5E3C', fontSize: 20 }} />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Send to watch">
-                        <IconButton 
-                            onClick={onSave}
-                            sx={{ 
-                                bgcolor: '#8B5E3C',
-                                '&:hover': { bgcolor: '#5C3A1E' },
-                            }}
-                        >
-                            <SyncIcon sx={{ color: '#FFFFFF', fontSize: 20 }} />
-                        </IconButton>
-                    </Tooltip>
-                </Box>
-            </Box>
+            <ScreenTitle title="Settings" />
 
             {/* Time & Date Section */}
             <Card sx={{ 
@@ -476,8 +444,8 @@ const Settings: React.FC = () => {
             }}>
                 <Button 
                     variant="outlined" 
-                    onClick={onAutoFill}
-                    startIcon={<DownloadIcon />}
+                    onClick={applySmartDefaults}
+                    startIcon={<AutoFixHighIcon />}
                     sx={{
                         borderColor: 'rgba(139, 94, 60, 0.3)',
                         color: '#8B5E3C',
@@ -491,7 +459,7 @@ const Settings: React.FC = () => {
                         },
                     }}
                 >
-                    Load from Watch
+                    Auto Fill
                 </Button>
                 <Button 
                     variant="contained" 

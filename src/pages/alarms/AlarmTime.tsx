@@ -1,7 +1,8 @@
 "use client"
 
 import dayjs, { Dayjs } from 'dayjs';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { isNorthAmerica12HourClock } from '@/utils/localeDisplay';
 
 interface AlarmTimeProps {
     alarmTime: Dayjs
@@ -10,6 +11,7 @@ interface AlarmTimeProps {
 const AlarmTime: React.FC<AlarmTimeProps> = ({ alarmTime }) => {
 
     const [time, setTime] = useState(alarmTime);
+    const use12Hour = useMemo(() => isNorthAmerica12HourClock(), []);
 
     useEffect(() => {
         setTime(alarmTime);
@@ -17,7 +19,7 @@ const AlarmTime: React.FC<AlarmTimeProps> = ({ alarmTime }) => {
 
     return (
         <div className="text-xl font-semibold text-center" suppressHydrationWarning>
-            {time.format('h:mm A')}
+            {use12Hour ? time.format('h:mm A') : time.format('HH:mm')}
         </div>
     );
 };

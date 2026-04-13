@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { Box, Typography, Button, Snackbar, Alert } from '@mui/material';
 import WatchIcon from '@mui/icons-material/Watch';
 import TimerIcon from '@mui/icons-material/Timer';
@@ -14,6 +14,13 @@ import GShockAPI from '@/api/GShockAPI';
 import { progressEvents, EventAction } from '@api/ProgressEvents';
 import { watchInfo } from '@api/WatchInfo';
 import { ConnectionContext } from '../_app.page';
+import ScreenTitle from '../components/ScreenTitle';
+import {
+    formatHomeTimeForDisplay,
+    formatTemperatureFromCelsius,
+    isNorthAmerica12HourClock,
+    useFahrenheitForTemperature,
+} from '@/utils/localeDisplay';
 
 const Time: React.FC = () => {
     const { isConnected } = useContext(ConnectionContext);
@@ -86,6 +93,10 @@ const Time: React.FC = () => {
         }
     };
 
+    const use12HourClock = useMemo(() => isNorthAmerica12HourClock(), []);
+    const fahrenheitTemp = useMemo(() => useFahrenheitForTemperature(), []);
+    const tempShown = formatTemperatureFromCelsius(temperature, fahrenheitTemp);
+
     return (
         <Box sx={{
             px: { xs: 2, md: 3 },
@@ -95,6 +106,8 @@ const Time: React.FC = () => {
             mx: 'auto',
             width: '100%'
         }}>
+            <ScreenTitle title="Time" />
+
             {/* Watch Header */}
             <Box
                 sx={{
@@ -260,7 +273,7 @@ const Time: React.FC = () => {
                             fontVariantNumeric: 'tabular-nums',
                         }}
                     >
-                        {homeTime || '--:--'}
+                        {formatHomeTimeForDisplay(homeTime || undefined, use12HourClock)}
                     </Typography>
                 </Box>
 
@@ -288,7 +301,7 @@ const Time: React.FC = () => {
                                 fontFamily: '"SF Mono", "Roboto Mono", monospace',
                             }}
                         >
-                            {temperature}
+                            {tempShown.text}
                             <Typography
                                 component="span"
                                 sx={{
@@ -298,7 +311,7 @@ const Time: React.FC = () => {
                                     ml: 0.25,
                                 }}
                             >
-                                °C
+                                {tempShown.unit}
                             </Typography>
                         </Typography>
                     </Box>

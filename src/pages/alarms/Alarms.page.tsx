@@ -7,6 +7,7 @@ import {
 import AlarmCard from './AlarmCard';
 import AppSwitch from '@components/AppSwitch';
 import GShockAPI from '@/api/GShockAPI';
+import ScreenTitle from '../components/ScreenTitle';
 
 const Alarms: React.FC = () => {
     const initialized = useRef(false)
@@ -80,20 +81,7 @@ const Alarms: React.FC = () => {
             mx: 'auto', 
             width: '100%' 
         }}>
-            {/* Page title */}
-            <Typography
-                variant="h5"
-                sx={{ 
-                    mb: 3, 
-                    fontWeight: 500, 
-                    color: 'text.primary', 
-                    letterSpacing: 0.2,
-                    textAlign: { xs: 'center', md: 'left' },
-                    px: { xs: 0, md: 0 }
-                }}
-            >
-                Watch Alarms
-            </Typography>
+            <ScreenTitle title="Alarms" />
 
             {/* Alarm list — rounded card with rows */}
             <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', mx: 1 }}>

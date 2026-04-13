@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { StaticTimePicker } from '@mui/x-date-pickers/StaticTimePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { isNorthAmerica12HourClock } from '@/utils/localeDisplay';
 
 interface AppTimePickerProps {
     onTimeSelected: (time: any) => void;
@@ -12,6 +13,7 @@ interface AppTimePickerProps {
 
 const AppTimePicker: React.FC<AppTimePickerProps> = ({ onTimeSelected, onCancel, initialTime }) => {
     const [selectedTime, setSelectedTime] = useState<Dayjs | null>(initialTime);
+    const ampm = useMemo(() => isNorthAmerica12HourClock(), []);
 
     useEffect(() => {
         setSelectedTime(initialTime);
@@ -36,6 +38,7 @@ const AppTimePicker: React.FC<AppTimePickerProps> = ({ onTimeSelected, onCancel,
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} >
             <StaticTimePicker
+                ampm={ampm}
                 value={selectedTime}
                 onClose={onClose}
                 onAccept={handleTimeAccepted}

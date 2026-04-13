@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
+import { isNorthAmerica12HourClock } from '@/utils/localeDisplay';
 
 interface DigitalClockProps {
     size?: 'small' | 'medium' | 'large';
@@ -14,23 +15,24 @@ const DigitalClock: React.FC<DigitalClockProps> = ({ size = 'large', showSeconds
     const [seconds, setSeconds] = useState<string>('--');
     const [period, setPeriod] = useState<string>('');
 
+    const use12Hour = useMemo(() => isNorthAmerica12HourClock(), []);
+
     useEffect(() => {
         const updateCurrentTime = () => {
             const now = new Date();
-            const locale = navigator.language;
-            const is12Hour = new Intl.DateTimeFormat(locale, { hour: 'numeric' }).format(now).includes('AM') || 
-                            new Intl.DateTimeFormat(locale, { hour: 'numeric' }).format(now).includes('PM');
-            
             let h = now.getHours();
             const m = now.getMinutes();
             const s = now.getSeconds();
-            
-            if (is12Hour) {
+
+            if (use12Hour) {
                 setPeriod(h >= 12 ? 'PM' : 'AM');
                 h = h % 12 || 12;
+                setHours(h.toString().padStart(2, '0'));
+            } else {
+                setPeriod('');
+                setHours(h.toString().padStart(2, '0'));
             }
-            
-            setHours(h.toString().padStart(2, '0'));
+
             setMinutes(m.toString().padStart(2, '0'));
             setSeconds(s.toString().padStart(2, '0'));
         };
@@ -38,7 +40,7 @@ const DigitalClock: React.FC<DigitalClockProps> = ({ size = 'large', showSeconds
         updateCurrentTime();
         const intervalId = setInterval(updateCurrentTime, 1000);
         return () => clearInterval(intervalId);
-    }, []);
+    }, [use12Hour]);
 
     const sizeConfig = {
         small: { time: '1.5rem', colon: '1.25rem', period: '0.625rem', gap: 0.25 },

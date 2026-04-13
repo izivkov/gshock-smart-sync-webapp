@@ -2,10 +2,11 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Box, Typography, Divider, Button, Paper, Snackbar, Alert
+    Box, Divider, Button, Paper, Snackbar, Alert
 } from '@mui/material';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
+import ScreenTitle from '../components/ScreenTitle';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
 
 const Reminders: React.FC = () => {
@@ -65,20 +66,7 @@ const Reminders: React.FC = () => {
             mx: 'auto', 
             width: '100%' 
         }}>
-            {/* Page title — matches Android "Events" */}
-            <Typography
-                variant="h5"
-                sx={{ 
-                    mb: 3, 
-                    fontWeight: 500, 
-                    color: 'text.primary', 
-                    letterSpacing: 0.2,
-                    textAlign: { xs: 'center', md: 'left' },
-                    px: { xs: 0, md: 0 }
-                }}
-            >
-                Events
-            </Typography>
+            <ScreenTitle title="Events" />
 
             {/* Event list — rounded card with rows */}
             <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', mx: 1 }}>
