@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, ReactNode } from 'react';
 import Card from '@mui/material/Card';
+import { PEACH_BORDER, PEACH_SHADOW } from '../theme/peachCardStyles';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Box from '@mui/material/Box';
@@ -30,7 +31,19 @@ const AppCard: React.FC<AppCardProps> = ({ header, body, footer, classNameHeader
     }
 
     return (
-        <Card className={`${className}`} sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+        <Card
+            className={`${className}`}
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                borderRadius: '20px',
+                border: PEACH_BORDER,
+                boxShadow: PEACH_SHADOW,
+                bgcolor: '#FFFBF8',
+                overflow: 'hidden',
+            }}
+        >
             {header && (
                 <>
                     <Box className={`${classNameHeader}`} sx={{ px: 3, py: 2, display: 'flex', justifyContent: 'center' }}>

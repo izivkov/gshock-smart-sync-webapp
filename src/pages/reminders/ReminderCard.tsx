@@ -8,6 +8,7 @@ import Period from './Period';
 import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData, { monthType } from './ReminderData';
 import AppSwitch from '../components/AppSwitch';
+import { peachCardCompactSx } from '../theme/peachCardStyles';
 import { calculateEndDateFromOccurences, getFrequencyFormatted, getPeriodFormatted, toDayJsDate } from './ReminderUtils';
 
 interface ReminderCardProps {
@@ -131,10 +132,10 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
 
     return (
         <Box sx={{
+            ...peachCardCompactSx,
             px: 2,
             py: 2,
-            bgcolor: 'background.paper',
-            minHeight: 72
+            minHeight: 72,
         }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                 <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary', minWidth: 65 }}>

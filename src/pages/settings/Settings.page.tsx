@@ -29,6 +29,7 @@ import { dateFormatType, languageType, lightDurationType, timeFormatType } from 
 import { watchInfo } from '@/api/WatchInfo';
 import { ConnectionContext } from '../_app.page';
 import ScreenTitle from '../components/ScreenTitle';
+import { PEACH_BORDER, PEACH_SHADOW, PEACH_SURFACE } from '../theme/peachCardStyles';
 import { getSmartDefaultsForSettings } from './smartDefaults';
 
 interface SettingsData {
@@ -243,15 +244,17 @@ const Settings: React.FC = () => {
             {/* Time & Date Section */}
             <Card sx={{ 
                 mb: 2, 
-                borderRadius: 3,
-                boxShadow: '0 2px 8px rgba(139, 94, 60, 0.08)',
+                borderRadius: '20px',
                 overflow: 'hidden',
+                bgcolor: PEACH_SURFACE,
+                border: PEACH_BORDER,
+                boxShadow: PEACH_SHADOW,
             }}>
                 <Box sx={{ 
                     px: 2.5, 
                     py: 1.5, 
-                    bgcolor: 'rgba(139, 94, 60, 0.04)',
-                    borderBottom: '1px solid rgba(139, 94, 60, 0.08)',
+                    bgcolor: 'rgba(139, 94, 60, 0.06)',
+                    borderBottom: '1px solid rgba(139, 94, 60, 0.1)',
                 }}>
                     <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>
                         Time & Date
@@ -391,15 +394,17 @@ const Settings: React.FC = () => {
             {/* Power & Sync Section */}
             <Card sx={{ 
                 mb: 2, 
-                borderRadius: 3,
-                boxShadow: '0 2px 8px rgba(139, 94, 60, 0.08)',
+                borderRadius: '20px',
                 overflow: 'hidden',
+                bgcolor: PEACH_SURFACE,
+                border: PEACH_BORDER,
+                boxShadow: PEACH_SHADOW,
             }}>
                 <Box sx={{ 
                     px: 2.5, 
                     py: 1.5, 
-                    bgcolor: 'rgba(139, 94, 60, 0.04)',
-                    borderBottom: '1px solid rgba(139, 94, 60, 0.08)',
+                    bgcolor: 'rgba(139, 94, 60, 0.06)',
+                    borderBottom: '1px solid rgba(139, 94, 60, 0.1)',
                 }}>
                     <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>
                         Power & Sync

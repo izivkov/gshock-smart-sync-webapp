@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
+import { peachCardCompactSx } from '../theme/peachCardStyles';
 import AlarmTime from "./AlarmTime";
 import AlarmPeriod from "./AlarmPeriod";
 import AppSwitch from "@components/AppSwitch";
@@ -67,14 +68,14 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm, onChange }) => {
 
     return (
         <Box sx={{
+            ...peachCardCompactSx,
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
             px: 2.5,
             py: 2,
-            bgcolor: 'background.paper',
-            minHeight: 72
+            minHeight: 72,
         }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                 <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary', minWidth: 65 }}>

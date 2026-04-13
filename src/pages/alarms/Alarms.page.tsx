@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Box, Typography, Switch, Divider, Button, Paper, Snackbar, Alert
+    Box, Typography, Button, Snackbar, Alert, Stack,
 } from '@mui/material';
 import AlarmCard from './AlarmCard';
 import AppSwitch from '@components/AppSwitch';
@@ -83,24 +83,18 @@ const Alarms: React.FC = () => {
         }}>
             <ScreenTitle title="Alarms" />
 
-            {/* Alarm list — rounded card with rows */}
-            <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', mx: 1 }}>
+            <Stack spacing={1.5} sx={{ px: { xs: 1.5, sm: 2 } }}>
                 {alarms.map((alarm, index) => (
-                    <React.Fragment key={index}>
-                        <AlarmCard
-                            number={(index + 1) as 1 | 2 | 3 | 4 | 5}
-                            alarm={alarm}
-                            onChange={onChange}
-                        />
-                        {index < alarms.length - 1 && (
-                            <Divider sx={{ mx: 0, borderColor: 'rgba(139,94,60,0.10)' }} />
-                        )}
-                    </React.Fragment>
+                    <AlarmCard
+                        key={index}
+                        number={(index + 1) as 1 | 2 | 3 | 4 | 5}
+                        alarm={alarm}
+                        onChange={onChange}
+                    />
                 ))}
-            </Paper>
+            </Stack>
 
-            {/* Signal (chime) toggle below the list */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', px: 3, mt: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', px: 2.5, mt: 2 }}>
                 <Typography variant="body1" sx={{ color: 'text.primary', mr: 1 }}>
                     Signal (chime)
                 </Typography>

@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    Box, Divider, Button, Paper, Snackbar, Alert
+    Box, Button, Snackbar, Alert, Stack,
 } from '@mui/material';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
@@ -68,21 +68,16 @@ const Reminders: React.FC = () => {
         }}>
             <ScreenTitle title="Events" />
 
-            {/* Event list — rounded card with rows */}
-            <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', mx: 1 }}>
+            <Stack spacing={1.5} sx={{ px: { xs: 1.5, sm: 2 } }}>
                 {reminders.map((reminder, index) => (
-                    <React.Fragment key={index}>
-                        <ReminderCard
-                            number={(index + 1) as 1 | 2 | 3 | 4 | 5}
-                            initialReminder={reminder}
-                            onChange={onChange}
-                        />
-                        {index < reminders.length - 1 && (
-                            <Divider sx={{ mx: 0, borderColor: 'rgba(139,94,60,0.10)' }} />
-                        )}
-                    </React.Fragment>
+                    <ReminderCard
+                        key={index}
+                        number={(index + 1) as 1 | 2 | 3 | 4 | 5}
+                        initialReminder={reminder}
+                        onChange={onChange}
+                    />
                 ))}
-            </Paper>
+            </Stack>
 
             {/* Bottom action buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, px: 2 }}>
