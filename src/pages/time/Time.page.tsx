@@ -44,8 +44,12 @@ const Time: React.FC = () => {
             (async () => {
                 const level = await GShockAPI.getBatteryLevel();
                 const temp = await GShockAPI.getWatchTemperature();
+                const homeTime = await GShockAPI.getHomeTime();
+                const timer = await GShockAPI.getTimer();
+                setTimerValue(timer);
                 setBatteryLevel(level);
                 setTemperature(temp);
+                setHomeTime(homeTime);
             })();
         }
     }, [isConnected]);
