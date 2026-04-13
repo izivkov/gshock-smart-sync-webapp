@@ -8,7 +8,7 @@ import Period from './Period';
 import ReminderEditDialog from './ReminderEditDialog';
 import ReminderData, { monthType } from './ReminderData';
 import AppSwitch from '../components/AppSwitch';
-import { calculateEndDateFromOccurences, getFrequencyFormatted, toDayJsDate } from './ReminderUtils';
+import { calculateEndDateFromOccurences, getFrequencyFormatted, getPeriodFormatted, toDayJsDate } from './ReminderUtils';
 
 interface ReminderCardProps {
     number: 1 | 2 | 3 | 4 | 5;
@@ -31,6 +31,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
     const [enabled, setEnabled] = useState(reminder.enabled);
     const [daysOfWeek, setDaysOfWeek] = useState(reminder.daysOfWeek);
     const [frequency, setFrequency] = useState("");
+    const [period, setPeriod] = useState("");
     const [incompatible, setInciompatible] = useState(reminder.incompatible);
 
     useEffect(() => {
@@ -57,13 +58,12 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         setEnabled(initialReminder.enabled);
         setDaysOfWeek(initialReminder.daysOfWeek);
         setFrequency(getFrequencyFormatted(initialReminder.repeatPeriod, initialReminder.startDate, initialReminder.daysOfWeek));
-
+        setPeriod(getPeriodFormatted(initialReminder.startDate, initialReminder.endDate));
     }, [initialReminder]);
 
     const handleOpenDialog = () => {
         setDialogOpen(true);
     };
-
 
     const handleCloseDialog = (reminderData: ReminderData) => {
         if (!reminderData) {
@@ -88,21 +88,24 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         }
 
         setTitle(reminderData.title);
-        // setEnabled(reminderData.enabled);
         setDaysOfWeek(reminderData.daysOfWeek);
 
         setFrequency(getFrequencyFormatted(reminderData.repeatPeriod, reminderData.startDate, reminderData.daysOfWeek));
+        setPeriod(getPeriodFormatted(reminderData.startDate, reminderData.endDate));
+
         if (reminderData.occurrences > 1) {
-            setEndDate(calculateEndDateFromOccurences(
+            const calculatedEnd = calculateEndDateFromOccurences(
                 reminderData.occurrences,
                 reminder.startDate,
                 reminderData.repeatPeriod,
-                reminderData.daysOfWeek));
+                reminderData.daysOfWeek
+            );
+            setEndDate(calculatedEnd);
+            setPeriod(getPeriodFormatted(reminderData.startDate, calculatedEnd));
         }
 
         setDialogOpen(false);
 
-        // Create a complete reminder data object with all fields
         const updatedReminderData: ReminderData = {
             title: reminderData.title,
             startDate: reminderData.startDate,
@@ -114,7 +117,6 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
             occurrences: reminderData.occurrences || 0
         };
 
-        // pass data back to Remiders component
         onChange(updatedReminderData, number);
     };
 
@@ -139,15 +141,22 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
                     Event {number}
                 </Typography>
                 <Box onClick={handleOpenDialog} sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                         <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
                             {title || 'Untitled'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                            {frequency}
-                        </Typography>
+                        {(period || frequency) && (
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.25 }}>
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                    {period}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'right' }}>
+                                    {frequency}
+                                </Typography>
+                            </Box>
+                        )}
                     </Box>
-                    <Edit sx={{ fontSize: 20, color: 'primary.main', opacity: 0.6, ml: 'auto' }} />
+                    <Edit sx={{ fontSize: 20, color: 'primary.main', opacity: 0.6, ml: 1 }} />
                 </Box>
             </Box>
 

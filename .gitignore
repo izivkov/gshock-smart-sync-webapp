@@ -23,6 +23,7 @@ yarn.lock
 /build/
 /public/
 /.nuxt/
+/kotlin/
 
 # Runtime data
 db.json
