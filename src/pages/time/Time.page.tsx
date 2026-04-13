@@ -11,7 +11,7 @@ import TimerInput from './TimerInput';
 import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
-import { progressEvents } from '@api/ProgressEvents';
+import { progressEvents, EventAction } from '@api/ProgressEvents';
 import { watchInfo } from '@api/WatchInfo';
 import { ConnectionContext } from '../_app.page';
 
@@ -27,6 +27,7 @@ const Time: React.FC = () => {
 
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
 
+    // Initial data load
     useEffect(() => {
         (async () => {
             const timer = await GShockAPI.getTimer();
@@ -53,10 +54,10 @@ const Time: React.FC = () => {
         setTimerValue(value);
     };
 
-    const handleSetTime = () => {
+    const handleSetTime = async () => {
         try {
-            GShockAPI.setTime();
-            progressEvents.onNext("HomeTimeUpdated");
+            await GShockAPI.setTime();
+            setHomeTime(await GShockAPI.getHomeTime()); // 👈 directly update state
             setSnackbarMessage('Time sent to watch');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
@@ -82,19 +83,19 @@ const Time: React.FC = () => {
     };
 
     return (
-        <Box sx={{ 
-            px: { xs: 2, md: 3 }, 
-            pt: { xs: 2, md: 3 }, 
-            pb: { xs: 12, md: 3 }, 
-            maxWidth: 480, 
-            mx: 'auto', 
-            width: '100%' 
+        <Box sx={{
+            px: { xs: 2, md: 3 },
+            pt: { xs: 2, md: 3 },
+            pb: { xs: 12, md: 3 },
+            maxWidth: 480,
+            mx: 'auto',
+            width: '100%'
         }}>
             {/* Watch Header */}
-            <Box 
-                sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
                     justifyContent: 'space-between',
                     mb: 3,
                 }}
@@ -114,11 +115,11 @@ const Time: React.FC = () => {
                         <WatchIcon sx={{ color: '#8B5E3C', fontSize: 24 }} />
                     </Box>
                     <Box>
-                        <Typography 
-                            variant="h6" 
-                            sx={{ 
-                                fontWeight: 600, 
-                                color: '#2D1A0E', 
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontWeight: 600,
+                                color: '#2D1A0E',
                                 lineHeight: 1.2,
                                 fontSize: '1.125rem',
                             }}
@@ -137,8 +138,8 @@ const Time: React.FC = () => {
             </Box>
 
             {/* Main Time Display */}
-            <Box 
-                sx={{ 
+            <Box
+                sx={{
                     backgroundColor: '#FCEEE6',
                     borderRadius: '20px',
                     p: 3,
@@ -147,7 +148,6 @@ const Time: React.FC = () => {
                     overflow: 'hidden',
                 }}
             >
-                {/* Decorative element */}
                 <Box
                     sx={{
                         position: 'absolute',
@@ -159,10 +159,9 @@ const Time: React.FC = () => {
                         backgroundColor: 'rgba(139, 94, 60, 0.05)',
                     }}
                 />
-                
                 <Box sx={{ position: 'relative', zIndex: 1 }}>
-                    <Typography 
-                        sx={{ 
+                    <Typography
+                        sx={{
                             fontSize: '0.75rem',
                             fontWeight: 600,
                             color: '#8B5E3C',
@@ -173,13 +172,12 @@ const Time: React.FC = () => {
                     >
                         Current Time
                     </Typography>
-                    
                     <Box sx={{ mt: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', mb: 3 }}>
                             <Box>
                                 <DigitalClock size="large" showSeconds={true} />
-                                <Typography 
-                                    sx={{ 
+                                <Typography
+                                    sx={{
                                         fontSize: '0.8125rem',
                                         color: '#7A5C44',
                                         mt: 0.5,
@@ -189,12 +187,8 @@ const Time: React.FC = () => {
                                 </Typography>
                             </Box>
                         </Box>
-                        
                         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-                            <Button 
-                                variant="contained" 
-                                onClick={handleSetTime}
-                            >
+                            <Button variant="contained" onClick={handleSetTime}>
                                 Send to Watch
                             </Button>
                         </Box>
@@ -203,8 +197,8 @@ const Time: React.FC = () => {
             </Box>
 
             {/* Timer Section */}
-            <Box 
-                sx={{ 
+            <Box
+                sx={{
                     backgroundColor: '#FCEEE6',
                     borderRadius: '20px',
                     p: 3,
@@ -213,8 +207,8 @@ const Time: React.FC = () => {
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                     <TimerIcon sx={{ fontSize: 18, color: '#8B5E3C' }} />
-                    <Typography 
-                        sx={{ 
+                    <Typography
+                        sx={{
                             fontSize: '0.75rem',
                             fontWeight: 600,
                             color: '#8B5E3C',
@@ -225,15 +219,10 @@ const Time: React.FC = () => {
                         Timer
                     </Typography>
                 </Box>
-                
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <TimerInput initialValue={timerValue} onUpdate={handleTimerChange} />
-                    
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-                        <Button 
-                            variant="contained" 
-                            onClick={handleSetTimer}
-                        >
+                        <Button variant="contained" onClick={handleSetTimer}>
                             Send to Watch
                         </Button>
                     </Box>
@@ -243,17 +232,11 @@ const Time: React.FC = () => {
             {/* Info Cards Grid */}
             <Box sx={{ display: 'grid', gridTemplateColumns: watchInfo.hasTemperature ? '1fr 1fr' : '1fr', gap: 1.5 }}>
                 {/* Home Time Card */}
-                <Box 
-                    sx={{ 
-                        backgroundColor: '#FCEEE6',
-                        borderRadius: '16px',
-                        p: 2,
-                    }}
-                >
+                <Box sx={{ backgroundColor: '#FCEEE6', borderRadius: '16px', p: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
                         <PublicIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
-                        <Typography 
-                            sx={{ 
+                        <Typography
+                            sx={{
                                 fontSize: '0.6875rem',
                                 fontWeight: 600,
                                 color: '#8B5E3C',
@@ -264,8 +247,8 @@ const Time: React.FC = () => {
                             Home Time
                         </Typography>
                     </Box>
-                    <Typography 
-                        sx={{ 
+                    <Typography
+                        sx={{
                             fontSize: '1.5rem',
                             fontWeight: 600,
                             color: '#2D1A0E',
@@ -278,17 +261,11 @@ const Time: React.FC = () => {
                 </Box>
 
                 {watchInfo.hasTemperature && (
-                    <Box 
-                        sx={{ 
-                            backgroundColor: '#FCEEE6',
-                            borderRadius: '16px',
-                            p: 2,
-                        }}
-                    >
+                    <Box sx={{ backgroundColor: '#FCEEE6', borderRadius: '16px', p: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
                             <ThermostatIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
-                            <Typography 
-                                sx={{ 
+                            <Typography
+                                sx={{
                                     fontSize: '0.6875rem',
                                     fontWeight: 600,
                                     color: '#8B5E3C',
@@ -299,8 +276,8 @@ const Time: React.FC = () => {
                                 Temperature
                             </Typography>
                         </Box>
-                        <Typography 
-                            sx={{ 
+                        <Typography
+                            sx={{
                                 fontSize: '1.5rem',
                                 fontWeight: 600,
                                 color: '#2D1A0E',
@@ -308,9 +285,9 @@ const Time: React.FC = () => {
                             }}
                         >
                             {temperature}
-                            <Typography 
-                                component="span" 
-                                sx={{ 
+                            <Typography
+                                component="span"
+                                sx={{
                                     fontSize: '1rem',
                                     fontWeight: 500,
                                     color: '#7A5C44',
