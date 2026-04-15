@@ -2,15 +2,17 @@
 
 import React, { useEffect, useState } from 'react';
 import {
-    Box, Button, Snackbar, Alert, Stack,
+    Box, Button, Snackbar, Alert, Stack, useTheme
 } from '@mui/material';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
 import ScreenTitle from '../components/ScreenTitle';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
 
-const Reminders: React.FC = () => {
+const BOTTOM_NAV_HEIGHT = '80px';
 
+const Reminders: React.FC = () => {
+    const theme = useTheme();
     const reminderInit = {
         daysOfWeek: [],
         enabled: false,
@@ -21,6 +23,7 @@ const Reminders: React.FC = () => {
         occurrences: 0,
         title: ''
     }
+
     const initialReminders = Array.from({ length: 5 }, () => ({ ...reminderInit }));
     const [reminders, setReminders] = useState<ReminderData[]>(initialReminders);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -29,8 +32,12 @@ const Reminders: React.FC = () => {
 
     useEffect(() => {
         (async () => {
-            const newReminders = await GShockAPI.getEventsFromWatch();
-            setReminders(newReminders.slice(0, 5));
+            try {
+                const newReminders = await GShockAPI.getEventsFromWatch();
+                setReminders(newReminders.slice(0, 5));
+            } catch (error) {
+                console.error("Failed to fetch events:", error);
+            }
         })();
     }, []);
 
@@ -40,8 +47,7 @@ const Reminders: React.FC = () => {
             setSnackbarMessage('Events sent to watch');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
-            
-            // Re-fetch to confirm and update UI
+
             const newReminders = await GShockAPI.getEventsFromWatch();
             setReminders(newReminders.slice(0, 5));
         } catch (error) {
@@ -52,51 +58,84 @@ const Reminders: React.FC = () => {
     }
 
     const onChange = (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => {
-        const newReminders = JSON.parse(JSON.stringify(reminders));
+        const newReminders = [...reminders];
         newReminders[number - 1] = reminder;
         setReminders(newReminders);
     }
 
     return (
-        <Box sx={{ 
-            px: { xs: 0, md: 4 },
-            pt: { xs: 3, md: 4 }, 
-            pb: { xs: 10, md: 4 }, 
-            maxWidth: { xs: 500, md: 600 }, 
-            mx: 'auto', 
-            width: '100%' 
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: { xs: '100dvh', md: '100%' },
+            width: '100%',
+            overflow: 'hidden',
+            bgcolor: 'background.default'
         }}>
-            <ScreenTitle title="Events" />
+            {/* 1. SCROLLABLE CONTENT AREA */}
+            <Box sx={{
+                flex: 1,
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                px: { xs: 1.5, sm: 3, md: 4 },
+                pt: 2,
+                pb: 2
+            }}>
+                <Box sx={{ maxWidth: 600, mx: 'auto' }}>
+                    <ScreenTitle title="Events" />
 
-            <Stack spacing={1.5} sx={{ px: { xs: 1.5, sm: 2 } }}>
-                {reminders.map((reminder, index) => (
-                    <ReminderCard
-                        key={index}
-                        number={(index + 1) as 1 | 2 | 3 | 4 | 5}
-                        initialReminder={reminder}
-                        onChange={onChange}
-                    />
-                ))}
-            </Stack>
+                    <Stack spacing={1.5} sx={{ mt: 1 }}>
+                        {reminders.map((reminder, index) => (
+                            <ReminderCard
+                                key={index}
+                                number={(index + 1) as 1 | 2 | 3 | 4 | 5}
+                                initialReminder={reminder}
+                                onChange={onChange}
+                            />
+                        ))}
+                    </Stack>
 
-            {/* Bottom action buttons */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, px: 2 }}>
-                <Button
-                    variant="contained"
-                    onClick={sendToWatch}
-                    sx={{ flexShrink: 0 }}
-                >
-                    Send to Watch
-                </Button>
+                    {/* Visual buffer for the bottom of the list */}
+                    <Box sx={{ height: 40 }} />
+                </Box>
+            </Box>
+
+            {/* 2. RESPONSIVE BOTTOM BUTTON AREA */}
+            <Box sx={{
+                p: 2,
+                borderTop: `1px solid ${theme.palette.divider}`,
+                bgcolor: 'background.paper',
+                mb: { xs: BOTTOM_NAV_HEIGHT, md: 0 },
+                pb: { xs: `calc(env(safe-area-inset-bottom) + 8px)`, md: 2 },
+                zIndex: 10,
+                boxShadow: '0 -4px 10px rgba(0,0,0,0.05)',
+                display: 'flex',
+                justifyContent: 'center'
+            }}>
+                <Box sx={{ width: '100%', maxWidth: 600 }}>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={sendToWatch}
+                        sx={{ borderRadius: 2, py: 1.2, fontWeight: 700 }}
+                    >
+                        Send to Watch
+                    </Button>
+                </Box>
             </Box>
 
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}
                 onClose={() => setSnackbarOpen(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                <Alert
+                    onClose={() => setSnackbarOpen(false)}
+                    severity={snackbarSeverity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
@@ -104,7 +143,4 @@ const Reminders: React.FC = () => {
     );
 };
 
-// Force server-side rendering — avoids null React context during static prerendering
-export const getServerSideProps = async () => ({ props: {} });
 export default Reminders;
-

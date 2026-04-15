@@ -2,15 +2,18 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Box, Typography, Button, Snackbar, Alert, Stack,
+    Box, Typography, Button, Snackbar, Alert, Stack, Divider, useTheme
 } from '@mui/material';
 import AlarmCard from './AlarmCard';
 import AppSwitch from '@components/AppSwitch';
 import GShockAPI from '@/api/GShockAPI';
 import ScreenTitle from '../components/ScreenTitle';
 
+const BOTTOM_NAV_HEIGHT = '80px';
+
 const Alarms: React.FC = () => {
-    const initialized = useRef(false)
+    const theme = useTheme();
+    const initialized = useRef(false);
     const [alarms, setAlarms] = useState<{
         hour: number, minute: number, hasHourlyChime: boolean, enabled: boolean
     }[]>([
@@ -28,14 +31,18 @@ const Alarms: React.FC = () => {
         (async () => {
             if (!initialized.current) {
                 initialized.current = true;
-                const newAlarms = await GShockAPI.getAlarms();
-                // Ensure we only keep the first 5 alarms
-                setAlarms(Array.isArray(newAlarms) ? newAlarms.slice(0, 5) : []);
+                try {
+                    const newAlarms = await GShockAPI.getAlarms();
+                    setAlarms(Array.isArray(newAlarms) ? newAlarms.slice(0, 5) : []);
+                } catch (e) {
+                    console.error("Failed to fetch alarms", e);
+                }
             }
         })()
     }, []);
 
     const sendToPhone = async () => { /* placeholder */ }
+
     const sendToWatch = async () => {
         try {
             await GShockAPI.setAlarms(alarms);
@@ -60,72 +67,90 @@ const Alarms: React.FC = () => {
 
     const onSignalChange = (checked: boolean) => {
         const newAlarms = [...alarms];
-        newAlarms[0].hasHourlyChime = checked;
-        setAlarms(newAlarms);
-        // Immediately save the change to the watch
-        const updatedAlarms = [...newAlarms];
-        updatedAlarms[0].hasHourlyChime = checked;
-        GShockAPI.setAlarms(updatedAlarms);
+        newAlarms.forEach(a => a.hasHourlyChime = checked); // Ensure consistent update
+        setAlarms([...newAlarms]);
+        GShockAPI.setAlarms(newAlarms);
     }
 
     if (!alarms || alarms.length === 0) {
-        return <Typography variant="h6">No alarms found</Typography>;
+        return <Typography variant="h6" sx={{ p: 4, textAlign: 'center' }}>No alarms found</Typography>;
     }
 
     return (
-        <Box sx={{ 
-            px: { xs: 0, md: 4 },
-            pt: { xs: 3, md: 4 }, 
-            pb: { xs: 10, md: 4 }, 
-            maxWidth: { xs: 500, md: 600 }, 
-            mx: 'auto', 
-            width: '100%' 
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: { xs: '100dvh', md: '100%' },
+            width: '100%',
+            overflow: 'hidden',
+            bgcolor: 'background.default'
         }}>
-            <ScreenTitle title="Alarms" />
+            {/* 1. SCROLLABLE CONTENT AREA */}
+            <Box sx={{
+                flex: 1,
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                px: { xs: 1.5, sm: 3, md: 4 },
+                pt: 2,
+                pb: 2
+            }}>
+                <Box sx={{ maxWidth: 600, mx: 'auto' }}>
+                    <ScreenTitle title="Alarms" />
 
-            <Stack spacing={1.5} sx={{ px: { xs: 1.5, sm: 2 } }}>
-                {alarms.map((alarm, index) => (
-                    <AlarmCard
-                        key={index}
-                        number={(index + 1) as 1 | 2 | 3 | 4 | 5}
-                        alarm={alarm}
-                        onChange={onChange}
-                    />
-                ))}
-            </Stack>
+                    <Stack spacing={1} sx={{ mt: 1 }}>
+                        {alarms.map((alarm, index) => (
+                            <AlarmCard
+                                key={index}
+                                number={(index + 1) as 1 | 2 | 3 | 4 | 5}
+                                alarm={alarm}
+                                onChange={onChange}
+                            />
+                        ))}
+                    </Stack>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', px: 2.5, mt: 2 }}>
-                <Typography variant="body1" sx={{ color: 'text.primary', mr: 1 }}>
-                    Signal (chime)
-                </Typography>
-                <AppSwitch text="" initialValue={alarms[0].hasHourlyChime} onChange={onSignalChange} />
+                    <Divider sx={{ my: 2 }} />
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 1, mb: 4 }}>
+                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            Signal (chime)
+                        </Typography>
+                        <AppSwitch text="" initialValue={alarms[0].hasHourlyChime} onChange={onSignalChange} />
+                    </Box>
+                </Box>
             </Box>
 
-            {/* Bottom action buttons — matching Android */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, px: 2 }}>
-                <Button
-                    variant="outlined"
-                    onClick={sendToPhone}
-                    sx={{ flexShrink: 0 }}
-                >
-                    Send to Phone
-                </Button>
-                <Button
-                    variant="contained"
-                    onClick={sendToWatch}
-                    sx={{ flexShrink: 0 }}
-                >
-                    Send to Watch
-                </Button>
+            {/* 2. FIXED BOTTOM BUTTON AREA */}
+            <Box sx={{
+                p: 2,
+                borderTop: `1px solid ${theme.palette.divider}`,
+                bgcolor: 'background.paper',
+                mb: { xs: BOTTOM_NAV_HEIGHT, md: 0 },
+                pb: { xs: `calc(env(safe-area-inset-bottom) + 8px)`, md: 2 },
+                zIndex: 10,
+                boxShadow: '0 -4px 10px rgba(0,0,0,0.05)',
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 2
+            }}>
+                <Box sx={{ display: 'flex', gap: 2, width: '100%', maxWidth: 600 }}>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={sendToWatch}
+                        sx={{ borderRadius: 2, py: 1.2 }}
+                    >
+                        To Watch
+                    </Button>
+                </Box>
             </Box>
 
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}
                 onClose={() => setSnackbarOpen(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} variant="filled" sx={{ width: '100%' }}>
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
@@ -133,5 +158,4 @@ const Alarms: React.FC = () => {
     );
 };
 
-export const getServerSideProps = async () => ({ props: {} });
 export default Alarms;

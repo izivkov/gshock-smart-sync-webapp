@@ -78,6 +78,7 @@ const GShockAPI = {
     },
 
     setTime: async (): Promise<void> => {
+        await TimeIO.setTimezone()
         await TimeIO.set();
     },
 

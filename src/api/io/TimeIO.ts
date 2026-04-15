@@ -21,6 +21,16 @@ const TimeIO = {
         await connection.sendMessage(currentTimeMessage);
     },
 
+    async setTimezone(): Promise<void> {
+        const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+
+        // TODO: implement: Kotlin:         
+        // state = state.copy(
+        //     timeZone = timeZone,
+        //     casioTimezone = CasioTimeZoneHelper.findTimeZone(timeZone)
+        // )
+    },
+
     async getDSTWatchState(state: number): Promise<any> {
         return await DstWatchStateIO.request(state);
     },

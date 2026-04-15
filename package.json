@@ -9,6 +9,7 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "luxon": "^3.5.0",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
         "@mui/icons-material": "^9.0.0",
@@ -35,6 +36,7 @@
         "web-bluetooth": "^0.1.2"
     },
     "devDependencies": {
+        "@types/luxon": "^3.4.2",
         "@types/node": "20.8.0",
         "@types/object-hash": "^3.0.6",
         "@types/react-copy-to-clipboard": "^5.0.7",

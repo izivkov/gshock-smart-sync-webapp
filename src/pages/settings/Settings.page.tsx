@@ -1,12 +1,12 @@
 "use client"
 
 import React, { useEffect, useRef, useState, useContext } from 'react';
-import { 
-    Box, 
-    Typography, 
-    Button, 
-    Card, 
-    Switch, 
+import {
+    Box,
+    Typography,
+    Button,
+    Card,
+    Switch,
     ToggleButton,
     ToggleButtonGroup,
     Select,
@@ -14,7 +14,8 @@ import {
     FormControl,
     Divider,
     Snackbar,
-    Alert
+    Alert,
+    useTheme
 } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
@@ -32,6 +33,8 @@ import ScreenTitle from '../components/ScreenTitle';
 import { PEACH_BORDER, PEACH_SHADOW, PEACH_SURFACE } from '../theme/peachCardStyles';
 import { getSmartDefaultsForSettings } from './smartDefaults';
 
+const BOTTOM_NAV_HEIGHT = '80px';
+
 interface SettingsData {
     autoLight: boolean;
     buttonTone: boolean;
@@ -43,7 +46,6 @@ interface SettingsData {
     timeFormat: timeFormatType;
 }
 
-// Reusable setting row component
 interface SettingRowProps {
     icon: React.ReactNode;
     label: string;
@@ -52,21 +54,16 @@ interface SettingRowProps {
 }
 
 const SettingRow: React.FC<SettingRowProps> = ({ icon, label, description, children }) => (
-    <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
+    <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'space-between',
         py: 2,
         px: 2.5,
         gap: 2,
     }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, minWidth: 0 }}>
-            <Box sx={{ 
-                color: '#8B5E3C',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}>
+            <Box sx={{ color: '#8B5E3C', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {icon}
             </Box>
             <Box sx={{ minWidth: 0 }}>
@@ -86,7 +83,6 @@ const SettingRow: React.FC<SettingRowProps> = ({ icon, label, description, child
     </Box>
 );
 
-// Modern toggle button group
 interface OptionToggleProps {
     value: string;
     options: { value: string; label: string }[];
@@ -111,13 +107,9 @@ const OptionToggle: React.FC<OptionToggleProps> = ({ value, options, onChange })
                 '&.Mui-selected': {
                     bgcolor: '#8B5E3C',
                     color: '#FFFFFF',
-                    '&:hover': {
-                        bgcolor: '#5C3A1E',
-                    },
+                    '&:hover': { bgcolor: '#5C3A1E' },
                 },
-                '&:hover': {
-                    bgcolor: 'rgba(139, 94, 60, 0.08)',
-                },
+                '&:hover': { bgcolor: 'rgba(139, 94, 60, 0.08)' },
             },
         }}
     >
@@ -129,7 +121,6 @@ const OptionToggle: React.FC<OptionToggleProps> = ({ value, options, onChange })
     </ToggleButtonGroup>
 );
 
-// Modern switch component
 interface ModernSwitchProps {
     checked: boolean;
     onChange: (checked: boolean) => void;
@@ -143,28 +134,23 @@ const ModernSwitch: React.FC<ModernSwitchProps> = ({ checked, onChange }) => (
             '& .MuiSwitch-switchBase': {
                 '&.Mui-checked': {
                     color: '#8B5E3C',
-                    '& + .MuiSwitch-track': {
-                        bgcolor: '#8B5E3C',
-                        opacity: 1,
-                    },
+                    '& + .MuiSwitch-track': { bgcolor: '#8B5E3C', opacity: 1 },
                 },
             },
-            '& .MuiSwitch-track': {
-                borderRadius: 100,
-            },
+            '& .MuiSwitch-track': { borderRadius: 100 },
         }}
     />
 );
 
 const Settings: React.FC = () => {
+    const theme = useTheme();
     const initialized = useRef(false);
     const { isConnected } = useContext(ConnectionContext);
-    const [renderKey, setRenderKey] = useState(0);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
-    const settingsInit: SettingsData = {
+    const [settings, setSettings] = useState<SettingsData>({
         autoLight: true,
         buttonTone: true,
         dateFormat: "MM:DD",
@@ -173,24 +159,21 @@ const Settings: React.FC = () => {
         powerSavingMode: true,
         timeAdjustment: true,
         timeFormat: "12h"
-    };
-
-    const [settings, setSettings] = useState<SettingsData>(settingsInit);
-
-    useEffect(() => {
-        // Trigger re-render when connection status changes to update visible settings
-        setRenderKey(prev => prev + 1);
-    }, [isConnected]);
+    });
 
     useEffect(() => {
         (async () => {
             if (!initialized.current) {
                 initialized.current = true;
-                const newSettings = await GShockAPI.getSettings();
-                setSettings(newSettings);
+                try {
+                    const newSettings = await GShockAPI.getSettings();
+                    setSettings(newSettings);
+                } catch (e) {
+                    console.error("Failed to fetch settings", e);
+                }
             }
         })();
-    }, [settings]);
+    }, []);
 
     const updateSettings = (partial: Partial<SettingsData>) => {
         setSettings(prev => ({ ...prev, ...partial }));
@@ -200,7 +183,7 @@ const Settings: React.FC = () => {
         try {
             const patch = await getSmartDefaultsForSettings(settings);
             setSettings((prev) => ({ ...prev, ...patch }));
-            setSnackbarMessage('Applied Auto Fill from this device');
+            setSnackbarMessage('Applied Auto Fill');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
         } catch {
@@ -223,276 +206,176 @@ const Settings: React.FC = () => {
         }
     };
 
-    const languageOptions: languageType[] = [
-        'English', 'French', 'German', 'Italian', 'Spanish', 'Russian'
-    ];
-
+    const languageOptions: languageType[] = ['English', 'French', 'German', 'Italian', 'Spanish', 'Russian'];
     const shortDuration = watchInfo.shortLightDuration || "2s";
     const longDuration = watchInfo.longLightDuration || "4s";
 
     return (
-        <Box sx={{ 
-            px: { xs: 2, md: 4 },
-            pt: { xs: 2, md: 4 }, 
-            pb: { xs: 12, md: 4 }, 
-            maxWidth: { xs: '100%', md: 600 }, 
-            mx: 'auto', 
-            width: '100%' 
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: { xs: '100dvh', md: '100%' },
+            width: '100%',
+            overflow: 'hidden',
+            bgcolor: 'background.default'
         }}>
-            <ScreenTitle title="Settings" />
-
-            {/* Time & Date Section */}
-            <Card sx={{ 
-                mb: 2, 
-                borderRadius: '20px',
-                overflow: 'hidden',
-                bgcolor: PEACH_SURFACE,
-                border: PEACH_BORDER,
-                boxShadow: PEACH_SHADOW,
+            {/* 1. SCROLLABLE CONTENT AREA */}
+            <Box sx={{
+                flex: 1,
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                px: { xs: 1.5, sm: 3, md: 4 },
+                pt: 2,
+                pb: 2
             }}>
-                <Box sx={{ 
-                    px: 2.5, 
-                    py: 1.5, 
-                    bgcolor: 'rgba(139, 94, 60, 0.06)',
-                    borderBottom: '1px solid rgba(139, 94, 60, 0.1)',
-                }}>
-                    <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>
-                        Time & Date
-                    </Typography>
-                </Box>
-                
-                <SettingRow 
-                    icon={<AccessTimeIcon sx={{ fontSize: 22 }} />} 
-                    label="Time Format"
-                >
-                    <OptionToggle
-                        value={settings.timeFormat}
-                        options={[
-                            { value: '12h', label: '12h' },
-                            { value: '24h', label: '24h' },
-                        ]}
-                        onChange={(value) => updateSettings({ timeFormat: value as timeFormatType })}
-                    />
-                </SettingRow>
-                
-                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                
-                {watchInfo.hasDateFormat && (
-                    <>
-                        <SettingRow 
-                            icon={<LanguageIcon sx={{ fontSize: 22 }} />} 
-                            label="Date Format"
-                        >
+                <Box sx={{ maxWidth: 600, mx: 'auto', width: '100%' }}>
+                    <ScreenTitle title="Settings" />
+
+                    {/* Time & Date Section */}
+                    <Card sx={{ mb: 2, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW }}>
+                        <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'rgba(139, 94, 60, 0.06)', borderBottom: '1px solid rgba(139, 94, 60, 0.1)' }}>
+                            <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>Time & Date</Typography>
+                        </Box>
+                        <SettingRow icon={<AccessTimeIcon sx={{ fontSize: 22 }} />} label="Time Format">
                             <OptionToggle
-                                value={settings.dateFormat}
-                                options={[
-                                    { value: 'MM:DD', label: 'MM:DD' },
-                                    { value: 'DD:MM', label: 'DD:MM' },
-                                ]}
-                                onChange={(value) => updateSettings({ dateFormat: value as dateFormatType })}
+                                value={settings.timeFormat}
+                                options={[{ value: '12h', label: '12h' }, { value: '24h', label: '24h' }]}
+                                onChange={(value) => updateSettings({ timeFormat: value as timeFormatType })}
                             />
                         </SettingRow>
-                        
-                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                    </>
-                )}
-                
-                {watchInfo.weekLanguageSupported && (
-                    <SettingRow 
-                        icon={<LanguageIcon sx={{ fontSize: 22 }} />} 
-                        label="Language"
-                    >
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <Select
-                                value={settings.language}
-                                onChange={(e) => updateSettings({ language: e.target.value as languageType })}
-                                sx={{
-                                    fontSize: '0.875rem',
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'rgba(139, 94, 60, 0.3)',
-                                    },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#8B5E3C',
-                                    },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#8B5E3C',
-                                    },
-                                }}
-                            >
-                                {languageOptions.map((lang) => (
-                                    <MenuItem key={lang} value={lang}>{lang}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </SettingRow>
-                )}
-            </Card>
+                        {watchInfo.hasDateFormat && (
+                            <>
+                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                                <SettingRow icon={<LanguageIcon sx={{ fontSize: 22 }} />} label="Date Format">
+                                    <OptionToggle
+                                        value={settings.dateFormat}
+                                        options={[{ value: 'MM:DD', label: 'MM:DD' }, { value: 'DD:MM', label: 'DD:MM' }]}
+                                        onChange={(value) => updateSettings({ dateFormat: value as dateFormatType })}
+                                    />
+                                </SettingRow>
+                            </>
+                        )}
+                        {watchInfo.weekLanguageSupported && (
+                            <>
+                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                                <SettingRow icon={<LanguageIcon sx={{ fontSize: 22 }} />} label="Language">
+                                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                                        <Select
+                                            value={settings.language}
+                                            onChange={(e) => updateSettings({ language: e.target.value as languageType })}
+                                            sx={{ fontSize: '0.875rem', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(139, 94, 60, 0.3)' } }}
+                                        >
+                                            {languageOptions.map((lang) => <MenuItem key={lang} value={lang}>{lang}</MenuItem>)}
+                                        </Select>
+                                    </FormControl>
+                                </SettingRow>
+                            </>
+                        )}
+                    </Card>
 
-            {/* Display & Sound Section */}
-            <Card sx={{ 
-                mb: 2, 
-                borderRadius: 3,
-                boxShadow: '0 2px 8px rgba(139, 94, 60, 0.08)',
-                overflow: 'hidden',
-            }}>
-                <Box sx={{ 
-                    px: 2.5, 
-                    py: 1.5, 
-                    bgcolor: 'rgba(139, 94, 60, 0.04)',
-                    borderBottom: '1px solid rgba(139, 94, 60, 0.08)',
-                }}>
-                    <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>
-                        Display & Sound
-                    </Typography>
+                    {/* Display & Sound Section */}
+                    <Card sx={{ mb: 2, borderRadius: 3, boxShadow: '0 2px 8px rgba(139, 94, 60, 0.08)', overflow: 'hidden' }}>
+                        <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'rgba(139, 94, 60, 0.04)', borderBottom: '1px solid rgba(139, 94, 60, 0.08)' }}>
+                            <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>Display & Sound</Typography>
+                        </Box>
+                        <SettingRow icon={settings.buttonTone ? <VolumeUpIcon sx={{ fontSize: 22 }} /> : <VolumeOffIcon sx={{ fontSize: 22 }} />} label="Button Sound" description="Play tone on button press">
+                            <ModernSwitch checked={settings.buttonTone} onChange={(checked) => updateSettings({ buttonTone: checked })} />
+                        </SettingRow>
+                        {watchInfo.hasAutoLight && (
+                            <>
+                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                                <SettingRow icon={<LightModeIcon sx={{ fontSize: 22 }} />} label="Auto Light" description="Light on wrist rotation">
+                                    <ModernSwitch checked={settings.autoLight} onChange={(checked) => updateSettings({ autoLight: checked })} />
+                                </SettingRow>
+                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                                <SettingRow icon={<LightModeIcon sx={{ fontSize: 22 }} />} label="Light Duration">
+                                    <OptionToggle
+                                        value={settings.lightDuration}
+                                        options={[{ value: shortDuration, label: shortDuration }, { value: longDuration, label: longDuration }]}
+                                        onChange={(value) => updateSettings({ lightDuration: value as lightDurationType })}
+                                    />
+                                </SettingRow>
+                            </>
+                        )}
+                    </Card>
+
+                    {/* Power & Sync Section */}
+                    <Card sx={{ mb: 2, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW }}>
+                        <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'rgba(139, 94, 60, 0.06)', borderBottom: '1px solid rgba(139, 94, 60, 0.1)' }}>
+                            <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>Power & Sync</Typography>
+                        </Box>
+                        {watchInfo.hasPowerSavingMode && (
+                            <SettingRow icon={<BatterySaverIcon sx={{ fontSize: 22 }} />} label="Power Saving" description="Reduce battery consumption">
+                                <ModernSwitch checked={settings.powerSavingMode} onChange={(checked) => updateSettings({ powerSavingMode: checked })} />
+                            </SettingRow>
+                        )}
+                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                        <SettingRow icon={<SyncIcon sx={{ fontSize: 22 }} />} label="Auto Time Sync" description="Sync time automatically">
+                            <ModernSwitch checked={settings.timeAdjustment} onChange={(checked) => updateSettings({ timeAdjustment: checked })} />
+                        </SettingRow>
+                    </Card>
+
+                    <Box sx={{ height: 40 }} />
                 </Box>
-                
-                <SettingRow 
-                    icon={settings.buttonTone ? <VolumeUpIcon sx={{ fontSize: 22 }} /> : <VolumeOffIcon sx={{ fontSize: 22 }} />} 
-                    label="Button Sound"
-                    description="Play tone on button press"
-                >
-                    <ModernSwitch
-                        checked={settings.buttonTone}
-                        onChange={(checked) => updateSettings({ buttonTone: checked })}
-                    />
-                </SettingRow>
-                
-                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                
-                {watchInfo.hasAutoLight && (
-                    <>
-                        <SettingRow 
-                            icon={<LightModeIcon sx={{ fontSize: 22 }} />} 
-                            label="Auto Light"
-                            description="Light on wrist rotation"
-                        >
-                            <ModernSwitch
-                                checked={settings.autoLight}
-                                onChange={(checked) => updateSettings({ autoLight: checked })}
-                            />
-                        </SettingRow>
-                        
-                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                        
-                        <SettingRow 
-                            icon={<LightModeIcon sx={{ fontSize: 22 }} />} 
-                            label="Light Duration"
-                        >
-                            <OptionToggle
-                                value={settings.lightDuration}
-                                options={[
-                                    { value: shortDuration, label: shortDuration },
-                                    { value: longDuration, label: longDuration },
-                                ]}
-                                onChange={(value) => updateSettings({ lightDuration: value as lightDurationType })}
-                            />
-                        </SettingRow>
-                    </>
-                )}
-            </Card>
+            </Box>
 
-            {/* Power & Sync Section */}
-            <Card sx={{ 
-                mb: 2, 
-                borderRadius: '20px',
-                overflow: 'hidden',
-                bgcolor: PEACH_SURFACE,
-                border: PEACH_BORDER,
-                boxShadow: PEACH_SHADOW,
-            }}>
-                <Box sx={{ 
-                    px: 2.5, 
-                    py: 1.5, 
-                    bgcolor: 'rgba(139, 94, 60, 0.06)',
-                    borderBottom: '1px solid rgba(139, 94, 60, 0.1)',
-                }}>
-                    <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>
-                        Power & Sync
-                    </Typography>
-                </Box>
-                
-                {watchInfo.hasPowerSavingMode && (
-                    <>
-                        <SettingRow 
-                            icon={<BatterySaverIcon sx={{ fontSize: 22 }} />} 
-                            label="Power Saving"
-                            description="Reduce battery consumption"
-                        >
-                            <ModernSwitch
-                                checked={settings.powerSavingMode}
-                                onChange={(checked) => updateSettings({ powerSavingMode: checked })}
-                            />
-                        </SettingRow>
-                        
-                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                    </>
-                )}
-                
-                <SettingRow 
-                    icon={<SyncIcon sx={{ fontSize: 22 }} />} 
-                    label="Auto Time Sync"
-                    description="Sync time automatically"
-                >
-                    <ModernSwitch
-                        checked={settings.timeAdjustment}
-                        onChange={(checked) => updateSettings({ timeAdjustment: checked })}
-                    />
-                </SettingRow>
-            </Card>
-
-            {/* Action Buttons */}
-            <Box sx={{ 
-                display: 'flex', 
-                gap: 2, 
-                mt: 3,
+            {/* 2. FIXED BOTTOM BUTTON AREA */}
+            <Box sx={{
+                p: 2,
+                borderTop: `1px solid ${theme.palette.divider}`,
+                bgcolor: 'background.paper',
+                mb: { xs: BOTTOM_NAV_HEIGHT, md: 0 },
+                pb: { xs: `calc(env(safe-area-inset-bottom) + 8px)`, md: 2 },
+                zIndex: 10,
+                boxShadow: '0 -4px 12px rgba(0,0,0,0.05)',
+                display: 'flex',
                 justifyContent: 'center',
+                gap: 2
             }}>
-                <Button 
-                    variant="outlined" 
-                    onClick={applySmartDefaults}
-                    startIcon={<AutoFixHighIcon />}
-                    sx={{
-                        borderColor: 'rgba(139, 94, 60, 0.3)',
-                        color: '#8B5E3C',
-                        borderRadius: 100,
-                        px: 3,
-                        textTransform: 'none',
-                        fontWeight: 500,
-                        '&:hover': {
-                            borderColor: '#8B5E3C',
-                            bgcolor: 'rgba(139, 94, 60, 0.08)',
-                        },
-                    }}
-                >
-                    Auto Fill
-                </Button>
-                <Button 
-                    variant="contained" 
-                    onClick={onSave}
-                    startIcon={<SyncIcon />}
-                    sx={{
-                        bgcolor: '#8B5E3C',
-                        borderRadius: 100,
-                        px: 3,
-                        textTransform: 'none',
-                        fontWeight: 500,
-                        boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)',
-                        '&:hover': {
-                            bgcolor: '#5C3A1E',
-                        },
-                    }}
-                >
-                    Send to Watch
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, width: '100%', maxWidth: 600 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={applySmartDefaults}
+                        startIcon={<AutoFixHighIcon />}
+                        fullWidth
+                        sx={{
+                            borderColor: 'rgba(139, 94, 60, 0.3)',
+                            color: '#8B5E3C',
+                            borderRadius: 100,
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            py: 1.2
+                        }}
+                    >
+                        Auto Fill
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={onSave}
+                        startIcon={<SyncIcon />}
+                        fullWidth
+                        sx={{
+                            bgcolor: '#8B5E3C',
+                            borderRadius: 100,
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)',
+                            '&:hover': { bgcolor: '#5C3A1E' },
+                            py: 1.2
+                        }}
+                    >
+                        Send to Watch
+                    </Button>
+                </Box>
             </Box>
 
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}
                 onClose={() => setSnackbarOpen(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} variant="filled" sx={{ width: '100%' }}>
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
@@ -500,5 +383,4 @@ const Settings: React.FC = () => {
     );
 };
 
-export const getServerSideProps = async () => ({ props: {} });
 export default Settings;
