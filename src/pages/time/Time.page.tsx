@@ -100,10 +100,8 @@ const Time: React.FC = () => {
             flexDirection: 'column',
             overflow: 'hidden',
             bgcolor: 'background.default',
-            // Accommodate mobile bottom nav, but clear it on desktop
             pb: { xs: BOTTOM_NAV_HEIGHT, md: 0 }
         }}>
-            {/* Scrollable Area */}
             <Box sx={{
                 flex: 1,
                 overflowY: 'auto',
@@ -112,10 +110,12 @@ const Time: React.FC = () => {
                 pb: 2
             }}>
                 <Box sx={{ maxWidth: 600, mx: 'auto' }}>
-                    <ScreenTitle title="Time" sx={{ mb: 1.5 }} />
+                    {/* Wrap ScreenTitle in a Box to handle the margin fix */}
+                    <Box sx={{ mb: 1.5 }}>
+                        <ScreenTitle title="Time" />
+                    </Box>
 
                     <Stack spacing={1.5} sx={{ width: '100%' }}>
-                        {/* WATCH INFO */}
                         <PeachCard sx={{ p: 1.25 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -142,7 +142,6 @@ const Time: React.FC = () => {
                             </Box>
                         </PeachCard>
 
-                        {/* PHONE TIME */}
                         <PeachCard sx={{ p: 1.5 }}>
                             <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', mb: 0.5, display: 'block' }}>
                                 Phone Time
@@ -164,7 +163,6 @@ const Time: React.FC = () => {
                             </Box>
                         </PeachCard>
 
-                        {/* TIMER */}
                         <PeachCard sx={{ p: 1.5 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.8 }}>
                                 <TimerIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
@@ -184,7 +182,6 @@ const Time: React.FC = () => {
                             </Box>
                         </PeachCard>
 
-                        {/* GRID FOR WATCH TIME / TEMP */}
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
                             <PeachCard sx={{ p: 1.5 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
