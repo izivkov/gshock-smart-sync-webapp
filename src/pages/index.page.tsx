@@ -118,14 +118,17 @@ function Home() {
           {[dw_b5600, ecb_30d, ga_b2100, gw_b5600].map((imgSrc, index) => (
             <Box 
               key={index}
-              component="img" 
-              src={typeof imgSrc === 'string' ? imgSrc : imgSrc.src || imgSrc} 
-              alt="Supported Watch" 
               sx={{ 
                 height: { xs: 80, sm: 100, md: 120 }, // Small enough to not push connect button down too far
-                objectFit: 'contain' 
+                display: 'flex'
               }} 
-            />
+            >
+              <img
+                src={typeof imgSrc === 'string' ? imgSrc : imgSrc.src as string} 
+                alt="Supported Watch"
+                style={{ height: '100%', objectFit: 'contain' }}
+              />
+            </Box>
           ))}
         </Box>
 
