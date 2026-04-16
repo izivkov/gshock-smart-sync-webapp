@@ -63,6 +63,7 @@ class SettingsEncoder {
         const MASK_BUTTON_TONE_OFF = 0b00000010;
         const MASK_LIGHT_OFF = 0b00000100;
         const POWER_SAVING_MODE = 0b00010000;
+        const DO_NOT_DISTURB_OFF = 0b01000000
 
         const arr = new Array(12).fill(0);
         arr[0] = CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_BASIC;
@@ -79,6 +80,9 @@ class SettingsEncoder {
         if (!settings.powerSavingMode) {
             arr[1] |= POWER_SAVING_MODE;
         }
+
+        // Set this flag, otherwize on the Ediface 30 we will hear no alarms
+        arr[1] |= DO_NOT_DISTURB_OFF
 
         if (settings.lightDuration === "4s") {
             arr[2] = 1;

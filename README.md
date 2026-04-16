@@ -6,10 +6,12 @@ G-Shock Smart Sync Webapp is a lightweight, privacy-focused web tool that lets y
 
 ---
 
-### 🧪 [Try the Experimental Demo](https://gshock.avmedia.org)
+### 🧪 [I've setup this app to run on a server here](https://gshock.avmedia.org)
 *URL: **https://gshock.avmedia.org***
 
-**Note:** This server is provided for **evaluation only**. It runs on limited hardware and may be shut down temporarily or permanently if traffic levels become too high. For a stable, permanent experience, we recommend [hosting the app on your own hardware](#🖥️-deploy-on-your-own-hardware).
+**Note:** This server is still **experimental** and I cannot guarantee 100% uptime. It trffic increases significantly, I may need to move it to a more robust platform like Vercel. 
+
+For a stable, permanent experience, you can [host the app on your own hardware](#🖥️-deploy-on-your-own-hardware).
 
 ---
 
@@ -56,7 +58,7 @@ Detailed instructions for hosting this yourself on a Raspberry Pi or other hardw
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Technical reference
 - **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** - 3-step deployment summary
 
-To use this application, your browser must support **Web Bluetooth**. If you are accessing via a non-secure connection (HTTP), you must manually enable support:
+To use this application, your browser must support **[Web Bluetooth](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API)**. If you are accessing via a non-secure connection (HTTP), you must manually enable support:
 
 ### 1. Supported Browsers
 - **Desktop:** Google Chrome, Microsoft Edge, and Opera (Windows, macOS, Linux).

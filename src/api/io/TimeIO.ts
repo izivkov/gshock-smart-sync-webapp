@@ -6,12 +6,27 @@ import WorldCitiesIO from "@io/WorldCitiesIO";
 import { CasioConstants } from "@api/CasioConstants";
 import { connection } from "@api/Connection";
 import Utils from "../utils/Utils";
+import { findTimeZone } from "./CasioTimeZoneHelper";
+import { DateTime } from "luxon";
 
 interface TimeEncoder {
     prepareCurrentTime(date: Date): Uint8Array;
 }
 
+const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+enum DtsMask {
+    OFF = 0b00,
+    ON = 0b01,
+    AUTO = 0b10,
+}
+
 const TimeIO = {
+    state: {
+        timeZone: defaultTimeZone,
+        casioTimezone: findTimeZone(defaultTimeZone)
+    },
+
     async set(): Promise<void> {
         await this.initializeForSettingTime();
 
@@ -21,22 +36,41 @@ const TimeIO = {
         await connection.sendMessage(currentTimeMessage);
     },
 
-    async setTimezone(): Promise<void> {
-        const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
-
-        // TODO: implement: Kotlin:         
-        // state = state.copy(
-        //     timeZone = timeZone,
-        //     casioTimezone = CasioTimeZoneHelper.findTimeZone(timeZone)
-        // )
+    async setTimezone(timeZone?: string): Promise<void> {
+        const tz = timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        this.state.timeZone = tz;
+        this.state.casioTimezone = findTimeZone(tz);
     },
 
     async getDSTWatchState(state: number): Promise<any> {
         return await DstWatchStateIO.request(state);
     },
 
+    getDSTWatchStateWithTZ: async (state: number): Promise<string> => {
+        const origDTS = await TimeIO.getDSTWatchState(state);
+        
+        const now = DateTime.now().setZone(TimeIO.state.casioTimezone.zoneName);
+        const isInDST = now.isInDST;
+        const hasRules = TimeIO.state.casioTimezone.dstRules !== 0;
+
+        const dstValue =
+            (isInDST ? DtsMask.ON : DtsMask.OFF) |
+            (hasRules ? DtsMask.AUTO : 0);
+
+        return await DstWatchStateIO.setDST(origDTS, dstValue);
+    },
+
     async getDSTForWorldCities(cityNum: number): Promise<any> {
         return await DstForWorldCitiesIO.request(cityNum);
+    },
+
+    getDSTForWorldCitiesWithTZ: async (cityNum: number): Promise<string> => {
+        const origDSTForCity = await TimeIO.getDSTForWorldCities(cityNum);
+        const casioTimeZoneHack = {
+            ...TimeIO.state.casioTimezone,
+            dstOffset: TimeIO.state.casioTimezone.dstOffset.toString()
+        };
+        return await DstForWorldCitiesIO.setDST(origDSTForCity, casioTimeZoneHack);
     },
 
     async getWorldCities(cityNum: number): Promise<any> {
@@ -44,8 +78,7 @@ const TimeIO = {
     },
 
     getWorldCitiesWithTZ: async (cityNum: number): Promise<number[]> => {
-        const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
-        const newCity: string = WorldCitiesIO.parseCity(timeZone);
+        const newCity: string = WorldCitiesIO.parseCity(TimeIO.state.timeZone);
         const encoded: string = WorldCitiesIO.encodeAndPad(newCity, cityNum);
         CasioIO.removeFromCache(encoded);
 
@@ -65,7 +98,7 @@ const TimeIO = {
 
     async writeDST(): Promise<void> {
         const dtsStates = [
-            { function: this.getDSTWatchState, param: CasioIO.DTS_STATE.ZERO },
+            { function: this.getDSTWatchStateWithTZ, param: CasioIO.DTS_STATE.ZERO },
             { function: this.getDSTWatchState, param: CasioIO.DTS_STATE.TWO },
             { function: this.getDSTWatchState, param: CasioIO.DTS_STATE.FOUR },
         ];
@@ -77,7 +110,7 @@ const TimeIO = {
 
     async writeDSTForWorldCities(): Promise<void> {
         const dstForWorldCities = [
-            { function: this.getDSTForWorldCities, param: 0 },
+            { function: this.getDSTForWorldCitiesWithTZ, param: 0 },
             { function: this.getDSTForWorldCities, param: 1 },
             { function: this.getDSTForWorldCities, param: 2 },
             { function: this.getDSTForWorldCities, param: 3 },
@@ -107,7 +140,12 @@ const TimeIO = {
 
     sendToWatchSet(message: string): void {
         const dateTimeMs = JSON.parse(message).value;
-        const dateTime = new Date(dateTimeMs);
+        const now = DateTime.now().setZone(this.state.casioTimezone.zoneName);
+        const isInDST = now.isInDST;
+        const dstDurationToAdd = isInDST ? this.state.casioTimezone.dstOffset * 60 * 15 * 1000 : 0;
+        const msAdjustedForDST = dateTimeMs + dstDurationToAdd;
+
+        const dateTime = new Date(msAdjustedForDST);
         const timeData = TimeEncoder.prepareCurrentTime(dateTime);
         const timeCommand = [
             CasioConstants.CHARACTERISTICS.CASIO_CURRENT_TIME,

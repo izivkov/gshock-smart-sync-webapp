@@ -77,8 +77,8 @@ const GShockAPI = {
         return condition.temperature;
     },
 
-    setTime: async (): Promise<void> => {
-        await TimeIO.setTimezone()
+    setTime: async (timeZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone): Promise<void> => {
+        await TimeIO.setTimezone(timeZone);
         await TimeIO.set();
     },
 

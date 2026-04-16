@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
     Box,
@@ -15,6 +15,8 @@ import AlarmsIcon from '@mui/icons-material/Alarm';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SideNavigation, { SIDEBAR_WIDTH } from './SideNavigation';
+import { ConnectionContext } from '../_app.page';
+import { watchInfo } from '@api/WatchInfo';
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -32,16 +34,28 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const pathname = usePathname();
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+    const { isConnected } = useContext(ConnectionContext);
+    const [visibleItems, setVisibleItems] = useState(NAV_ITEMS);
+
+    useEffect(() => {
+        if (isConnected) {
+            if (!watchInfo.hasReminders) {
+                setVisibleItems(NAV_ITEMS.filter(item => item.label !== 'Events'));
+            } else {
+                setVisibleItems(NAV_ITEMS);
+            }
+        } else {
+            setVisibleItems(NAV_ITEMS);
+        }
+    }, [isConnected]);
 
     const handleNavigation = (path: string) => {
         router.push(path);
     };
 
-    // Map current path to nav index; default to Time (index 0) for home
     const currentTabIndex = (() => {
-        const idx = NAV_ITEMS.findIndex(item => item.path === pathname);
+        const idx = visibleItems.findIndex(item => item.path === pathname);
         if (idx !== -1) return idx;
-        // Home page maps to Time tab
         return 0;
     })();
 
@@ -64,9 +78,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     display: 'flex',
                     flexDirection: 'column',
                     minHeight: '100vh',
-                    // Add left margin on desktop to account for sidebar
                     ml: { xs: 0, md: `${SIDEBAR_WIDTH}px` },
-                    // Add bottom padding on mobile to account for bottom nav
                     pb: { xs: '88px', md: 0 },
                     transition: theme.transitions.create(['margin'], {
                         easing: theme.transitions.easing.sharp,
@@ -96,7 +108,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         showLabels
                         value={currentTabIndex}
                         onChange={(_, newValue) => {
-                            handleNavigation(NAV_ITEMS[newValue].path);
+                            if (isConnected) {
+                                handleNavigation(visibleItems[newValue].path);
+                            }
                         }}
                         sx={{
                             height: 80,
@@ -108,10 +122,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                             },
                         }}
                     >
-                        {NAV_ITEMS.map((item) => (
+                        {visibleItems.map((item) => (
                             <BottomNavigationAction
                                 key={item.path}
                                 label={item.label}
+                                disabled={!isConnected}
                                 icon={
                                     <Box
                                         sx={{
@@ -121,7 +136,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                                             width: 64,
                                             height: 32,
                                             borderRadius: '100px',
-                                            bgcolor: currentTabIndex === NAV_ITEMS.findIndex(i => i.path === item.path)
+                                            bgcolor: currentTabIndex === visibleItems.findIndex(i => i.path === item.path) && isConnected
                                                 ? 'rgba(139, 94, 60, 0.12)'
                                                 : 'transparent',
                                             transition: 'background-color 0.2s ease',
@@ -135,6 +150,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                                     '&.Mui-selected': {
                                         color: 'primary.main',
                                     },
+                                    '&.Mui-disabled': {
+                                        color: 'text.disabled',
+                                    },
                                     '& .MuiBottomNavigationAction-label': {
                                         fontSize: '0.75rem',
                                         fontWeight: 500,
@@ -142,6 +160,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                                         '&.Mui-selected': {
                                             fontSize: '0.75rem',
                                             fontWeight: 600,
+                                        },
+                                        '&.Mui-disabled': {
+                                            color: 'text.disabled',
                                         },
                                     },
                                 }}
