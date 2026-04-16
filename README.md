@@ -6,10 +6,10 @@ G-Shock Smart Sync Webapp is a lightweight, privacy-focused web tool that lets y
 
 ---
 
-### 🧪 [I've setup this app to run on a server here](https://gshock.avmedia.org)
+### 🧪 [I've set up this app to run on a server here](https://gshock.avmedia.org)
 *URL: **https://gshock.avmedia.org***
 
-**Note:** This server is still **experimental** and I cannot guarantee 100% uptime. It trffic increases significantly, I may need to move it to a more robust platform like Vercel. 
+**Note:** This server is still **experimental** and I cannot guarantee 100% uptime. If traffic increases significantly, I may need to move it to a more robust platform like Vercel.
 
 For a stable, permanent experience, you can [host the app on your own hardware](#🖥️-deploy-on-your-own-hardware).
 
@@ -71,19 +71,6 @@ To use this application, your browser must support **[Web Bluetooth](https://dev
 3. **Pairing:** Click the "Pair Watch" button in the app and select your device from the browser's pop-up list.
 
 ---
-
-## Development
-
-To run the application in development mode:
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-The application will auto-reload as you make changes to the source files.
 
 ## 🖥️ Deploy on Your Own Hardware
 
@@ -166,4 +153,3 @@ The application supports 19 G-Shock models including:
 
 Each model has intelligent capability detection for feature adaptation.
 
-```
