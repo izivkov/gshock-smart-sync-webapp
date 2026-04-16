@@ -6,6 +6,8 @@ import { connection } from '@api/Connection';
 import { progressEvents } from "@api/ProgressEvents"
 import { useRouter } from 'next/navigation';
 import { EventAction } from "@api/ProgressEvents";
+import GShockAPI from '@/api/GShockAPI';
+import { PhoneFinder } from './home/PhoneFinder';
 
 import Typography from '@mui/material/Typography';
 import {
@@ -35,10 +37,24 @@ function Home() {
   const navigateToTimePage = useMemo(() => () => router.push('/time/Time'), [router]);
   const navigateToHomePage = useMemo(() => () => router.push('/'), [router]);
 
+  const handleWatchConnectedAndInit = useMemo(() => async () => {
+    if (GShockAPI.isFindPhoneButtonPressed()) {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        PhoneFinder.ring();
+      }
+    } else if (GShockAPI.isActionButtonPressed() || GShockAPI.isAutoTimeStarted()) {
+      await GShockAPI.setTime();
+      // Stay on home screen to represent headless sync
+    } else {
+      navigateToTimePage();
+    }
+  }, [navigateToTimePage]);
+
   const actions: EventAction[] = useMemo(() => [
     { label: "Disconnected", action: navigateToHomePage },
-    { label: "Connected", action: navigateToTimePage },
-  ], [navigateToHomePage, navigateToTimePage]);
+    { label: "WatchInitializationCompleted", action: handleWatchConnectedAndInit },
+  ], [navigateToHomePage, handleWatchConnectedAndInit]);
 
   useEffect(() => {
     if (!navigator.bluetooth) {
@@ -51,8 +67,12 @@ function Home() {
     progressEvents.runEventActions("Home", actions);
   }, [actions]);
 
+  // Handle explicit component mounts when watch is already initialized
   useEffect(() => {
-    if (connection.isConnected()) navigateToTimePage();
+    // If it's already connected AND initialized, we fall back to normal button logic if they reload Home
+    if (connection.isConnected()) {
+      if (GShockAPI.isNormalButtonPressed()) navigateToTimePage();
+    }
   }, [navigateToTimePage]);
 
   const handleCloseDialog = () => setDialogOpen(false);

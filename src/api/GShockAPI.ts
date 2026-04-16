@@ -18,7 +18,7 @@ const GShockAPI = {
     init: async (): Promise<boolean> => {
         await CasioIO.init();
         await cachedIO.init();
-        await ButtonPressedIO.getPressedButton("10");
+        await GShockAPI.getPressedButton();
 
         await GShockAPI.getAppInfo();
         progressEvents.onNext("WatchInitializationCompleted");
@@ -140,6 +140,11 @@ const GShockAPI = {
     isActionButtonPressed: (): boolean => {
         const button = ButtonPressedIO.get();
         return button === CasioIO.WATCH_BUTTON.LOWER_RIGHT;
+    },
+
+    isFindPhoneButtonPressed: (): boolean => {
+        const button = ButtonPressedIO.get();
+        return button === CasioIO.WATCH_BUTTON.FIND_PHONE;
     },
 
     isNormalButtonPressed: (): boolean => {

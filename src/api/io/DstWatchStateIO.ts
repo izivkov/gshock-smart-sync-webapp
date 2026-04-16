@@ -20,12 +20,10 @@ const DstWatchStateIO = {
         return deferredResult
     },
 
-    async setDST(dstState: string, dst: number): Promise<string> {
-        const intArray = Utils.hexToBytes(dstState);
+    async setDST(dstState: number[], dst: number): Promise<number[]> {
+        const intArray = Array.from(dstState);
         intArray[3] = dst;
-
-        const newValue = Utils.byteArrayOfIntArray(intArray);
-        return Utils.fromByteArrayToHexStrWithSpaces(newValue);
+        return intArray;
     },
 
     onReceived(data: any): any {

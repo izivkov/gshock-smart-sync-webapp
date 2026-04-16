@@ -26,16 +26,15 @@ const DstForWorldCitiesIO = {
         return deferredResult
     },
 
-    async setDST(dst: string, casioTimeZone: CasioTimeZone): Promise<string> {
-        let intArray = Utils.hexToBytes(dst);
-        if (intArray.length === 7) {
+    async setDST(dst: number[], casioTimeZone: CasioTimeZone): Promise<number[]> {
+        let intArray = Array.from(dst);
+        if (intArray.length >= 7) {
             intArray[4] = casioTimeZone.offset;
             intArray[5] = parseInt(casioTimeZone.dstOffset);
             intArray[6] = casioTimeZone.dstRules;
         }
 
-        const dstByteArray = Utils.byteArrayOfIntArray(intArray);
-        return Utils.fromByteArrayToHexStrWithSpaces(dstByteArray);
+        return intArray;
     },
 
     onReceived(data: any): any {

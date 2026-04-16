@@ -46,7 +46,7 @@ const TimeIO = {
         return await DstWatchStateIO.request(state);
     },
 
-    getDSTWatchStateWithTZ: async (state: number): Promise<string> => {
+    getDSTWatchStateWithTZ: async (state: number): Promise<number[]> => {
         const origDTS = await TimeIO.getDSTWatchState(state);
         
         const now = DateTime.now().setZone(TimeIO.state.casioTimezone.zoneName);
@@ -64,7 +64,7 @@ const TimeIO = {
         return await DstForWorldCitiesIO.request(cityNum);
     },
 
-    getDSTForWorldCitiesWithTZ: async (cityNum: number): Promise<string> => {
+    getDSTForWorldCitiesWithTZ: async (cityNum: number): Promise<number[]> => {
         const origDSTForCity = await TimeIO.getDSTForWorldCities(cityNum);
         const casioTimeZoneHack = {
             ...TimeIO.state.casioTimezone,
@@ -140,12 +140,8 @@ const TimeIO = {
 
     sendToWatchSet(message: string): void {
         const dateTimeMs = JSON.parse(message).value;
-        const now = DateTime.now().setZone(this.state.casioTimezone.zoneName);
-        const isInDST = now.isInDST;
-        const dstDurationToAdd = isInDST ? this.state.casioTimezone.dstOffset * 60 * 15 * 1000 : 0;
-        const msAdjustedForDST = dateTimeMs + dstDurationToAdd;
+        const dateTime = DateTime.fromMillis(dateTimeMs).setZone(TimeIO.state.casioTimezone.zoneName);
 
-        const dateTime = new Date(msAdjustedForDST);
         const timeData = TimeEncoder.prepareCurrentTime(dateTime);
         const timeCommand = [
             CasioConstants.CHARACTERISTICS.CASIO_CURRENT_TIME,
@@ -157,15 +153,15 @@ const TimeIO = {
 };
 
 const TimeEncoder = {
-    prepareCurrentTime(date: Date): Uint8Array {
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1; // Months are 0-based
-        const day = date.getDate();
-        const hour = date.getHours();
-        const minute = date.getMinutes();
-        const second = date.getSeconds();
-        const dayOfWeek = date.getDay();
-        const millisecond = date.getMilliseconds();
+    prepareCurrentTime(date: DateTime): Uint8Array {
+        const year = date.year;
+        const month = date.month; // Luxon months are 1-12
+        const day = date.day;
+        const hour = date.hour;
+        const minute = date.minute;
+        const second = date.second;
+        const dayOfWeek = date.weekday === 7 ? 0 : date.weekday; // JS/Casio: Sun=0, Mon=1
+        const millisecond = date.millisecond;
         const lastByte = 1;
 
         const arr = new Uint8Array(10);
