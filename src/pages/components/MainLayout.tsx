@@ -35,18 +35,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
     const { isConnected } = useContext(ConnectionContext);
-    const [visibleItems, setVisibleItems] = useState(NAV_ITEMS);
-
-    useEffect(() => {
-        if (isConnected) {
-            if (!watchInfo.hasReminders) {
-                setVisibleItems(NAV_ITEMS.filter(item => item.label !== 'Events'));
-            } else {
-                setVisibleItems(NAV_ITEMS);
-            }
-        } else {
-            setVisibleItems(NAV_ITEMS);
+    const visibleItems = React.useMemo(() => {
+        if (isConnected && !watchInfo.hasReminders) {
+            return NAV_ITEMS.filter(item => item.label !== 'Events');
         }
+        return NAV_ITEMS;
     }, [isConnected]);
 
     const handleNavigation = (path: string) => {

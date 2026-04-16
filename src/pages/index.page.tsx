@@ -58,6 +58,7 @@ function Home() {
 
   useEffect(() => {
     if (!navigator.bluetooth) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsBluetoothSupported(false);
       setDialogOpen(true);
     }

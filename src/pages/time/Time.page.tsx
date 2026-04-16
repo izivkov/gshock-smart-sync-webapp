@@ -189,7 +189,7 @@ const Time: React.FC = () => {
     };
 
     const use12HourClock = useMemo(() => isNorthAmerica12HourClock(), []);
-    const fahrenheitTemp = useMemo(() => useFahrenheitForTemperature(), []);
+    const fahrenheitTemp = useFahrenheitForTemperature();
     const tempShown = formatTemperatureFromCelsius(temperature, fahrenheitTemp);
 
     return (

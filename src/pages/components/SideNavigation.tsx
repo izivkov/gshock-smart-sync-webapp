@@ -32,20 +32,11 @@ const SideNavigation: React.FC = () => {
     const router = useRouter();
     const pathname = usePathname();
     const { isConnected } = useContext(ConnectionContext);
-    const [visibleItems, setVisibleItems] = useState(NAV_ITEMS);
-
-    useEffect(() => {
-        // Only filter based on watch capabilities if a watch is connected
-        if (isConnected) {
-            if (!watchInfo.hasReminders) {
-                setVisibleItems(NAV_ITEMS.filter(item => item.label !== 'Events'));
-            } else {
-                setVisibleItems(NAV_ITEMS);
-            }
-        } else {
-            // If no watch connected, show all items
-            setVisibleItems(NAV_ITEMS);
+    const visibleItems = React.useMemo(() => {
+        if (isConnected && !watchInfo.hasReminders) {
+            return NAV_ITEMS.filter(item => item.label !== 'Events');
         }
+        return NAV_ITEMS;
     }, [isConnected]);
 
     const handleNavigation = (path: string) => {

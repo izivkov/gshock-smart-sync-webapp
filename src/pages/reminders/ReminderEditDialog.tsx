@@ -51,7 +51,38 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const [reminderData, setReminderData] = useState<ReminderData>(initReminderData);
     const [title, setTitle] = useState(initReminderData.title);
 
+    const configureDialog = (data: ReminderData) => {
+        const start = toDayJsDate(data.startDate);
+        const end = data.endDate ? toDayJsDate(data.endDate) : start;
+
+        setCurrentStartDate(start);
+        setEndDate(end);
+
+        if (data.occurrences > 0) {
+            setOnIndex(2);
+        } else if (data.endDate && !end.isSame(start)) {
+            setOnIndex(1);
+        } else {
+            setOnIndex(0);
+        }
+        
+        if (data.repeatPeriod !== "NEVER") { 
+            setRepeatEventsVisible(true) 
+        } else { 
+            setRepeatEventsVisible(false) 
+        }
+        
+        if (data.repeatPeriod === "WEEKLY") { 
+            setWeeklyEventsVisible(true) 
+        } else { 
+            setWeeklyEventsVisible(false) 
+        }
+
+        setFrequency(data.repeatPeriod);
+    }
+
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setReminderData(initReminderData);
         setTitle(initReminderData.title);
         configureDialog(initReminderData);
@@ -76,39 +107,8 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                 acc[value] = key as repeatPeriodType;
                 return acc;
             }, {} as Record<string, repeatPeriodType>);
-
         return reverseMap[str];
     };
-
-    const configureDialog = (reminderData: ReminderData) => {
-        const start = toDayJsDate(reminderData.startDate);
-        const end = reminderData.endDate ? toDayJsDate(reminderData.endDate) : start;
-
-        setCurrentStartDate(start);
-        setEndDate(end);
-
-        if (reminderData.occurrences > 0) {
-            setOnIndex(2);
-        } else if (reminderData.endDate && !end.isSame(start)) {
-            setOnIndex(1);
-        } else {
-            setOnIndex(0);
-        }
-        
-        if (reminderData.repeatPeriod !== "NEVER") { 
-            setRepeatEventsVisible(true) 
-        } else { 
-            setRepeatEventsVisible(false) 
-        }
-        
-        if (reminderData.repeatPeriod === "WEEKLY") { 
-            setWeeklyEventsVisible(true) 
-        } else { 
-            setWeeklyEventsVisible(false) 
-        }
-
-        setFrequency(reminderData.repeatPeriod);
-    }
 
     const checkBoxes = [
         { value: "MONDAY", displayValue: "Mon" },
@@ -140,20 +140,23 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
     const handleOccurrencesChange = (value: string) => {
         const num = parseInt(value, 10);
         if (!isNaN(num) && num > 0) {
-            reminderData.occurrences = num;
-            reminderData.endDate = { year: startDate.year(), month: startDate.format("MMMM") as monthType, day: startDate.date() }
+            setReminderData({
+                ...reminderData,
+                occurrences: num,
+                endDate: { year: startDate.year(), month: startDate.format("MMMM") as monthType, day: startDate.date() }
+            });
             setError({ state: false, message: "" })
         } else {
-            reminderData.occurrences = 0
+            setReminderData({ ...reminderData, occurrences: 0 });
             setError({ state: true, message: "Please enter a number greater than 0" })
         }
     }
 
     const handleDaysOfWeekChange = (day: string, checked: boolean) => {
         if (checked) {
-            reminderData.daysOfWeek = [...reminderData.daysOfWeek, day as dayOfWeekType];
+            setReminderData({ ...reminderData, daysOfWeek: [...reminderData.daysOfWeek, day as dayOfWeekType] });
         } else {
-            reminderData.daysOfWeek = reminderData.daysOfWeek.filter(d => d !== day);
+            setReminderData({ ...reminderData, daysOfWeek: reminderData.daysOfWeek.filter(d => d !== day) });
         }
     }
 
@@ -201,10 +204,11 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                             onChange={(newDate) => {
                                 if (newDate) {
                                     setCurrentStartDate(newDate);
-                                    reminderData.startDate = fromDayJsDate(newDate);
-                                    if (!reminderData.endDate) {
-                                        reminderData.endDate = { year: newDate.year(), month: newDate.format("MMMM") as monthType, day: newDate.date() };
-                                    }
+                                    setReminderData({
+                                        ...reminderData,
+                                        startDate: fromDayJsDate(newDate),
+                                        endDate: reminderData.endDate || { year: newDate.year(), month: newDate.format("MMMM") as monthType, day: newDate.date() }
+                                    });
                                 }
                             }}
                             slotProps={{
@@ -249,11 +253,11 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                                                 const startDayJs = toDayJsDate(reminderData.startDate);
                                                 if (newDate < startDayJs) {
                                                     setError({ state: true, message: "End date must be after start date" });
-                                                    reminderData.endDate = fromDayJsDate(startDayJs);
+                                                    setReminderData({ ...reminderData, endDate: fromDayJsDate(startDayJs) });
                                                 } else {
                                                     setError({ state: false, message: "" });
                                                     setEndDate(newDate);
-                                                    reminderData.endDate = fromDayJsDate(newDate);
+                                                    setReminderData({ ...reminderData, endDate: fromDayJsDate(newDate) });
                                                 }
                                             }
                                         }}
