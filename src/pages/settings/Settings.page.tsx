@@ -24,6 +24,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import BatterySaverIcon from '@mui/icons-material/BatterySaver';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SyncIcon from '@mui/icons-material/Sync';
+import SendIcon from '@mui/icons-material/Send';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import GShockAPI from '@/api/GShockAPI';
 import { dateFormatType, languageType, lightDurationType, timeFormatType } from '@api/WatchInfo';
@@ -352,13 +353,13 @@ const Settings: React.FC = () => {
                     <Button
                         variant="contained"
                         onClick={onSave}
-                        startIcon={<SyncIcon />}
+                        startIcon={<SendIcon />}
                         fullWidth
                         sx={{
                             bgcolor: '#8B5E3C',
                             borderRadius: 100,
                             textTransform: 'none',
-                            fontWeight: 500,
+                            fontWeight: 600,
                             boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)',
                             '&:hover': { bgcolor: '#5C3A1E' },
                             py: 1.2

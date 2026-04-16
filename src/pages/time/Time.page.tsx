@@ -25,6 +25,106 @@ import {
 
 const BOTTOM_NAV_HEIGHT = '80px';
 
+const WatchNameCard: React.FC<{ name: string, isConnected: boolean, batteryLevel: number }> = ({ name, isConnected, batteryLevel }) => (
+    <PeachCard sx={{ p: 1.25 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{
+                    width: 36, height: 36, borderRadius: '8px',
+                    bgcolor: 'rgba(139, 94, 60, 0.12)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                    <WatchIcon sx={{ color: '#8B5E3C', fontSize: 20 }} />
+                </Box>
+                <Box>
+                    <Typography sx={{ fontWeight: 700, color: '#2D1A0E', fontSize: '0.95rem', lineHeight: 1 }}>
+                        {name || 'G-Shock'}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.3 }}>
+                        <BluetoothConnectedIcon sx={{ fontSize: 10, color: isConnected ? '#4CAF50' : '#f44336' }} />
+                        <Typography variant="caption" sx={{ color: isConnected ? '#4CAF50' : '#f44336', fontWeight: 600, fontSize: '0.65rem' }}>
+                            {isConnected ? 'CONNECTED' : 'DISCONNECTED'}
+                        </Typography>
+                    </Box>
+                </Box>
+            </Box>
+            <BatteryLevel level={batteryLevel} />
+        </Box>
+    </PeachCard>
+);
+
+const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ timeZone, onSync }) => (
+    <PeachCard sx={{ p: 1.5 }}>
+        <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', mb: 0.5, display: 'block' }}>
+            Phone Time
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box>
+                <DigitalClock size="medium" showSeconds={true} />
+                <Typography sx={{ fontSize: '0.7rem', color: '#7A5C44', mt: 0.2 }}>
+                    {timeZone.split('/').pop()?.replace('_', ' ')}
+                </Typography>
+            </Box>
+            <Button
+                variant="contained" size="small" onClick={onSync}
+                startIcon={<SendIcon sx={{ fontSize: '0.9rem !important' }} />}
+                sx={{ borderRadius: 100, px: 2, height: 32, textTransform: 'none', fontWeight: 600, boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
+            >
+                Send to Watch
+            </Button>
+        </Box>
+    </PeachCard>
+);
+
+const TimerCard: React.FC<{ timerValue: { hours: number, minutes: number, seconds: number }, setTimerValue: React.Dispatch<React.SetStateAction<{ hours: number, minutes: number, seconds: number }>>, onSetTimer: () => void }> = ({ timerValue, setTimerValue, onSetTimer }) => (
+    <PeachCard sx={{ p: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.8 }}>
+            <TimerIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
+            <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase' }}>
+                Timer
+            </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+            <TimerInput initialValue={timerValue} onUpdate={setTimerValue} />
+            <Button
+                variant="contained" size="small" onClick={onSetTimer}
+                startIcon={<SendIcon sx={{ fontSize: '0.9rem !important' }} />}
+                sx={{ borderRadius: 100, px: 2, height: 32, textTransform: 'none', fontWeight: 600, boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
+            >
+                Send to Watch
+            </Button>
+        </Box>
+    </PeachCard>
+);
+
+const HomeTimeCard: React.FC<{ homeTime: string, use12HourClock: boolean }> = ({ homeTime, use12HourClock }) => (
+    <PeachCard sx={{ p: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+            <PublicIcon sx={{ fontSize: 14, color: '#8B5E3C' }} />
+            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase' }}>
+                Watch
+            </Typography>
+        </Box>
+        <Typography sx={{ fontSize: '1.2rem', fontWeight: 700, color: '#2D1A0E', fontFamily: 'monospace' }}>
+            {formatHomeTimeForDisplay(homeTime || undefined, use12HourClock)}
+        </Typography>
+    </PeachCard>
+);
+
+const TemperatureCard: React.FC<{ tempShown: { text: string, unit: string } }> = ({ tempShown }) => (
+    <PeachCard sx={{ p: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+            <ThermostatIcon sx={{ fontSize: 14, color: '#8B5E3C' }} />
+            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase' }}>
+                Temp
+            </Typography>
+        </Box>
+        <Typography sx={{ fontSize: '1.2rem', fontWeight: 700, color: '#2D1A0E', fontFamily: 'monospace' }}>
+            {tempShown.text}{tempShown.unit}
+        </Typography>
+    </PeachCard>
+);
+
 const Time: React.FC = () => {
     const { isConnected } = useContext(ConnectionContext);
     const [timerValue, setTimerValue] = useState({ hours: 0, minutes: 0, seconds: 0 });
@@ -110,103 +210,36 @@ const Time: React.FC = () => {
                 pb: 2
             }}>
                 <Box sx={{ maxWidth: 600, mx: 'auto' }}>
-                    {/* Wrap ScreenTitle in a Box to handle the margin fix */}
                     <Box sx={{ mb: 1.5 }}>
                         <ScreenTitle title="Time" />
                     </Box>
 
                     <Stack spacing={1.5} sx={{ width: '100%' }}>
-                        <PeachCard sx={{ p: 1.25 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                    <Box sx={{
-                                        width: 36, height: 36, borderRadius: '8px',
-                                        bgcolor: 'rgba(139, 94, 60, 0.12)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                    }}>
-                                        <WatchIcon sx={{ color: '#8B5E3C', fontSize: 20 }} />
-                                    </Box>
-                                    <Box>
-                                        <Typography sx={{ fontWeight: 700, color: '#2D1A0E', fontSize: '0.95rem', lineHeight: 1 }}>
-                                            {watchInfo.name || 'G-Shock'}
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.3 }}>
-                                            <BluetoothConnectedIcon sx={{ fontSize: 10, color: isConnected ? '#4CAF50' : '#f44336' }} />
-                                            <Typography variant="caption" sx={{ color: isConnected ? '#4CAF50' : '#f44336', fontWeight: 600, fontSize: '0.65rem' }}>
-                                                {isConnected ? 'CONNECTED' : 'DISCONNECTED'}
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                </Box>
-                                <BatteryLevel level={batteryLevel} />
-                            </Box>
-                        </PeachCard>
-
-                        <PeachCard sx={{ p: 1.5 }}>
-                            <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', mb: 0.5, display: 'block' }}>
-                                Phone Time
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Box>
-                                    <DigitalClock size="medium" showSeconds={true} />
-                                    <Typography sx={{ fontSize: '0.7rem', color: '#7A5C44', mt: 0.2 }}>
-                                        {timeZone.split('/').pop()?.replace('_', ' ')}
-                                    </Typography>
-                                </Box>
-                                <Button
-                                    variant="contained" size="small" onClick={handleSetTime}
-                                    startIcon={<SendIcon sx={{ fontSize: '0.9rem !important' }} />}
-                                    sx={{ borderRadius: 100, px: 2, height: 32, textTransform: 'none', fontWeight: 600 }}
-                                >
-                                    Sync
-                                </Button>
-                            </Box>
-                        </PeachCard>
-
-                        <PeachCard sx={{ p: 1.5 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.8 }}>
-                                <TimerIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
-                                <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase' }}>
-                                    Timer
-                                </Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                                <TimerInput initialValue={timerValue} onUpdate={setTimerValue} />
-                                <Button
-                                    variant="contained" size="small" onClick={handleSetTimer}
-                                    startIcon={<SendIcon sx={{ fontSize: '0.9rem !important' }} />}
-                                    sx={{ borderRadius: 100, px: 2, height: 32, textTransform: 'none', fontWeight: 600 }}
-                                >
-                                    Set
-                                </Button>
-                            </Box>
-                        </PeachCard>
+                        <WatchNameCard 
+                            name={watchInfo.name} 
+                            isConnected={isConnected} 
+                            batteryLevel={batteryLevel} 
+                        />
+                        
+                        <LocalTimeCard 
+                            timeZone={timeZone} 
+                            onSync={handleSetTime} 
+                        />
+                        
+                        <TimerCard 
+                            timerValue={timerValue} 
+                            setTimerValue={setTimerValue} 
+                            onSetTimer={handleSetTimer} 
+                        />
 
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-                            <PeachCard sx={{ p: 1.5 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                                    <PublicIcon sx={{ fontSize: 14, color: '#8B5E3C' }} />
-                                    <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase' }}>
-                                        Watch
-                                    </Typography>
-                                </Box>
-                                <Typography sx={{ fontSize: '1.2rem', fontWeight: 700, color: '#2D1A0E', fontFamily: 'monospace' }}>
-                                    {formatHomeTimeForDisplay(homeTime || undefined, use12HourClock)}
-                                </Typography>
-                            </PeachCard>
+                            <HomeTimeCard 
+                                homeTime={homeTime} 
+                                use12HourClock={use12HourClock} 
+                            />
 
                             {watchInfo.hasTemperature && (
-                                <PeachCard sx={{ p: 1.5 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                                        <ThermostatIcon sx={{ fontSize: 14, color: '#8B5E3C' }} />
-                                        <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase' }}>
-                                            Temp
-                                        </Typography>
-                                    </Box>
-                                    <Typography sx={{ fontSize: '1.2rem', fontWeight: 700, color: '#2D1A0E', fontFamily: 'monospace' }}>
-                                        {tempShown.text}{tempShown.unit}
-                                    </Typography>
-                                </PeachCard>
+                                <TemperatureCard tempShown={tempShown} />
                             )}
                         </Box>
                     </Stack>

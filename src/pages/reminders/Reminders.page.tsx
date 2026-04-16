@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Box, Button, Snackbar, Alert, Stack, useTheme
 } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
 import ScreenTitle from '../components/ScreenTitle';
@@ -117,7 +118,8 @@ const Reminders: React.FC = () => {
                         variant="contained"
                         fullWidth
                         onClick={sendToWatch}
-                        sx={{ borderRadius: 2, py: 1.2, fontWeight: 700 }}
+                        startIcon={<SendIcon />}
+                        sx={{ borderRadius: 100, py: 1.2, fontWeight: 600, textTransform: 'none', boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
                     >
                         Send to Watch
                     </Button>

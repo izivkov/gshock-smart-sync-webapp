@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Box, type BoxProps } from "@mui/material";
+import { Card, type CardProps } from "@mui/material";
 import { peachCardSx } from "../theme/peachCardStyles";
 
-type PeachCardProps = BoxProps & {
+type PeachCardProps = CardProps & {
     /** Default padding 3 (24px); set false for no padding */
     padded?: boolean;
 };
@@ -13,7 +13,8 @@ type PeachCardProps = BoxProps & {
  * Rounded peach “card” surface matching the Android G-Shock app lists / time blocks.
  */
 const PeachCard: React.FC<PeachCardProps> = ({ children, sx, padded = true, ...rest }) => (
-    <Box
+    <Card
+        elevation={0}
         sx={[
             peachCardSx,
             padded ? { p: 3 } : undefined,
@@ -22,7 +23,7 @@ const PeachCard: React.FC<PeachCardProps> = ({ children, sx, padded = true, ...r
         {...rest}
     >
         {children}
-    </Box>
+    </Card>
 );
 
 export default PeachCard;

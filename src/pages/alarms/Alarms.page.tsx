@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     Box, Typography, Button, Snackbar, Alert, Stack, Divider, useTheme
 } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 import AlarmCard from './AlarmCard';
 import AppSwitch from '@components/AppSwitch';
 import GShockAPI from '@/api/GShockAPI';
@@ -137,9 +138,10 @@ const Alarms: React.FC = () => {
                         variant="contained"
                         fullWidth
                         onClick={sendToWatch}
-                        sx={{ borderRadius: 2, py: 1.2 }}
+                        startIcon={<SendIcon />}
+                        sx={{ borderRadius: 100, py: 1.2, fontWeight: 600, textTransform: 'none', boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
                     >
-                        To Watch
+                        Send to Watch
                     </Button>
                 </Box>
             </Box>

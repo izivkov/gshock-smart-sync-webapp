@@ -18,6 +18,12 @@ import WatchIcon from '@mui/icons-material/Watch';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InfoIcon from '@mui/icons-material/Info';
 
+// Import local images directly based on project structure
+import dw_b5600 from '../../images/dw-b5600.png';
+import ecb_30d from '../../images/ecb_30d.png';
+import ga_b2100 from '../../images/ga_b2100.png';
+import gw_b5600 from '../../images/gw_b5600.png';
+
 const BOTTOM_NAV_HEIGHT = '80px';
 
 function Home() {
@@ -73,12 +79,35 @@ function Home() {
         pt: { xs: 2, md: 4 },
         pb: 2
       }}>
+
         <Typography
           variant="h5"
           sx={{ fontWeight: 800, color: 'primary.main', mb: 3, textAlign: 'center' }}
         >
           Get Started
         </Typography>
+
+        {/* Watch Images Row */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: { xs: 2, sm: 3 }, 
+          mb: 4, 
+          flexWrap: 'wrap' 
+        }}>
+          {[dw_b5600, ecb_30d, ga_b2100, gw_b5600].map((imgSrc, index) => (
+            <Box 
+              key={index}
+              component="img" 
+              src={typeof imgSrc === 'string' ? imgSrc : imgSrc.src || imgSrc} 
+              alt="Supported Watch" 
+              sx={{ 
+                height: { xs: 80, sm: 100, md: 120 }, // Small enough to not push connect button down too far
+                objectFit: 'contain' 
+              }} 
+            />
+          ))}
+        </Box>
 
         <Box sx={{ maxWidth: 600, mx: 'auto' }}>
           <List sx={{ '& .MuiListItem-root': { mb: 2 } }}>
