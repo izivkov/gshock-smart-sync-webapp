@@ -15,6 +15,7 @@ class Connection {
   writeCharacteristicSetValue: BluetoothRemoteGATTCharacteristic | null;
   notifyCharacteristic: BluetoothRemoteGATTCharacteristic | null;
 
+  public connecting: boolean = false;
   private characteristicCache: Map<string, BluetoothRemoteGATTCharacteristic>;
 
   constructor() {
@@ -37,7 +38,12 @@ class Connection {
             services: [CasioConstants.CASIO_SERVICE],
           },
         ],
-        optionalServices: [CasioConstants.WATCH_FEATURES_SERVICE_UUID],
+        optionalServices: [
+            CasioConstants.WATCH_FEATURES_SERVICE_UUID,
+            CasioConstants.IMMEDIATE_ALERT_SERVICE_UUID,
+            'battery_service',
+            'device_information'
+        ],
       });
 
       await this.initDevice(device);
@@ -46,60 +52,53 @@ class Connection {
     }
   };
 
-  reconnect = async (): Promise<void> => {
-    if (!navigator.bluetooth || !navigator.bluetooth.getDevices) {
-      console.log("getDevices() is not supported in this browser.");
-      return;
-    }
-
-    try {
-      const devices = await navigator.bluetooth.getDevices();
-      if (devices.length > 0) {
-        const device = devices[0]; // Try the first available device
-        console.log(`Found previously paired device: ${device.name}. Attemping to connect...`);
-        await this.initDevice(device);
-      }
-    } catch (error) {
-      console.error('Bluetooth reconnection error:', error);
-    }
-  };
-
   private initDevice = async (device: BluetoothDevice): Promise<void> => {
-    this.device = device;
-    
-    // Connect to the device
-    const server = await device.gatt!.connect();
-    this.server = server;
+    if (this.isConnected() || this.connecting) return;
 
-    device.addEventListener('gattserverdisconnected', () => {
-      this.device = null;
-      this.server = null;
-      this.service = null;
-      this.readCharacteristic = null;
-      this.writeCharacteristic = null;
-      this.writeCharacteristicSetValue = null;
-      this.notifyCharacteristic = null;
-
-      this.characteristicCache.clear();
-
-      progressEvents.onNext("Disconnected");
-    });
-
-    watchInfo.setNameAndModel(device.name!);
+    this.connecting = true;
 
     try {
-      this.service = await server.getPrimaryService(CasioConstants.WATCH_FEATURES_SERVICE_UUID);
+      this.device = device;
+      
+      // Connect to the device
+      const server = await device.gatt!.connect();
+      this.server = server;
 
-      // Enable notifications for a characteristic
-      this.notifyCharacteristic = await this.service.getCharacteristic(CasioConstants.CASIO_ALL_FEATURES_CHARACTERISTIC_UUID);
-      await this.notifyCharacteristic.startNotifications();
+      // Wait 1 second for the GATT connection and encryption to settle
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      console.log(`Connected to ${device.name}`);
-      progressEvents.onNext("Connected");
-    } catch (e) {
-      console.error("Failed to get services/characteristics", e);
-      // Even if characteristics fail, we are connected at the GATT level
-      progressEvents.onNext("Connected");
+      device.addEventListener('gattserverdisconnected', () => {
+        this.device = null;
+        this.server = null;
+        this.service = null;
+        this.readCharacteristic = null;
+        this.writeCharacteristic = null;
+        this.writeCharacteristicSetValue = null;
+        this.notifyCharacteristic = null;
+
+        this.characteristicCache.clear();
+
+        progressEvents.onNext("Disconnected");
+      });
+
+      watchInfo.setNameAndModel(device.name!);
+
+      try {
+        this.service = await server.getPrimaryService(CasioConstants.WATCH_FEATURES_SERVICE_UUID);
+
+        // Enable notifications for a characteristic
+        this.notifyCharacteristic = await this.service.getCharacteristic(CasioConstants.CASIO_ALL_FEATURES_CHARACTERISTIC_UUID);
+        await this.notifyCharacteristic.startNotifications();
+
+        console.log(`Connected to ${device.name}`);
+        progressEvents.onNext("Connected");
+      } catch (e) {
+        console.error("Failed to get services/characteristics", e);
+        // Even if characteristics fail, we are connected at the GATT level
+        progressEvents.onNext("Connected");
+      }
+    } finally {
+      this.connecting = false;
     }
   };
 
@@ -123,7 +122,8 @@ class Connection {
   };
 
   request = async (request: number[]): Promise<void> => {
-    this.write(0xC.toString(), request);
+    const REQUEST_HANDLE_ID = 0xC;
+    await this.write(REQUEST_HANDLE_ID.toString(), request);
   };
 
   setDataReceivedCallback = (callback: (receivedData: DataView) => void): void => {

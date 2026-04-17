@@ -201,17 +201,6 @@ export default function App({ Component, pageProps }: AppProps) {
     ];
 
     progressEvents.runEventActions("AppRoot", connectionActions);
-
-    // Try to auto-reconnect to a previously paired device if we're not already connected
-    (async () => {
-      if (!connection.isConnected()) {
-        await connection.reconnect();
-        if (connection.isConnected()) {
-          await GShockAPI.init();
-          setIsConnected(true);
-        }
-      }
-    })();
   }, []);
 
   // Route protection: redirect to home if visiting restricted paths while disconnected
