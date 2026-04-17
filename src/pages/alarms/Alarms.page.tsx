@@ -125,7 +125,6 @@ const Alarms: React.FC = () => {
                 p: 2,
                 borderTop: `1px solid ${theme.palette.divider}`,
                 bgcolor: 'background.paper',
-                mb: { xs: BOTTOM_NAV_HEIGHT, md: 0 },
                 pb: { xs: `calc(env(safe-area-inset-bottom) + 8px)`, md: 2 },
                 zIndex: 10,
                 boxShadow: '0 -4px 10px rgba(0,0,0,0.05)',

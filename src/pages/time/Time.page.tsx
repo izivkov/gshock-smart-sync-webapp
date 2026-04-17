@@ -206,13 +206,11 @@ const Time: React.FC = () => {
                 flex: 1,
                 overflowY: 'auto',
                 px: { xs: 1.5, sm: 3, md: 4 },
-                pt: 1,
+                pt: 2,
                 pb: 2
             }}>
                 <Box sx={{ maxWidth: 600, mx: 'auto' }}>
-                    <Box sx={{ mb: 1.5 }}>
-                        <ScreenTitle title="Time" />
-                    </Box>
+                    <ScreenTitle title="Time" />
 
                     <Stack spacing={1.5} sx={{ width: '100%' }}>
                         <WatchNameCard 

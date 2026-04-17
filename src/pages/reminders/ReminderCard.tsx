@@ -134,10 +134,10 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
         <Box sx={{
             ...peachCardCompactSx,
             px: 2,
-            py: 2,
-            minHeight: 72,
+            py: 1.25,
+            minHeight: 60,
         }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary', minWidth: 65 }}>
                     Event {number}
                 </Typography>
@@ -161,7 +161,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
                 </Box>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
                 <AppSwitch initialValue={enabled} onChange={setEnabledValue} />
             </Box>
 

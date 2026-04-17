@@ -19,6 +19,8 @@ import BluetoothIcon from '@mui/icons-material/Bluetooth';
 import WatchIcon from '@mui/icons-material/Watch';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InfoIcon from '@mui/icons-material/Info';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import SecurityIcon from '@mui/icons-material/Security';
 
 // Import local images directly based on project structure
 import dw_b5600 from '../../images/dw-b5600.png';
@@ -102,30 +104,30 @@ function Home() {
       }}>
 
         <Typography
-          variant="h5"
-          sx={{ fontWeight: 800, color: 'primary.main', mb: 3, textAlign: 'center' }}
+          variant="h6"
+          sx={{ fontWeight: 800, color: 'primary.main', mb: { xs: 1, md: 3 }, textAlign: 'center' }}
         >
           Get Started
         </Typography>
 
         {/* Watch Images Row */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          gap: { xs: 2, sm: 3 }, 
-          mb: 4, 
-          flexWrap: 'wrap' 
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: { xs: 1.5, sm: 3 },
+          mb: { xs: 2, md: 4 },
+          flexWrap: 'wrap'
         }}>
           {[dw_b5600, ecb_30d, ga_b2100, gw_b5600].map((imgSrc, index) => (
-            <Box 
+            <Box
               key={index}
-              sx={{ 
-                height: { xs: 80, sm: 100, md: 120 }, // Small enough to not push connect button down too far
+              sx={{
+                height: { xs: 60, sm: 80, md: 100 },
                 display: 'flex'
-              }} 
+              }}
             >
               <img
-                src={typeof imgSrc === 'string' ? imgSrc : imgSrc.src as string} 
+                src={typeof imgSrc === 'string' ? imgSrc : imgSrc.src as string}
                 alt="Supported Watch"
                 style={{ height: '100%', objectFit: 'contain' }}
               />
@@ -134,14 +136,14 @@ function Home() {
         </Box>
 
         <Box sx={{ maxWidth: 600, mx: 'auto' }}>
-          <List sx={{ '& .MuiListItem-root': { mb: 2 } }}>
+          <List sx={{ '& .MuiListItem-root': { mb: { xs: 1, md: 2 } } }}>
             <ListItem disableGutters>
               <ListItemIcon sx={{ minWidth: 40 }}>
                 <BluetoothIcon color="primary" />
               </ListItemIcon>
               <ListItemText
-                primary={<Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Pair Your Watch</Typography>}
-                secondary="Click the button at the bottom to start searching."
+                primary={<Typography variant="subtitle1" sx={{ fontWeight: 800 }}>1. Pair Your Watch</Typography>}
+                secondary={<Typography component="span" variant="caption">Select your watch from the browser list.</Typography>}
               />
             </ListItem>
 
@@ -150,8 +152,8 @@ function Home() {
                 <WatchIcon color="primary" />
               </ListItemIcon>
               <ListItemText
-                primary={<Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Watch Mode</Typography>}
-                secondary="Hold the LOWER-LEFT button on your G-Shock until it beeps."
+                primary={<Typography variant="subtitle1" sx={{ fontWeight: 800 }}>2. Watch Mode</Typography>}
+                secondary={<Typography component="span" variant="caption">Hold the LOWER-LEFT button until it beeps.</Typography>}
               />
             </ListItem>
 
@@ -160,31 +162,49 @@ function Home() {
                 <AccessTimeIcon color="primary" />
               </ListItemIcon>
               <ListItemText
-                primary={<Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Configuration</Typography>}
-                secondary="Set the time, timer, and alarms instantly."
+                primary={<Typography variant="subtitle1" sx={{ fontWeight: 800 }}>3. Quick Sync</Typography>}
+                secondary={<Typography component="span" variant="caption">Manage time, alarms, and settings instantly.</Typography>}
               />
             </ListItem>
           </List>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ my: 0.0, opacity: 0.5 }} />
 
+          {/* Privacy & Open Source Notice - Restored Original Style */}
           <Paper elevation={0} sx={{
-            p: 2,
-            bgcolor: alpha(theme.palette.info.main, 0.08),
-            borderRadius: 3,
-            border: `1px solid ${alpha(theme.palette.info.main, 0.2)}`
+            p: .5,
+            bgcolor: alpha(theme.palette.success.main, 0.05),
+            borderRadius: 4,
+            border: `1px dashed ${alpha(theme.palette.success.main, 0.3)}`,
+            textAlign: 'center',
+            mt: 1,
+            mb: 2
           }}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <InfoIcon color="info" />
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }}>
-                  Bluetooth Connection
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  If pairing fails, ensure your browser has Bluetooth permissions enabled and no other app is currently connected to the watch.
-                </Typography>
-              </Box>
-            </Box>
+            <SecurityIcon sx={{ color: 'success.main', fontSize: 36, mb: 1.5 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'success.dark', mb: 1 }}>
+              Privacy First & Open Source
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.6 }}>
+              Your data never leaves your device. This application runs <strong>entirely in your browser</strong> and communicates directly with your watch via Bluetooth. No data is sent to any server.
+            </Typography>
+            <Button
+              variant="outlined"
+              size="medium"
+              startIcon={<GitHubIcon />}
+              href="https://github.com/izivkov/gshock-smart-sync-webapp"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                borderRadius: '100px',
+                textTransform: 'none',
+                fontWeight: 700,
+                px: 4,
+                color: 'text.primary',
+                borderColor: 'divider'
+              }}
+            >
+              View Code on GitHub
+            </Button>
           </Paper>
         </Box>
       </Box>
@@ -195,9 +215,8 @@ function Home() {
         borderTop: `1px solid ${theme.palette.divider}`,
         bgcolor: 'background.paper',
         zIndex: 10,
-        // On mobile (xs), add margin to sit above bottom nav. 
+        // On mobile (xs), add padding for safe area. 
         // On desktop (md), remove margin and add subtle centering.
-        mb: { xs: BOTTOM_NAV_HEIGHT, md: 0 },
         pb: { xs: `calc(env(safe-area-inset-bottom) + 8px)`, md: 2 },
         display: 'flex',
         justifyContent: 'center'

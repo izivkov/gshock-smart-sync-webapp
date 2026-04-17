@@ -233,10 +233,10 @@ const Settings: React.FC = () => {
                     <ScreenTitle title="Settings" />
 
                     {/* Time & Date Section */}
-                    <Card sx={{ mb: 2, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW }}>
-                        <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'rgba(139, 94, 60, 0.06)', borderBottom: '1px solid rgba(139, 94, 60, 0.1)' }}>
-                            <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>Time & Date</Typography>
-                        </Box>
+                    <Card sx={{ mb: 2, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW, p: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', px: 2.5, pt: 1, display: 'block' }}>
+                            Time & Date
+                        </Typography>
                         <SettingRow icon={<AccessTimeIcon sx={{ fontSize: 22 }} />} label="Time Format">
                             <OptionToggle
                                 value={settings.timeFormat}
@@ -273,12 +273,12 @@ const Settings: React.FC = () => {
                             </>
                         )}
                     </Card>
-
+ 
                     {/* Display & Sound Section */}
-                    <Card sx={{ mb: 2, borderRadius: 3, boxShadow: '0 2px 8px rgba(139, 94, 60, 0.08)', overflow: 'hidden' }}>
-                        <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'rgba(139, 94, 60, 0.04)', borderBottom: '1px solid rgba(139, 94, 60, 0.08)' }}>
-                            <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>Display & Sound</Typography>
-                        </Box>
+                    <Card sx={{ mb: 1, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW, p: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', px: 2.5, pt: 1, display: 'block' }}>
+                            Display & Sound
+                        </Typography>
                         <SettingRow icon={settings.buttonTone ? <VolumeUpIcon sx={{ fontSize: 22 }} /> : <VolumeOffIcon sx={{ fontSize: 22 }} />} label="Button Sound" description="Play tone on button press">
                             <ModernSwitch checked={settings.buttonTone} onChange={(checked) => updateSettings({ buttonTone: checked })} />
                         </SettingRow>
@@ -299,12 +299,12 @@ const Settings: React.FC = () => {
                             </>
                         )}
                     </Card>
-
+ 
                     {/* Power & Sync Section */}
-                    <Card sx={{ mb: 2, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW }}>
-                        <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'rgba(139, 94, 60, 0.06)', borderBottom: '1px solid rgba(139, 94, 60, 0.1)' }}>
-                            <Typography variant="overline" sx={{ color: '#7A5C44', fontWeight: 600, letterSpacing: 1 }}>Power & Sync</Typography>
-                        </Box>
+                    <Card sx={{ mb: 2, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW, p: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', px: 2.5, pt: 1, display: 'block' }}>
+                            Power & Sync
+                        </Typography>
                         {watchInfo.hasPowerSavingMode && (
                             <SettingRow icon={<BatterySaverIcon sx={{ fontSize: 22 }} />} label="Power Saving" description="Reduce battery consumption">
                                 <ModernSwitch checked={settings.powerSavingMode} onChange={(checked) => updateSettings({ powerSavingMode: checked })} />
@@ -325,7 +325,6 @@ const Settings: React.FC = () => {
                 p: 2,
                 borderTop: `1px solid ${theme.palette.divider}`,
                 bgcolor: 'background.paper',
-                mb: { xs: BOTTOM_NAV_HEIGHT, md: 0 },
                 pb: { xs: `calc(env(safe-area-inset-bottom) + 8px)`, md: 2 },
                 zIndex: 10,
                 boxShadow: '0 -4px 12px rgba(0,0,0,0.05)',

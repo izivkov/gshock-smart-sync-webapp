@@ -70,9 +70,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     flexGrow: 1,
                     display: 'flex',
                     flexDirection: 'column',
-                    minHeight: '100vh',
+                    height: { xs: '100dvh', md: '100vh' },
                     ml: { xs: 0, md: `${SIDEBAR_WIDTH}px` },
                     pb: { xs: '88px', md: 0 },
+                    overflow: 'hidden',
                     transition: theme.transitions.create(['margin'], {
                         easing: theme.transitions.easing.sharp,
                         duration: theme.transitions.duration.leavingScreen,
