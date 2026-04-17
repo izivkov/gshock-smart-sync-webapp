@@ -84,9 +84,8 @@ function Home() {
     <Box sx={{
       display: 'flex',
       flexDirection: 'column',
-      // '100%' ensures it fits inside your desktop layout's main container, 
-      // while '100dvh' fallback ensures mobile height is correct.
-      height: { xs: '100dvh', md: '100%' },
+      height: '100%',
+      minHeight: 0,
       width: '100%',
       overflow: 'hidden',
       bgcolor: 'background.default',

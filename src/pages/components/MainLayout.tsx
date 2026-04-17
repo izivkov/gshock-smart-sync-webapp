@@ -74,6 +74,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     ml: { xs: 0, md: `${SIDEBAR_WIDTH}px` },
                     pb: { xs: '88px', md: 0 },
                     overflow: 'hidden',
+                    minHeight: 0,
                     transition: theme.transitions.create(['margin'], {
                         easing: theme.transitions.easing.sharp,
                         duration: theme.transitions.duration.leavingScreen,

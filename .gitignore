@@ -23,7 +23,6 @@ yarn.lock
 /build/
 /public/
 /.nuxt/
-/kotlin/
 
 # Runtime data
 db.json
@@ -89,3 +88,4 @@ yarn.lock
 /deploy-package/
 deploy-rpi.sh
 setup-rpi.sh
+monitor.sh

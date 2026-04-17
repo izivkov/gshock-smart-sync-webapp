@@ -68,7 +68,8 @@ const Reminders: React.FC = () => {
         <Box sx={{
             display: 'flex',
             flexDirection: 'column',
-            height: { xs: '100dvh', md: '100%' },
+            height: '100%',
+            minHeight: 0,
             width: '100%',
             overflow: 'hidden',
             bgcolor: 'background.default'
