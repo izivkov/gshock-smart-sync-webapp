@@ -10,6 +10,7 @@ interface ButtonProps {
     variant?: 'contained' | 'outlined' | 'text';
     startIcon?: React.ReactNode;
     fullWidth?: boolean;
+    disabled?: boolean;
 }
 
 const AppButton: React.FC<ButtonProps> = ({ 
@@ -19,6 +20,7 @@ const AppButton: React.FC<ButtonProps> = ({
     variant = 'contained',
     startIcon,
     fullWidth = false,
+    disabled = false,
 }) => {
     const sizeStyles = {
         small: { padding: '6px 16px', fontSize: '0.8125rem' },
@@ -32,6 +34,7 @@ const AppButton: React.FC<ButtonProps> = ({
             onClick={onClick}
             startIcon={startIcon}
             fullWidth={fullWidth}
+            disabled={disabled}
             sx={{
                 backgroundColor: variant === 'contained' ? '#8B5E3C' : 'transparent',
                 color: variant === 'contained' ? '#FFFFFF' : '#8B5E3C',
