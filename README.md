@@ -33,6 +33,12 @@ For a stable, permanent experience, you can [host the app on your own hardware](
 *   **iOS/iPhone:** Use the **Bluefy** or **WebBLE** browsers from the App Store.
 *   *Note: Safari and Firefox do not currently support Bluetooth syncing.*
 
+## ⚠️ Limitations
+Compared to native mobile applications, there are two primary limitations due to browser security and the cross-platform nature of web technology:
+
+1.  **Manual Pairing Only**: Browser security requires an explicit user gesture (a button click) to initiate a Bluetooth connection. This means the app **cannot automatically sync the time** in the background or respond to a watch-initiated sync without you first clicking "Pair Watch" in the browser.
+2.  **No Hardware Button Actions**: Native mobile apps can run specialized background services to monitor for specific watch button presses (like the "Action" or "Top Left" buttons). This web app is designed to work on all devices with a browser (Desktop, Tablets, and Phones) and does not implement these background hardware hooks to maintain its lightweight, zero-install architecture.
+
 ## 🔒 Privacy & Security
 This application is **strictly private**. 
 - **No data is ever sent to a server.** 
