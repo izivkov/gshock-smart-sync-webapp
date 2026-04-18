@@ -9,6 +9,7 @@ import { useEffect, useState, createContext, useContext, use } from 'react';
 import { connection } from '@api/Connection';
 import { progressEvents, EventAction } from '@api/ProgressEvents';
 import GShockAPI from '@/api/GShockAPI';
+import BrowserSupportDialog from '@components/BrowserSupportDialog';
 
 // Material 3 Design Tokens - Warm brown/peach theme matching the Android G-Shock app
 const theme = createTheme({
@@ -215,6 +216,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <ConnectionContext.Provider value={{ isConnected, setIsConnected }}>
       <MUIThemeProvider theme={theme}>
         <CssBaseline />
+        <BrowserSupportDialog />
           <MainLayout>
             <Component {...pageProps} />
           </MainLayout>

@@ -33,8 +33,6 @@ const BOTTOM_NAV_HEIGHT = '80px';
 function Home() {
   const router = useRouter();
   const theme = useTheme();
-  const [isBluetoothSupported, setIsBluetoothSupported] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
 
   const navigateToTimePage = useMemo(() => () => router.push('/time/Time'), [router]);
   const navigateToHomePage = useMemo(() => () => router.push('/'), [router]);
@@ -58,13 +56,7 @@ function Home() {
     { label: "WatchInitializationCompleted", action: handleWatchConnectedAndInit },
   ], [navigateToHomePage, handleWatchConnectedAndInit]);
 
-  useEffect(() => {
-    if (!navigator.bluetooth) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsBluetoothSupported(false);
-      setDialogOpen(true);
-    }
-  }, []);
+
 
   useEffect(() => {
     progressEvents.runEventActions("Home", actions);
@@ -78,7 +70,7 @@ function Home() {
     }
   }, [navigateToTimePage]);
 
-  const handleCloseDialog = () => setDialogOpen(false);
+
 
   return (
     <Box sx={{
@@ -225,20 +217,6 @@ function Home() {
         </Box>
       </Box>
 
-      {/* Browser Support Dialog */}
-      <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="xs">
-        <DialogTitle sx={{ fontWeight: 700 }}>Incompatible Browser</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            Web Bluetooth is required. Please use Chrome, Edge, or Bluefy on iOS.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleCloseDialog} variant="outlined" fullWidth>
-            I Understand
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   )
 }
