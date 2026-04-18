@@ -92,22 +92,19 @@ function Home() {
   const router = useRouter();
   const theme = useTheme();
 
-  // Compute Bluetooth support synchronously on first render so the icon and
-  // dialog state are correct immediately — no flicker, no timing race.
-  const [isBluetoothSupported] = useState<boolean>(() => {
-    if (typeof navigator === 'undefined') return true; // SSR: assume supported
-    return !!navigator.bluetooth;
-  });
+  const [isBluetoothSupported, setIsBluetoothSupported] = useState<boolean>(true);
+  const [detectedOS, setDetectedOS] = useState<OSType>('unknown');
+  const [showSupportDialog, setShowSupportDialog] = useState<boolean>(false);
 
-  const [detectedOS] = useState<OSType>(() => detectOS());
-
-  // Show the dialog whenever Bluetooth is not supported. We no longer gate
-  // behind localStorage so it always appears when the user lands on the page
-  // without a supported browser.
-  const [showSupportDialog, setShowSupportDialog] = useState<boolean>(() => {
-    if (typeof navigator === 'undefined') return false;
-    return !navigator.bluetooth;
-  });
+  useEffect(() => {
+    const supported = typeof navigator !== 'undefined' && !!navigator.bluetooth;
+    setIsBluetoothSupported(supported);
+    setDetectedOS(detectOS());
+    
+    if (!supported) {
+      setShowSupportDialog(true);
+    }
+  }, []);
 
   const handleCloseSupportDialog = () => setShowSupportDialog(false);
 
