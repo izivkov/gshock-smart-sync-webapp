@@ -2,8 +2,7 @@
 
 import AppButton from "@components/AppButton";
 import { connection } from "@api/Connection";
-import test from "@api/test";
-import React, { useState } from "react";
+import React from "react";
 import GShockAPI from "@/api/GShockAPI";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
 
@@ -70,9 +69,9 @@ const ConnectButton: React.FC = () => {
     return (
         <div className="flex flex-col items-center gap-4 w-full">
             {unsupportedDialog}
-            <AppButton 
-                label={connecting ? "Connecting..." : "Pair Watch"} 
-                onClick={() => connect()} 
+            <AppButton
+                label={connecting ? "Connecting..." : "Pair Watch"}
+                onClick={() => connect()}
                 disabled={connecting}
             />
         </div>
