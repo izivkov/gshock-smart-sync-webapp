@@ -17,15 +17,21 @@ const BrowserSupportDialog: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // Check if browser supports Web Bluetooth
-    const isSupported = !!navigator.bluetooth;
-    
-    // Check if we've already shown this message in this session/ever
-    const hasSeenWarning = localStorage.getItem('has_seen_browser_warning');
+    // Perform check after a short delay to ensure hydration is complete
+    const checkSupport = () => {
+      try {
+        const isSupported = typeof navigator !== 'undefined' && !!navigator.bluetooth;
+        const hasSeenWarning = localStorage.getItem('has_seen_browser_warning');
 
-    if (!isSupported && !hasSeenWarning) {
-      setOpen(true);
-    }
+        if (!isSupported && !hasSeenWarning) {
+          setOpen(true);
+        }
+      } catch (error) {
+        console.error("Browser support check failed:", error);
+      }
+    };
+
+    checkSupport();
   }, []);
 
   const handleClose = () => {
