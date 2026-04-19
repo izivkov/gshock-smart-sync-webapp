@@ -90,3 +90,14 @@ deploy-rpi.sh
 setup-rpi.sh
 monitor.sh
 next-env.d.ts
+
+# Credentials and Secrets
+.cloudflared/
+cert.pem
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!.eslintrc.json
+!lint-results*.json
+!*.nft.json
