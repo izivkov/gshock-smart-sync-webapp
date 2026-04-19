@@ -6,156 +6,86 @@ G-Shock Smart Sync Webapp is a lightweight, privacy-focused web tool that lets y
 
 ---
 
-### 🧪 [I've set up this app to run on a server here](https://gshock.avmedia.org)
+### 🧪 [Live Demo (Experimental)](https://gshock.avmedia.org)
 *URL: **https://gshock.avmedia.org***
 
-**Note:** This server is still **experimental** and I cannot guarantee 100% uptime. If traffic increases significantly, I may need to move it to a more robust platform like Vercel.
-
-For a stable, permanent experience, you can [host the app on your own hardware](#🖥️-deploy-on-your-own-hardware).
+**Note:** This server is experimental. For a stable, permanent experience, you can [host the app on your own hardware](#-self-hosting--development).
 
 ---
 
-## ✨ Core Features
+## ✨ Features
 - **⏰ Precise Time Sync**: Synchronize your watch with atomic-clock precision.
 - **📅 Alarm Management**: Easily set and toggle all 5 watch alarms.
 - **🔔 Reminders**: Configure and name your watch reminders/events.
 - **⚙️ Watch Settings**: Adjust illumination, sound, and display options.
-- **🔌 No App Needed**: No installation, no accounts, and no tracking.
+- **🎨 Modern UI**: Material Design 3 interface with dynamic adaptation to your watch model.
+- **🔋 Battery Monitoring**: View your watch's battery level at a glance.
+- **🔌 Zero Install**: No accounts, no tracking, and no app store downloads.
 
 ## 📱 How to Use
-1.  **Open the link** above (Chrome, Edge, or Opera recommended).
-2.  **Enable Bluetooth** on your computer or phone.
-3.  **Click "Pair Watch"** and select your G-Shock from the list.
 
-### Supported Browsers
-*   **Desktop:** Chrome, Edge, Opera.
-*   **Android:** Chrome.
-*   **iOS/iPhone:** Use the **Bluefy** or **WebBLE** browsers from the App Store.
-*   *Note: Safari and Firefox do not currently support Bluetooth syncing.*
+### 1. Check Browser Compatibility
+To use this application, your browser must support **[Web Bluetooth](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API)**.
+- **Desktop:** Chrome, Edge, or Opera (Windows, macOS, Linux).
+- **Android:** Chrome.
+- **iOS/iPhone:** Use **Bluefy** or **WebBLE** from the App Store.
+- *Note: Safari and Firefox do not currently support Bluetooth syncing.*
+
+### 2. Quick Setup
+1. **Enable Bluetooth**: Ensure Bluetooth and Location Services (on Android/Windows) are ON.
+2. **Enable Flags (Optional)**: If Bluetooth isn't detected, navigate to `chrome://flags`, search for **#web-bluetooth**, set to **Enabled**, and restart.
+3. **Connect**: Click **"Pair Watch"** in the app and select your G-Shock from the list.
+
+### 3. Watch Connection Modes
+How you initiate the connection on your watch determines what the app does:
+- **Long-press Lower Left Button (Mode)**: Full Connection. The app will navigate to the main dashboard, allowing you to manage alarms, reminders, and settings.
+- **Short-press Lower Right Button**: Quick Sync. The app will simply synchronize the time and update the battery status without leaving the pairing screen.
 
 ## ⚠️ Limitations
-Compared to native mobile applications, there are two primary limitations due to browser security and the cross-platform nature of web technology:
-
-1.  **Manual Pairing Only**: Browser security requires an explicit user gesture (a button click) to initiate a Bluetooth connection. This means the app **cannot automatically sync the time** in the background or respond to a watch-initiated sync without you first clicking "Pair Watch" in the browser.
-2.  **No Hardware Button Actions**: Native mobile apps can run specialized background services to monitor for specific watch button presses (like the "Action" or "Top Left" buttons). This web app is designed to work on all devices with a browser (Desktop, Tablets, and Phones) and does not implement these background hardware hooks to maintain its lightweight, zero-install architecture.
+1. **Manual Pairing Only**: Browser security requires an explicit user gesture (a button click) to initiate a Bluetooth connection. The app **cannot automatically sync** in the background.
+2. **No Hardware Button Actions**: This web app does not monitor watch button presses (like "Action" buttons) to maintain its lightweight, cross-platform architecture.
 
 ## 🔒 Privacy & Security
 This application is **strictly private**. 
 - **No data is ever sent to a server.** 
 - All communication happens directly between your browser and your watch. 
-- Your personal settings, alarms, and reminders are never tracked or stored outside your own device.
+- Your personal settings are never tracked or stored.
 
 ---
 
-## 🛠 For Developers & Advanced Users
+## 🛠 Self-Hosting & Development
 
-### Development
-To run locally for development:
+### Local Development
 ```bash
 npm install
 npm run dev
 ```
 
-### Deployment
-Detailed instructions for hosting this yourself on a Raspberry Pi or other hardware can be found in the documentation files below.
+### Production Deployment
+```bash
+npm install
+npm run build
+npm start
+```
 
-### Documentation Index
-- **[QUICK-START.md](./QUICK-START.md)** - Step-by-step setup guide
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Technical reference
-- **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** - 3-step deployment summary
-
-To use this application, your browser must support **[Web Bluetooth](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API)**. If you are accessing via a non-secure connection (HTTP), you must manually enable support:
-
-### 1. Supported Browsers
-- **Desktop:** Google Chrome, Microsoft Edge, and Opera (Windows, macOS, Linux).
-- **Mobile:** Chrome for Android; **Bluefy** or **WebBLE** for iOS/iPadOS.
-- **Unsupported:** Safari and Firefox.
-
-### 2. Quick Setup
-1. **Enable Flags:** Navigate to `chrome://flags` (or `edge://flags`), search for **#web-bluetooth**, and set it to **Enabled**. Restart your browser.
-2. **Grant Permissions:** Ensure Bluetooth and **Location Services** (on Android/Windows) are turned **ON**.
-3. **Pairing:** Click the "Pair Watch" button in the app and select your device from the browser's pop-up list.
-
----
-
-## 🖥️ Deploy on Your Own Hardware
-
-You can run this application on any machine that supports Node.js (Linux, Windows, or macOS).
-
-### Standard Deployment (Linux, macOS, Windows)
-
-1. **Clone and Install:**
-   ```bash
-   git clone https://github.com/izivkov/gshock-smart-sync-webapp.git
-   cd gshock-smart-sync-webapp
-   npm install
-   ```
-2. **Build and Start:**
-   ```bash
-   npm run build
-   npm start
-   ```
-   The application will be available at `http://localhost:3000`.
-
----
-
-### 🍓 Raspberry Pi (Automated Deployment)
-
-If you are deploying to a remote Raspberry Pi, we provide automated scripts to simplify the process.
-
-1. **Configure your Pi's details** in `deploy-rpi.sh`:
-   ```bash
-   RPI_USER="your-username"
-   RPI_HOST="your-pi-ip-address"
-   ```
-2. **Run the deployment:**
-   ```bash
-   # On your local machine
-   ./deploy-rpi.sh
-   ```
-3. **One-time setup (on the Pi):**
-   ```bash
-   cd /home/your-username/gshock-smart-sync
-   chmod +x setup-rpi.sh
-   ./setup-rpi.sh
-   ```
-
----
+### 🍓 Raspberry Pi (Automated)
+We provide scripts for automated deployment to a Raspberry Pi:
+1. Configure `RPI_USER` and `RPI_HOST` in `deploy-rpi.sh`.
+2. Run `./deploy-rpi.sh` from your local machine.
+3. Run `./setup-rpi.sh` on the Pi to configure the systemd service.
 
 ### Documentation
+- **[QUICK-START.md](./QUICK-START.md)** - Step-by-step setup guide.
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - In-depth technical reference.
+- **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** - Quick 3-step overview.
 
-- **[DEPLOYMENT-README.md](./DEPLOYMENT-README.md)** - Navigation guide for all deployment docs
-- **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** - Overview and quick 3-step deployment
-- **[QUICK-START.md](./QUICK-START.md)** - Comprehensive step-by-step guide
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - In-depth technical reference
+---
 
-### Files Included
-
-- `deploy-rpi.sh` - Automated one-command deployment
-- `setup-rpi.sh` - Standalone server setup script
-- `check-deploy.sh` - Pre-flight system verification
-
-## Features
-
-- ✅ Material Design 3 UI with warm brown color scheme
-- ✅ Bluetooth connectivity to 19 G-Shock watch models
-- ✅ Time synchronization and Battery display
-- ✅ Alarm management (up to 5 alarms)
-- ✅ Event/Reminder management (up to 5 reminders)
-- ✅ Settings configuration
-- ✅ Real-time user feedback (Snackbar notifications)
-- ✅ Dynamic UI based on watch capabilities
-- ✅ Auto-navigation on watch connection
-- ✅ Systemd service for auto-start on reboot
-
-## Supported Watches
-
-The application supports 19 G-Shock models including:
-- GA series (Classic, Basic)
-- GW series (Radio-controlled, Solar)
-- DW series (Digital)
-- GMW series (Module)
-- And more...
-
-Each model has intelligent capability detection for feature adaptation.
+## ⌚ Supported Watches
+The application supports 19+ G-Shock models, including:
+- **GA series** (Classic, Basic)
+- **GW series** (Radio-controlled, Solar)
+- **DW series** (Digital)
+- **GMW series** (Module)
+- And many more with intelligent capability detection.
 
