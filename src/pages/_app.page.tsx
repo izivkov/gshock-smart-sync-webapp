@@ -5,111 +5,57 @@ import { ThemeProvider as MUIThemeProvider, createTheme } from '@mui/material/st
 import CssBaseline from '@mui/material/CssBaseline';
 import MainLayout from './components/MainLayout';
 import { useRouter } from 'next/router';
-import { useEffect, useState, createContext, useContext, use } from 'react';
+import { useEffect, useState, createContext } from 'react';
 import { connection } from '@api/Connection';
 import { progressEvents, EventAction } from '@api/ProgressEvents';
 import GShockAPI from '@/api/GShockAPI';
 
-// Material 3 Design Tokens - Warm brown/peach theme matching the Android G-Shock app
 const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#8B5E3C',           // warm brown
-      light: '#B8896A',          // lighter warm brown
-      dark: '#5C3A1E',           // deep brown
+      main: '#8B5E3C',
       contrastText: '#FFFFFF',
     },
     secondary: {
       main: '#7A5C44',
-      light: '#A68B73',
-      dark: '#4A3628',
-      contrastText: '#FFFFFF',
     },
     background: {
-      default: '#F5EDE4',        // warm linen — surface
-      paper: '#FCEEE6',          // peach — surface-container
+      default: '#F5EDE4',
+      paper: '#FCEEE6',
     },
     text: {
-      primary: '#2D1A0E',        // on-surface
-      secondary: '#7A5C44',      // on-surface-variant
-    },
-    divider: 'rgba(139, 94, 60, 0.15)',
-    action: {
-      hover: 'rgba(139, 94, 60, 0.08)',
-      selected: 'rgba(139, 94, 60, 0.12)',
-      focus: 'rgba(139, 94, 60, 0.12)',
+      primary: '#2D1A0E',
+      secondary: '#7A5C44',
     },
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    // Material 3 Type Scale
-    h1: { fontSize: '2.25rem', fontWeight: 400, lineHeight: 1.2, letterSpacing: '-0.01em' },
-    h2: { fontSize: '1.75rem', fontWeight: 400, lineHeight: 1.3, letterSpacing: 0 },
-    h3: { fontSize: '1.5rem', fontWeight: 400, lineHeight: 1.3, letterSpacing: 0 },
-    h4: { fontSize: '1.25rem', fontWeight: 500, lineHeight: 1.4, letterSpacing: '0.01em' },
-    h5: { fontSize: '1.125rem', fontWeight: 500, lineHeight: 1.4, letterSpacing: '0.01em' },
-    h6: { fontSize: '1rem', fontWeight: 500, lineHeight: 1.5, letterSpacing: '0.01em' },
-    subtitle1: { fontSize: '1rem', fontWeight: 500, lineHeight: 1.5, letterSpacing: '0.01em' },
-    subtitle2: { fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.5, letterSpacing: '0.01em' },
-    body1: { fontSize: '1rem', fontWeight: 400, lineHeight: 1.5, letterSpacing: '0.03em' },
-    body2: { fontSize: '0.875rem', fontWeight: 400, lineHeight: 1.5, letterSpacing: '0.03em' },
-    button: { fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.75, letterSpacing: '0.03em', textTransform: 'none' as const },
-    caption: { fontSize: '0.75rem', fontWeight: 400, lineHeight: 1.5, letterSpacing: '0.03em' },
-    overline: { fontSize: '0.75rem', fontWeight: 500, lineHeight: 2, letterSpacing: '0.08em', textTransform: 'uppercase' as const },
+    h1: { fontSize: '2.25rem', fontWeight: 400 },
+    h2: { fontSize: '1.75rem', fontWeight: 400 },
+    h3: { fontSize: '1.5rem', fontWeight: 400 },
+    h4: { fontSize: '1.25rem', fontWeight: 500 },
+    body1: { fontSize: '1rem', fontWeight: 400 },
+    button: { textTransform: 'none' as const },
   },
   shape: {
-    borderRadius: 12, // M3 medium rounding
+    borderRadius: 12,
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 100, // M3 full rounding for buttons
-          textTransform: 'none',
-          fontWeight: 500,
-          padding: '10px 24px',
-          boxShadow: 'none',
-          '&:hover': {
-            boxShadow: 'none',
-          },
-        },
-        contained: {
-          '&:hover': {
-            boxShadow: '0 1px 3px rgba(139, 94, 60, 0.2)',
-          },
-        },
-        outlined: {
-          borderColor: 'rgba(139, 94, 60, 0.5)',
-          color: '#8B5E3C',
-          '&:hover': {
-            background: 'rgba(139, 94, 60, 0.08)',
-            borderColor: '#8B5E3C',
-          },
+          borderRadius: 100,
+          textTransform: 'none' as const,
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16, // M3 large rounding for cards
-          boxShadow: '0 1px 2px rgba(139, 94, 60, 0.08)',
-          background: '#FCEEE6',
-          border: 'none',
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
+          borderRadius: 16,
+          backgroundColor: '#FCEEE6',
           backgroundImage: 'none',
-          background: '#FCEEE6',
-        },
-        elevation1: {
-          boxShadow: '0 1px 2px rgba(139, 94, 60, 0.08)',
-        },
-        elevation2: {
-          boxShadow: '0 1px 3px rgba(139, 94, 60, 0.12)',
         },
       },
     },
@@ -133,7 +79,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           background: '#FCEEE6',
-          borderTop: '1px solid rgba(139, 94, 60, 0.12)',
+          borderTop: '1px solid rgba(139, 94, 60, 0.15)',
           height: 80,
         },
       },
@@ -147,28 +93,6 @@ const theme = createTheme({
           '&.Mui-selected': {
             color: '#8B5E3C',
           },
-          '& .MuiBottomNavigationAction-label': {
-            fontSize: '0.75rem',
-            '&.Mui-selected': {
-              fontSize: '0.75rem',
-            },
-          },
-        },
-      },
-    },
-    MuiListItemButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 100, // M3 pill shape for nav items
-          '&.Mui-selected': {
-            backgroundColor: 'rgba(139, 94, 60, 0.12)',
-            '&:hover': {
-              backgroundColor: 'rgba(139, 94, 60, 0.16)',
-            },
-          },
-          '&:hover': {
-            backgroundColor: 'rgba(139, 94, 60, 0.08)',
-          },
         },
       },
     },
@@ -176,7 +100,7 @@ const theme = createTheme({
       styleOverrides: {
         paper: {
           backgroundColor: '#FCEEE6',
-          borderRight: '1px solid rgba(139, 94, 60, 0.12)',
+          borderRight: '1px solid rgba(139, 94, 60, 0.15)',
         },
       },
     },
@@ -186,7 +110,7 @@ const theme = createTheme({
 // Create a context for connection status
 export const ConnectionContext = createContext({
   isConnected: false,
-  setIsConnected: (status: boolean) => {},
+  setIsConnected: (status: boolean) => { },
 });
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -218,12 +142,10 @@ export default function App({ Component, pageProps }: AppProps) {
     <ConnectionContext.Provider value={{ isConnected, setIsConnected }}>
       <MUIThemeProvider theme={theme}>
         <CssBaseline />
-          <MainLayout>
-            <Component {...pageProps} />
-          </MainLayout>
+        <MainLayout>
+          <Component {...pageProps} />
+        </MainLayout>
       </MUIThemeProvider>
     </ConnectionContext.Provider>
   );
 }
-
-

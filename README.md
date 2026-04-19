@@ -60,6 +60,16 @@ npm install
 npm run dev
 ```
 
+## 🎨 Styling & Design
+This project uses a dual-styling approach to leverage the best of two worlds:
+- **MUI (Material UI)**: Used for functional components (Dialogs, Buttons, Typography) to ensure a consistent Material 3 experience.
+- **Tailwind CSS**: Used for layout, spacing, and micro-styling via utility classes.
+
+### Design Tokens (Sync)
+Both systems are synchronized using **CSS Variables** defined in `src/styles/globals.css`. 
+- **Dark Mode**: Supports system-level dark mode automatically via `prefers-color-scheme`. 
+- **Theming**: The app uses a custom "Warm Brown/Peach" Material 3 theme matching the aesthetic of official G-Shock applications.
+
 ### Production Deployment
 ```bash
 npm install
