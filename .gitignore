@@ -94,9 +94,3 @@ next-env.d.ts
 # Credentials and Secrets
 .cloudflared/
 cert.pem
-*.json
-!package.json
-!package-lock.json
-!tsconfig.json
-!.eslintrc.json
-!*.nft.json
