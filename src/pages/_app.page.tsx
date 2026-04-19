@@ -201,6 +201,9 @@ export default function App({ Component, pageProps }: AppProps) {
     ];
 
     progressEvents.runEventActions("AppRoot", connectionActions);
+    return () => {
+      progressEvents.stop("AppRoot");
+    };
   }, []);
 
   // Route protection: redirect to home if visiting restricted paths while disconnected

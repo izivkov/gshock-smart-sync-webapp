@@ -129,6 +129,9 @@ function Home() {
 
   useEffect(() => {
     progressEvents.runEventActions("Home", actions);
+    return () => {
+      progressEvents.stop("Home");
+    };
   }, [actions]);
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { EventAvailable } from "@mui/icons-material";
-import { BehaviorSubject, asyncScheduler, Observable, ObservableInput } from "rxjs";
+import { BehaviorSubject, asyncScheduler, Observable, ObservableInput, Subscription } from "rxjs";
 import { tap, catchError, observeOn, filter } from "rxjs/operators";
 import objectHash from 'object-hash';
 
@@ -99,27 +99,29 @@ class ProgressEvents {
     runEventActions(name: string, eventActions: EventAction[]): void {
         this.subscriber.runEventActions(name, eventActions);
     }
+    stop(name: string): void {
+        this.subscriber.stop(name);
+    }
 }
 
 class Subscriber {
-    private subscribers: Set<string>;
+    private subscriptions: Map<string, Subscription>;
 
     constructor() {
-        this.subscribers = new Set<string>();
+        this.subscriptions = new Map<string, Subscription>();
     }
 
     /**
     * @deprecated This function is deprecated. Use runEventActions() instead.
     */
     start(name: string, onNextStr: (event: Events) => void, onError: (error: any) => ObservableInput<any>): void {
-        if (this.subscribers.has(name)) {
+        if (this.subscriptions.has(name)) {
             return;
         }
 
         console.log(`Subscribing to ${name}`);
-        this.subscribers.add(name);
 
-        progressEvents.connectionEventsFlowable.pipe(
+        const subscription = progressEvents.connectionEventsFlowable.pipe(
             filter((event) => 1 === 1),
             observeOn(asyncScheduler),
             tap(onNextStr),
@@ -129,13 +131,16 @@ class Subscriber {
             error: (e) => console.error(e),
             complete: () => console.info('complete')
         });
+
+        this.subscriptions.set(name, subscription);
     }
 
     runEventActions(name: string, eventActions: EventAction[]): void {
-        if (this.subscribers.has(name)) {
+        if (this.subscriptions.has(name)) {
             return;
         }
-        this.subscribers.add(name);
+        
+        const parentSubscription = new Subscription();
 
         const runActions = () => {
             eventActions.forEach((eventAction) => {
@@ -149,12 +154,7 @@ class Subscriber {
                     eventAction.action();
                 };
 
-                const onError = (throwable: Error): void => {
-                    console.log(`Got error on subscribe: ${throwable}`);
-                    console.error(throwable);
-                };
-
-                progressEvents.connectionEventsFlowable.pipe(
+                const subscription = progressEvents.connectionEventsFlowable.pipe(
                     filter(event => filterFunction(event)),
                     observeOn(asyncScheduler),
                     tap(onNext),
@@ -166,14 +166,21 @@ class Subscriber {
                         error: (e) => console.error(e),
                         complete: () => console.info('complete')
                     });
+                
+                parentSubscription.add(subscription);
             });
         };
 
         runActions();
+        this.subscriptions.set(name, parentSubscription);
     }
 
     stop(name: string): void {
-        this.subscribers.delete(name);
+        const subscription = this.subscriptions.get(name);
+        if (subscription) {
+            subscription.unsubscribe();
+            this.subscriptions.delete(name);
+        }
     }
 }
 

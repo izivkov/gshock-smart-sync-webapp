@@ -88,5 +88,6 @@ export class PhoneFinder {
         }
 
         window.removeEventListener('devicemotion', PhoneFinder.handleMotion);
+        progressEvents.stop("PhoneFinder");
     }
 }
