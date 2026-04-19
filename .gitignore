@@ -89,3 +89,4 @@ yarn.lock
 deploy-rpi.sh
 setup-rpi.sh
 monitor.sh
+next-env.d.ts

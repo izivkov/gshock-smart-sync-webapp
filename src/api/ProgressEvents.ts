@@ -1,7 +1,5 @@
-import { EventAvailable } from "@mui/icons-material";
 import { BehaviorSubject, asyncScheduler, Observable, ObservableInput, Subscription } from "rxjs";
 import { tap, catchError, observeOn, filter } from "rxjs/operators";
-import objectHash from 'object-hash';
 
 interface IEventAction {
     label: string;
@@ -122,7 +120,6 @@ class Subscriber {
         console.log(`Subscribing to ${name}`);
 
         const subscription = progressEvents.connectionEventsFlowable.pipe(
-            filter((event) => 1 === 1),
             observeOn(asyncScheduler),
             tap(onNextStr),
             catchError(onError)
