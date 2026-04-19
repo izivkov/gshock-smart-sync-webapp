@@ -42,8 +42,7 @@ How you initiate the connection on your watch determines what the app does:
 - **Short-press Lower Right Button**: Quick Sync. The app will simply synchronize the time and update the battery status without leaving the pairing screen.
 
 ## ⚠️ Limitations
-1. **Manual Pairing Only**: Browser security requires an explicit user gesture (a button click) to initiate a Bluetooth connection. The app **cannot automatically sync** in the background.
-2. **No Hardware Button Actions**: This web app does not monitor watch button presses (like "Action" buttons) to maintain its lightweight, cross-platform architecture.
+- **Manual Pairing Only**: Browser security requires an explicit user gesture (a button click) to initiate a Bluetooth connection. The app **cannot automatically sync** in the background.
 
 ## 🔒 Privacy & Security
 This application is **strictly private**. 
