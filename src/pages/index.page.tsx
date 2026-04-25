@@ -100,7 +100,7 @@ function Home() {
     const supported = typeof navigator !== 'undefined' && !!navigator.bluetooth;
     setIsBluetoothSupported(supported);
     setDetectedOS(detectOS());
-    
+
     if (!supported) {
       setShowSupportDialog(true);
     }
@@ -161,137 +161,273 @@ function Home() {
         overflowY: 'auto',
         WebkitOverflowScrolling: 'touch',
         px: { xs: 2, sm: 4, md: 6 },
-        pt: { xs: 2, md: 4 },
-        pb: 2
+        pt: { xs: 1, md: 4 },
+        pb: 1
       }}>
 
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 800, color: 'primary.main', mb: { xs: 1, md: 3 }, textAlign: 'center' }}
-        >
-          Get Started
-        </Typography>
-
-        {/* Watch Images Row */}
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: { xs: 1.5, sm: 3 },
-          mb: { xs: 2, md: 4 },
-          flexWrap: 'wrap'
-        }}>
-          {[dw_b5600, ecb_30d, ga_b2100, gw_b5600].map((imgSrc, index) => (
-            <Box key={index} sx={{ height: { xs: 60, sm: 80, md: 100 }, display: 'flex' }}>
-              <img
-                src={typeof imgSrc === 'string' ? imgSrc : imgSrc.src as string}
-                alt="Supported Watch"
-                style={{ height: '100%', objectFit: 'contain' }}
-              />
-            </Box>
-          ))}
-        </Box>
-
-        <Box sx={{ maxWidth: 600, mx: 'auto' }}>
-          <List sx={{ '& .MuiListItem-root': { mb: { xs: 1, md: 2 } } }}>
-            <ListItem disableGutters>
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                {isBluetoothSupported ? (
-                  <CheckCircleIcon color="success" />
-                ) : (
-                  <UnsupportedIcon color="error" />
-                )}
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography variant="subtitle1" sx={{ fontWeight: 800 }}>1. Browser Compatibility</Typography>}
-                secondary={
-                  <Typography component="span" variant="caption">
-                    {isBluetoothSupported
-                      ? "Your browser supports Web Bluetooth."
-                      : (
-                        <>
-                          Web Bluetooth is not supported in this browser.{' '}
-                          <Box
-                            component="span"
-                            sx={{ color: 'primary.main', cursor: 'pointer', textDecoration: 'underline' }}
-                            onClick={() => setShowSupportDialog(true)}
-                          >
-                            See alternatives
-                          </Box>
-                        </>
-                      )}
-                  </Typography>
-                }
-              />
-            </ListItem>
-
-            <ListItem disableGutters>
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                <BluetoothIcon color="primary" />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography variant="subtitle1" sx={{ fontWeight: 800 }}>2. Pair Your Watch</Typography>}
-                secondary={<Typography component="span" variant="caption">Select your watch from the browser list.</Typography>}
-              />
-            </ListItem>
-
-            <ListItem disableGutters>
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                <WatchIcon color="primary" />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography variant="subtitle1" sx={{ fontWeight: 800 }}>3. Watch Mode</Typography>}
-                secondary={<Typography component="span" variant="caption">Hold the LOWER-LEFT button until it beeps.</Typography>}
-              />
-            </ListItem>
-
-            <ListItem disableGutters>
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                <AccessTimeIcon color="primary" />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography variant="subtitle1" sx={{ fontWeight: 800 }}>4. Quick Sync</Typography>}
-                secondary={<Typography component="span" variant="caption">Manage time, alarms, and settings instantly.</Typography>}
-              />
-            </ListItem>
-          </List>
-
-          <Divider sx={{ my: 0.0, opacity: 0.5 }} />
-
-          {/* Privacy & Open Source Notice */}
-          <Paper elevation={0} sx={{
-            p: .5,
-            bgcolor: alpha(theme.palette.success.main, 0.05),
-            borderRadius: 4,
-            border: `1px dashed ${alpha(theme.palette.success.main, 0.3)}`,
-            textAlign: 'center',
-            mt: 1,
-            mb: 2
+        <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+          {/* Watch Images Row - Modernized */}
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            mb: { xs: 1, md: 4 }
           }}>
-            <SecurityIcon sx={{ color: 'success.main', fontSize: 36, mb: 1.5 }} />
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'success.dark', mb: 1 }}>
-              Privacy First & Open Source
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.6 }}>
-              Your data never leaves your device. This application runs <strong>entirely in your browser</strong> and communicates directly with your watch via Bluetooth. No data is sent to any server.
-            </Typography>
-            <Button
-              variant="outlined"
-              size="medium"
-              startIcon={<GitHubIcon />}
-              href="https://github.com/izivkov/gshock-smart-sync-webapp"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{
-                borderRadius: '100px',
-                textTransform: 'none',
-                fontWeight: 700,
-                px: 4,
-                color: 'text.primary',
-                borderColor: 'divider'
-              }}
-            >
-              View Code on GitHub
-            </Button>
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: { xs: 2, sm: 4 },
+              mb: 2,
+              flexWrap: 'wrap',
+              opacity: 0.8,
+              filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.05))'
+            }}>
+              {[dw_b5600, ecb_30d, ga_b2100, gw_b5600].map((imgSrc, index) => (
+                <Box key={index} sx={{
+                  height: { xs: 30, sm: 70, md: 90 },
+                  display: 'flex',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': { transform: 'scale(1.1) rotate(5deg)' }
+                }}>
+                  <img
+                    src={typeof imgSrc === 'string' ? imgSrc : imgSrc.src as string}
+                    alt="Supported Watch"
+                    style={{ height: '100%', objectFit: 'contain' }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          </Box>
+
+          {/* Main Title with Gradient */}
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 900,
+              background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textAlign: 'center',
+              mb: 0,
+              fontSize: { xs: '1.75rem', md: '2.125rem' },
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Connect Your Watch
+          </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ textAlign: 'center', mb: { xs: 1, md: 4 }, fontWeight: 500, fontSize: { xs: '0.95rem', md: '1rem' } }}
+          >
+            Follow these simple steps to sync your G-Shock.
+          </Typography>
+
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+            gap: { xs: 1, md: 2 },
+            mb: { xs: 1, md: 4 }
+          }}>
+            {/* Step 1: Compatibility */}
+            <Paper elevation={0} sx={{
+              p: { xs: 1.5, md: 3 },
+              borderRadius: 4,
+              bgcolor: alpha(isBluetoothSupported ? theme.palette.success.main : theme.palette.error.main, 0.04),
+              border: `1px solid ${alpha(isBluetoothSupported ? theme.palette.success.main : theme.palette.error.main, 0.1)}`,
+              display: 'flex',
+              flexDirection: 'column',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, 0.05)}`
+              }
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, md: 2 } }}>
+                <Box sx={{ 
+                  p: 0.75, 
+                  borderRadius: 1.5, 
+                  bgcolor: alpha(isBluetoothSupported ? theme.palette.success.main : theme.palette.error.main, 0.1),
+                  mr: 1,
+                  display: 'flex'
+                }}>
+                  {isBluetoothSupported ? (
+                    <CheckCircleIcon color="success" sx={{ fontSize: { xs: 18, md: 24 } }} />
+                  ) : (
+                    <UnsupportedIcon color="error" sx={{ fontSize: { xs: 18, md: 24 } }} />
+                  )}
+                </Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, fontSize: { xs: '1rem', md: '1rem' } }}>
+                  1. Browser Check
+                </Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ flex: 1, lineHeight: 1.4, fontSize: { xs: '0.9rem', md: '0.875rem' } }}>
+                {isBluetoothSupported
+                  ? "Your browser is ready to sync with your watch!"
+                  : "Web Bluetooth is not supported in this browser."}
+              </Typography>
+              {!isBluetoothSupported && (
+                <Button
+                  size="small"
+                  onClick={() => setShowSupportDialog(true)}
+                  sx={{ mt: 1, fontWeight: 700, alignSelf: 'flex-start', fontSize: '0.75rem' }}
+                >
+                  Solutions
+                </Button>
+              )}
+            </Paper>
+
+            {/* Step 2: Pair */}
+            <Paper elevation={0} sx={{
+              p: { xs: 1.5, md: 3 },
+              borderRadius: 4,
+              bgcolor: alpha(theme.palette.primary.main, 0.04),
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              display: 'flex',
+              flexDirection: 'column',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, 0.05)}`
+              }
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 0.5, md: 2 } }}>
+                <Box sx={{
+                  p: 0.5,
+                  borderRadius: 1.5,
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  mr: 1,
+                  display: 'flex'
+                }}>
+                  <BluetoothIcon color="primary" sx={{ fontSize: { xs: 18, md: 24 } }} />
+                </Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, fontSize: { xs: '1rem', md: '1rem' } }}>
+                  2. Initiate Pairing
+                </Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ flex: 1, lineHeight: 1.4, fontSize: { xs: '0.9rem', md: '0.875rem' } }}>
+                Press <strong>[Pair Watch]</strong>. Hold the <strong>LOWER-LEFT</strong> button on your watch until it beeps twice.
+              </Typography>
+            </Paper>
+
+            {/* Step 3: Watch Settings */}
+            <Paper elevation={0} sx={{
+              p: { xs: 1.5, md: 3 },
+              borderRadius: 4,
+              bgcolor: alpha(theme.palette.primary.main, 0.04),
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              display: 'flex',
+              flexDirection: 'column',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, 0.05)}`
+              }
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 0.5, md: 2 } }}>
+                <Box sx={{
+                  p: 0.5,
+                  borderRadius: 1.5,
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  mr: 1,
+                  display: 'flex'
+                }}>
+                  <WatchIcon color="primary" sx={{ fontSize: { xs: 18, md: 24 } }} />
+                </Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, fontSize: { xs: '1rem', md: '1rem' } }}>
+                  3. Watch Mode
+                </Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ flex: 1, lineHeight: 1.4, fontSize: { xs: '0.9rem', md: '0.875rem' } }}>
+                For watch settings and time sync, hold the <strong>LOWER-LEFT</strong> button until it beeps twice.
+              </Typography>
+            </Paper>
+
+            {/* Step 4: Quick Sync */}
+            <Paper elevation={0} sx={{
+              p: { xs: 1.5, md: 3 },
+              borderRadius: 4,
+              bgcolor: alpha(theme.palette.primary.main, 0.04),
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              display: 'flex',
+              flexDirection: 'column',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, 0.05)}`
+              }
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 0.5, md: 2 } }}>
+                <Box sx={{
+                  p: 0.5,
+                  borderRadius: 1.5,
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  mr: 1,
+                  display: 'flex'
+                }}>
+                  <AccessTimeIcon color="primary" sx={{ fontSize: { xs: 18, md: 24 } }} />
+                </Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, fontSize: { xs: '1rem', md: '1rem' } }}>
+                  4. Fast Time Sync
+                </Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ flex: 1, lineHeight: 1.4, fontSize: { xs: '0.9rem', md: '0.875rem' } }}>
+                Short-press the <strong>LOWER-RIGHT</strong> button while pairing for a quick time update.
+              </Typography>
+            </Paper>
+          </Box>
+
+          {/* Privacy & Trust Banner */}
+          <Paper elevation={0} sx={{
+            p: { xs: 1.5, md: 3 },
+            bgcolor: alpha(theme.palette.success.main, 0.02),
+            borderRadius: 4,
+            border: `1px solid ${alpha(theme.palette.success.main, 0.1)}`,
+            textAlign: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+            mb: { xs: 1, md: 4 }
+          }}>
+            <Box sx={{
+              position: 'absolute',
+              top: -20,
+              right: -20,
+              opacity: 0.05,
+              transform: 'rotate(15deg)'
+            }}>
+              <SecurityIcon sx={{ fontSize: 120, color: 'success.main' }} />
+            </Box>
+
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 900, color: 'success.dark', mb: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                <SecurityIcon sx={{ fontSize: 24 }} />
+                Privacy & Security
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 3, md: 3 }, maxWidth: 500, mx: 'auto', lineHeight: 1.6, fontSize: { xs: '0.9rem', md: '0.875rem' } }}>
+                Your privacy is built-in. This application runs <strong>locally</strong> in your browser. Data never leaves your device.
+              </Typography>
+              <Button
+                variant="outlined"
+                color="success"
+                size="medium"
+                startIcon={<GitHubIcon sx={{ fontSize: { xs: 16, md: 18 } }} />}
+                href="https://github.com/izivkov/gshock-smart-sync-webapp"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  borderRadius: '100px',
+                  textTransform: 'none',
+                  fontWeight: 800,
+                  px: { xs: 2, md: 4 },
+                  py: 0.5,
+                  fontSize: { xs: '0.6rem', md: '0.875rem' },
+                  borderWidth: 1,
+                  '&:hover': { borderWidth: 1 }
+                }}
+              >
+                Source Code
+              </Button>
+            </Box>
           </Paper>
         </Box>
       </Box>
