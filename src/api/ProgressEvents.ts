@@ -1,4 +1,4 @@
-import { BehaviorSubject, asyncScheduler, Observable, ObservableInput, Subscription } from "rxjs";
+import { BehaviorSubject, asyncScheduler, Observable, ObservableInput, Subscription, EMPTY } from "rxjs";
 import { tap, catchError, observeOn, filter } from "rxjs/operators";
 
 interface IEventAction {
@@ -155,8 +155,9 @@ class Subscriber {
                     filter(event => filterFunction(event)),
                     observeOn(asyncScheduler),
                     tap(onNext),
-                    catchError(() => {
-                        return new Observable();
+                    catchError((err) => {
+                        console.error("Event action error:", err);
+                        return EMPTY;
                     }))
                     .subscribe({
                         next: (v) => console.log(v),
