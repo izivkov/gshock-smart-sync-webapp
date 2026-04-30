@@ -20,12 +20,18 @@ import {
 import LanguageIcon from '@mui/icons-material/Language';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
+import VibrationIcon from '@mui/icons-material/Vibration';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import BatterySaverIcon from '@mui/icons-material/BatterySaver';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SyncIcon from '@mui/icons-material/Sync';
 import SendIcon from '@mui/icons-material/Send';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+import TuneIcon from '@mui/icons-material/Tune';
+import IconButton from '@mui/material/IconButton';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import GShockAPI from '@/api/GShockAPI';
 import { dateFormatType, languageType, lightDurationType, timeFormatType } from '@api/WatchInfo';
 import { watchInfo } from '@/api/WatchInfo';
@@ -36,6 +42,8 @@ import { getSmartDefaultsForSettings } from './smartDefaults';
 
 const BOTTOM_NAV_HEIGHT = '80px';
 
+type fontType = 'Standard' | 'Classic';
+
 interface SettingsData {
     autoLight: boolean;
     buttonTone: boolean;
@@ -45,6 +53,9 @@ interface SettingsData {
     powerSavingMode: boolean;
     timeAdjustment: boolean;
     timeFormat: timeFormatType;
+    vibrate: boolean;
+    font: fontType;
+    fineAdjustment: number;
 }
 
 interface SettingRowProps {
@@ -159,7 +170,10 @@ const Settings: React.FC = () => {
         lightDuration: "2s",
         powerSavingMode: true,
         timeAdjustment: true,
-        timeFormat: "12h"
+        timeFormat: "12h",
+        vibrate: false,
+        font: 'Standard',
+        fineAdjustment: 0,
     });
 
     useEffect(() => {
@@ -283,18 +297,41 @@ const Settings: React.FC = () => {
                         <SettingRow icon={settings.buttonTone ? <VolumeUpIcon sx={{ fontSize: 22 }} /> : <VolumeOffIcon sx={{ fontSize: 22 }} />} label="Button Sound" description="Play tone on button press">
                             <ModernSwitch checked={settings.buttonTone} onChange={(checked) => updateSettings({ buttonTone: checked })} />
                         </SettingRow>
+                        {watchInfo.vibrate && (
+                            <>
+                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                                <SettingRow icon={<VibrationIcon sx={{ fontSize: 22 }} />} label="Vibrate" description="Haptic feedback on button press">
+                                    <ModernSwitch checked={settings.vibrate} onChange={(checked) => updateSettings({ vibrate: checked })} />
+                                </SettingRow>
+                            </>
+                        )}
                         {watchInfo.hasAutoLight && (
                             <>
                                 <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
                                 <SettingRow icon={<LightModeIcon sx={{ fontSize: 22 }} />} label="Auto Light" description="Light on wrist rotation">
                                     <ModernSwitch checked={settings.autoLight} onChange={(checked) => updateSettings({ autoLight: checked })} />
                                 </SettingRow>
+                            </>
+                        )}
+                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                        <SettingRow icon={<LightModeIcon sx={{ fontSize: 22 }} />} label="Light Duration">
+                            <OptionToggle
+                                value={settings.lightDuration}
+                                options={[
+                                    { value: '2s', label: shortDuration },
+                                    { value: '4s', label: longDuration },
+                                ]}
+                                onChange={(value) => updateSettings({ lightDuration: value as lightDurationType })}
+                            />
+                        </SettingRow>
+                        {watchInfo.hasMultipleFonts && (
+                            <>
                                 <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                                <SettingRow icon={<LightModeIcon sx={{ fontSize: 22 }} />} label="Light Duration">
+                                <SettingRow icon={<TextFieldsIcon sx={{ fontSize: 22 }} />} label="Font">
                                     <OptionToggle
-                                        value={settings.lightDuration}
-                                        options={[{ value: shortDuration, label: shortDuration }, { value: longDuration, label: longDuration }]}
-                                        onChange={(value) => updateSettings({ lightDuration: value as lightDurationType })}
+                                        value={settings.font}
+                                        options={[{ value: 'Standard', label: 'Standard' }, { value: 'Classic', label: 'Classic' }]}
+                                        onChange={(value) => updateSettings({ font: value as fontType })}
                                     />
                                 </SettingRow>
                             </>
@@ -312,9 +349,33 @@ const Settings: React.FC = () => {
                             </SettingRow>
                         )}
                         <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                        <SettingRow icon={<SyncIcon sx={{ fontSize: 22 }} />} label="Auto Time Sync" description="Sync time automatically">
-                            <ModernSwitch checked={settings.timeAdjustment} onChange={(checked) => updateSettings({ timeAdjustment: checked })} />
-                        </SettingRow>
+                        {watchInfo.alwaysConnected ? (
+                            <SettingRow icon={<TuneIcon sx={{ fontSize: 22 }} />} label="Fine Adjustment" description="Compensate clock drift (ms)">
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => updateSettings({ fineAdjustment: settings.fineAdjustment - 100 })}
+                                        sx={{ color: '#8B5E3C' }}
+                                    >
+                                        <RemoveIcon fontSize="small" />
+                                    </IconButton>
+                                    <Typography variant="body2" sx={{ minWidth: 64, textAlign: 'center', fontVariantNumeric: 'tabular-nums', color: '#2D1A0E', fontWeight: 500 }}>
+                                        {settings.fineAdjustment} ms
+                                    </Typography>
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => updateSettings({ fineAdjustment: settings.fineAdjustment + 100 })}
+                                        sx={{ color: '#8B5E3C' }}
+                                    >
+                                        <AddIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            </SettingRow>
+                        ) : (
+                            <SettingRow icon={<SyncIcon sx={{ fontSize: 22 }} />} label="Auto Time Sync" description="Sync time automatically">
+                                <ModernSwitch checked={settings.timeAdjustment} onChange={(checked) => updateSettings({ timeAdjustment: checked })} />
+                            </SettingRow>
+                        )}
                     </Card>
 
                     <Box sx={{ height: 40 }} />
