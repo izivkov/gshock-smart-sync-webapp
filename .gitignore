@@ -94,3 +94,6 @@ next-env.d.ts
 # Credentials and Secrets
 .cloudflared/
 cert.pem
+
+# Kotlin
+kotlin/*
