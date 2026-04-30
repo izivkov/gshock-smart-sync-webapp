@@ -96,4 +96,4 @@ next-env.d.ts
 cert.pem
 
 # Kotlin
-kotlin/*
+/kotlin/*
