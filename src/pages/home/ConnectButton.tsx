@@ -4,7 +4,7 @@ import AppButton from "@components/AppButton";
 import { connection } from "@api/Connection";
 import React from "react";
 import GShockAPI from "@/api/GShockAPI";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Box } from "@mui/material";
 
 const ConnectButton: React.FC = () => {
     const [connecting, setConnecting] = React.useState(false);
@@ -67,14 +67,14 @@ const ConnectButton: React.FC = () => {
     );
 
     return (
-        <div className="flex flex-col items-center gap-4 w-full">
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, width: '100%' }}>
             {unsupportedDialog}
             <AppButton
                 label={connecting ? "Connecting..." : "Pair Watch"}
                 onClick={() => connect()}
                 disabled={connecting}
             />
-        </div>
+        </Box>
     );
 };
 

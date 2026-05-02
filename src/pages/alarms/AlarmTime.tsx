@@ -2,6 +2,7 @@
 
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useState, useEffect, useMemo } from 'react';
+import { Typography } from '@mui/material';
 import { isNorthAmerica12HourClock } from '@/utils/localeDisplay';
 
 interface AlarmTimeProps {
@@ -18,9 +19,9 @@ const AlarmTime: React.FC<AlarmTimeProps> = ({ alarmTime }) => {
     }, [alarmTime]);
 
     return (
-        <div className="text-xl font-semibold text-center" suppressHydrationWarning>
+        <Typography variant="h6" align="center" fontWeight={600} suppressHydrationWarning>
             {use12Hour ? time.format('h:mm A') : time.format('HH:mm')}
-        </div>
+        </Typography>
     );
 };
 

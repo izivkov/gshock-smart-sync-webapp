@@ -3,6 +3,7 @@ import { Dayjs } from 'dayjs';
 import Event from '@/model/Event';
 import { getPeriodFormatted } from './ReminderUtils';
 import { start } from 'repl';
+import { Typography } from '@mui/material';
 
 interface DateDisplayProps {
     startDate: { year: number; month: string; day: number }
@@ -18,9 +19,9 @@ const Period: React.FC<DateDisplayProps> = ({ startDate, endDate }) => {
     }, [startDate, endDate]);
 
     return (
-        <div className="text-lg text-gray-700">
+        <Typography variant="subtitle1" color="text.secondary">
             {formattedDate}
-        </div>
+        </Typography>
     );
 };
 

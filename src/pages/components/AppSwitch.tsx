@@ -1,6 +1,6 @@
 "use client"
 
-import { Switch as MuiSwitch } from "@mui/material";
+import { Switch as MuiSwitch, Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import AppText from "./AppText";
 
@@ -24,7 +24,7 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ text, initialValue, onChange }) =
   };
 
   return (
-    <div className="flex flex-row justify-between gap-6 items-center">
+    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 3, alignItems: 'center' }}>
       <AppText text={text ?? ""} />
       <MuiSwitch
         checked={checked}
@@ -32,7 +32,7 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ text, initialValue, onChange }) =
         disableRipple
         size="small"
       />
-    </div>
+    </Box>
   );
 };
 
