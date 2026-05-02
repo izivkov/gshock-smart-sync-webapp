@@ -7,12 +7,9 @@ export const PEACH_SHADOW = "0 2px 12px rgba(139, 94, 60, 0.1)";
 
 export const peachCardSx: SxProps<Theme> = {
     bgcolor: PEACH_SURFACE,
-    borderRadius: "20px",
-    border: PEACH_BORDER,
-    boxShadow: PEACH_SHADOW,
+    // borderRadius, border, and boxShadow are now inherited from _app.page.tsx MuiCard overrides!
 };
 
 export const peachCardCompactSx: SxProps<Theme> = {
     ...peachCardSx,
-    borderRadius: "18px",
 };

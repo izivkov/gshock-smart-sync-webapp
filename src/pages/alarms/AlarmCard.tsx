@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Card } from '@mui/material';
 import { peachCardCompactSx } from '../theme/peachCardStyles';
 import AlarmTime from "./AlarmTime";
 import AlarmPeriod from "./AlarmPeriod";
@@ -67,7 +67,7 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm, onChange }) => {
     };
 
     return (
-        <Box sx={{
+        <Card sx={{
             ...peachCardCompactSx,
             display: 'flex',
             flexDirection: 'row',
@@ -91,7 +91,7 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ number, alarm, onChange }) => {
             <AppSwitch initialValue={enabled} onChange={onEnabledChange} />
 
             <TimePickerDialog initialTime={time} open={dialogOpen} handleClose={handleCloseDialog} />
-        </Box>
+        </Card>
     );
 }
 

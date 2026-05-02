@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Switch, IconButton } from '@mui/material';
+import { Box, Typography, Switch, IconButton, Card } from '@mui/material';
 import { Edit } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import Period from './Period';
@@ -131,7 +131,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
     }
 
     return (
-        <Box sx={{
+        <Card sx={{
             ...peachCardCompactSx,
             px: 2,
             py: 1.25,
@@ -166,7 +166,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ number, initialReminder, on
             </Box>
 
             <ReminderEditDialog startDate={toDayjsDate(startDate)} open={dialogOpen} handleClose={handleCloseDialog} initReminderData={reminder} />
-        </Box>
+        </Card>
     );
 }
 

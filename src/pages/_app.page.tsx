@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 
-import { ThemeProvider as MUIThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider as MUIThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MainLayout from './components/MainLayout';
 import { useRouter } from 'next/router';
@@ -10,7 +10,8 @@ import { connection } from '@api/Connection';
 import { progressEvents, EventAction } from '@api/ProgressEvents';
 import GShockAPI from '@/api/GShockAPI';
 
-const theme = createTheme({
+let theme = createTheme({
+  cssVariables: true,
   palette: {
     mode: 'light',
     primary: {
@@ -36,32 +37,52 @@ const theme = createTheme({
     h3: { fontSize: '1.5rem', fontWeight: 400 },
     h4: { fontSize: '1.25rem', fontWeight: 500 },
     body1: { fontSize: '1rem', fontWeight: 400 },
-    button: { textTransform: 'none' as const },
+    button: { textTransform: 'none' as const, fontWeight: 500 },
   },
   shape: {
-    borderRadius: 12,
+    borderRadius: 16, // MD3 uses rounder corners
+  },
+  transitions: {
+    easing: {
+      easeInOut: 'cubic-bezier(0.2, 0, 0, 1)', // Smooth, bouncy dynamic motion
+      easeOut: 'cubic-bezier(0.2, 0, 0, 1)',
+      easeIn: 'cubic-bezier(0.2, 0, 0, 1)',
+      sharp: 'cubic-bezier(0.2, 0, 0, 1)',
+    },
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 100,
+          borderRadius: 100, // Pill shape
           textTransform: 'none' as const,
+          transition: 'all 0.2s cubic-bezier(0.2, 0, 0, 1)',
+          '&:active': {
+            transform: 'scale(0.96)', // Micro-animation on click
+          },
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
+          borderRadius: 24, // MD3 large surface rounding
           backgroundColor: '#FCEEE6',
           backgroundImage: 'none',
+          boxShadow: 'none', // Remove heavy drop shadow
+          border: '1px solid rgba(139, 94, 60, 0.1)', // Subtle border instead of shadow
+          transition: 'box-shadow 0.2s, transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(139, 94, 60, 0.15)', // Tonal elevation on hover
+            transform: 'translateY(-2px)',
+          },
         },
       },
     },
     MuiSwitch: {
       styleOverrides: {
         switchBase: {
+          transition: 'transform 150ms cubic-bezier(0.2, 0, 0, 1)',
           '&.Mui-checked': {
             color: '#8B5E3C',
             '& + .MuiSwitch-track': {
@@ -79,8 +100,11 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           background: '#FCEEE6',
-          borderTop: '1px solid rgba(139, 94, 60, 0.15)',
+          borderTop: 'none',
+          boxShadow: '0 -1px 4px rgba(0,0,0,0.05)',
           height: 80,
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
         },
       },
     },
@@ -90,8 +114,10 @@ const theme = createTheme({
           color: '#7A5C44',
           minWidth: 0,
           padding: '8px 12px 12px',
+          transition: 'all 0.2s cubic-bezier(0.2, 0, 0, 1)',
           '&.Mui-selected': {
             color: '#8B5E3C',
+            transform: 'translateY(-2px)', // Slight lift for active tab
           },
         },
       },
@@ -101,11 +127,15 @@ const theme = createTheme({
         paper: {
           backgroundColor: '#FCEEE6',
           borderRight: '1px solid rgba(139, 94, 60, 0.15)',
+          borderTopRightRadius: 24,
+          borderBottomRightRadius: 24,
         },
       },
     },
   },
 });
+
+theme = responsiveFontSizes(theme);
 
 // Create a context for connection status
 export const ConnectionContext = createContext({

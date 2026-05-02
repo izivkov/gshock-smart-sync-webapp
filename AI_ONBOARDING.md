@@ -48,6 +48,16 @@ The application relies heavily on **RxJS** `BehaviorSubject` and `Observable` to
 4.  **MUI vs Tailwind**: While `tailwind.config.js` is present, the UI heavily leans on MUI components (Card, Button, Typography) and `sx` prop styling.
 5.  **Watch Abstraction**: Always check `watchInfo` before rendering UI for a feature. Do not assume all G-Shocks support features like "vibrate" or "auto light". (e.g., `watchInfo.vibrate`, `watchInfo.hasAutoLight`).
 
+## Design System & Theming (Google Dynamic Design)
+The application adheres to **Material Design 3 (Material You)** principles, configured in `_app.page.tsx`.
+
+*   **Dynamic Theme Inheritance**: The global theme handles fluid micro-animations, bouncy transitions (`cubic-bezier(0.2, 0, 0, 1)`), pill-shaped buttons, rounded cards (`24px`), and **Tonal Elevation** (surfaces glow instead of casting harsh shadows on hover).
+*   **DO NOT Hardcode Styles**: Avoid using `sx` props for structural or state-based styling (like `boxShadow`, `backgroundColor`, or `border`) in custom wrapper components (e.g., `AppButton`, `PeachCard`). Hardcoded `sx` props override the dynamic theme and break the fluid MD3 experience.
+*   **Component Usage**: 
+    *   Use `<Card>` (or `<PeachCard>`) instead of `<Box>` when creating surfaces so they inherit the tonal elevation hover effects.
+    *   Ensure interactive elements (like `Switch`) do NOT have `disableRipple={true}` so the app feels alive.
+    *   Rely on `responsiveFontSizes` (already configured globally) rather than writing custom typography media queries.
+
 ## How to Proceed with Modifications
 
 *   When adding new watch settings, update `WatchInfo.ts` to reflect model capability, create/modify the corresponding `IO` class in `src/api/io`, add the facade method to `GShockAPI.ts`, and finally bind it in the UI.

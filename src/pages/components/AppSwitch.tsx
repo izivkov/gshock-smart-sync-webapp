@@ -29,7 +29,6 @@ const AppSwitch: React.FC<AppSwitchProps> = ({ text, initialValue, onChange }) =
       <MuiSwitch
         checked={checked}
         onChange={handleChange}
-        disableRipple
         size="small"
       />
     </Box>
