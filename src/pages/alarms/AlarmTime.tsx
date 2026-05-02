@@ -19,7 +19,7 @@ const AlarmTime: React.FC<AlarmTimeProps> = ({ alarmTime }) => {
     }, [alarmTime]);
 
     return (
-        <Typography variant="h6" align="center" fontWeight={600} suppressHydrationWarning>
+        <Typography variant="h6" align="center" sx={{ fontWeight: 600 }} suppressHydrationWarning>
             {use12Hour ? time.format('h:mm A') : time.format('HH:mm')}
         </Typography>
     );
