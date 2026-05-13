@@ -16,7 +16,7 @@
         "@mui/x-date-pickers": "^9.0.0",
         "dayjs": "^1.11.20",
         "luxon": "^3.5.0",
-        "next": "^16.2.3",
+        "next": "^16.2.6",
         "object-hash": "^3.0.0",
         "react": "^19.2.5",
         "react-copy-to-clipboard": "^5.1.1",
@@ -34,7 +34,7 @@
         "@types/react-dom": "^19.0.0",
         "@types/web-bluetooth": "^0.0.21",
         "eslint": "^9.0.0",
-        "eslint-config-next": "^16.2.3",
+        "eslint-config-next": "^16.2.6",
         "typescript": "^5.2.2"
     }
 }

@@ -86,6 +86,7 @@ We provide scripts for automated deployment to a Raspberry Pi:
 3. Run `./setup-rpi.sh` on the Pi to configure the systemd service.
 
 ### Documentation
+- **[RELEASE_NOTES.md](./RELEASE_NOTES.md)** - Latest changes and security updates.
 - **[QUICK-START.md](./QUICK-START.md)** - Step-by-step setup guide.
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - In-depth technical reference.
 - **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** - Quick 3-step overview.
