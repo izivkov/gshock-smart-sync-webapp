@@ -1,4 +1,4 @@
-# Release Notes - G-Shock Smart Sync Webapp — May 13, 2026
+# Release Notes - G-Shock Smart Sync Webapp — May 20, 2026
 
 ## ✨ Security & Maintenance
 
@@ -7,6 +7,8 @@ Patched a vulnerability in the underlying Next.js framework ([GHSA-mg66-mrh9-m8j
 *   **Fix**: Upgraded `next` to version `16.2.6`.
 *   **Impact**: Resolves a Denial of Service (DoS) vulnerability via connection exhaustion in applications using Cache Components.
 *   **Dependency Sync**: Updated `eslint-config-next` to `16.2.6` to maintain compatibility with the core framework.
+*   **Fix**: Resolved Dependabot alert #9 by upgrading `postcss` to `^8.5.10` via overrides to patch an XSS vulnerability via unescaped `</style>` tags.
+*   **Fix**: Resolved a Denial of Service (DoS) vulnerability in `brace-expansion` by upgrading to a secure version.
 
 ---
 
