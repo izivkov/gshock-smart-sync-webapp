@@ -9,7 +9,7 @@ This project is a Next.js-based web application that connects directly to Casio 
 *   **Framework**: Next.js 16 (Pages Router, using `.page.tsx` extensions)
 *   **Language**: TypeScript (`^5.2.2`)
 *   **UI Library**: React 19 (`^19.2.5`), Material-UI (MUI `^9.0.0`), Emotion
-*   **Styling**: MUI's `sx` prop, global CSS (`globals.css`), TailwindCSS (`tailwind.config.js` exists but MUI seems dominant). The app uses a custom peach/brown theme (defined in `_app.page.tsx` and custom components).
+*   **Styling**: MUI's `sx` prop and global CSS (`globals.css`). The app uses a custom peach/brown theme (defined in `_app.page.tsx` and custom components).
 *   **State & Events**: RxJS (`^7.8.2`) is heavily used as an event bus and for state tracking (see `ProgressEvents.ts`).
 *   **Bluetooth**: Native Web Bluetooth API.
 *   **Date/Time**: `dayjs`, `luxon`.
@@ -45,7 +45,7 @@ The application relies heavily on **RxJS** `BehaviorSubject` and `Observable` to
 1.  **Pages Router**: The application uses the `pages` directory but uses `.page.tsx` as the page extension (configured in `next.config.js` via `pageExtensions`).
 2.  **No Server-Side Code**: Because this app requires the browser's native Web Bluetooth API, all core functionality runs on the client. Server-side rendering (SSR) is minimally used or avoided for watch interaction.
 3.  **RxJS Event System**: If you need to trigger an update across the app when data from the watch changes, use `progressEvents.onNext("EventName")`.
-4.  **MUI vs Tailwind**: While `tailwind.config.js` is present, the UI heavily leans on MUI components (Card, Button, Typography) and `sx` prop styling.
+4.  **MUI Styling**: The UI heavily leans on MUI components (Card, Button, Typography) and `sx` prop styling.
 5.  **Watch Abstraction**: Always check `watchInfo` before rendering UI for a feature. Do not assume all G-Shocks support features like "vibrate" or "auto light". (e.g., `watchInfo.vibrate`, `watchInfo.hasAutoLight`).
 
 ## Design System & Theming (Google Dynamic Design)
