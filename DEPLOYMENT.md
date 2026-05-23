@@ -50,7 +50,7 @@ chmod +x deploy-rpi.sh
 ```
 
 The script will:
-1. Build the Next.js application
+1. Build the Vite application
 2. Create a minimal deployment package
 3. Transfer files to the Raspberry Pi via rsync
 4. Install dependencies on the RPi
@@ -134,7 +134,7 @@ ps aux | grep node
 The Node.js process may use significant memory on a Raspberry Pi. You can:
 - Use older Raspberry Pi models with larger memory allocations
 - Consider using PM2 for better process management (optional)
-- Enable gzip compression in Next.js config
+- Enable gzip compression in Vite config
 
 ### 4. Nginx as reverse proxy (optional)
 For better performance and SSL support, setup Nginx:
@@ -217,5 +217,5 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 For issues or questions, check:
 - Application logs: `journalctl -u gshock-webapp -f`
 - Node.js documentation: https://nodejs.org/
-- Next.js documentation: https://nextjs.org/docs
+- Vite documentation: https://vitejs.dev/guide/
 - Raspberry Pi documentation: https://www.raspberrypi.com/documentation/

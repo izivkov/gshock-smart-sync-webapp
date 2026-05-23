@@ -6,11 +6,16 @@ import WorldCitiesIO from "@io/WorldCitiesIO";
 import { CasioConstants } from "@api/CasioConstants";
 import { connection } from "@api/Connection";
 import Utils from "../utils/Utils";
-import { findTimeZone } from "./CasioTimeZoneHelper";
-import { DateTime } from "luxon";
+import { findTimeZone, getStandardAndSummerOffsets } from "./CasioTimeZoneHelper";
+import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface TimeEncoder {
-    prepareCurrentTime(date: Date): Uint8Array;
+    prepareCurrentTime(date: Dayjs): Uint8Array;
 }
 
 const defaultTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -49,8 +54,11 @@ const TimeIO = {
     getDSTWatchStateWithTZ: async (state: number): Promise<number[]> => {
         const origDTS = await TimeIO.getDSTWatchState(state);
         
-        const now = DateTime.now().setZone(TimeIO.state.casioTimezone.zoneName);
-        const isInDST = now.isInDST;
+        const zoneName = TimeIO.state.casioTimezone.zoneName;
+        const nowOffset = dayjs().tz(zoneName).utcOffset();
+        const { stdOffset } = getStandardAndSummerOffsets(zoneName);
+        
+        const isInDST = nowOffset > stdOffset;
         const hasRules = TimeIO.state.casioTimezone.dstRules !== 0;
 
         const dstValue =
@@ -140,7 +148,7 @@ const TimeIO = {
 
     sendToWatchSet(message: string): void {
         const dateTimeMs = JSON.parse(message).value;
-        const dateTime = DateTime.fromMillis(dateTimeMs).setZone(TimeIO.state.casioTimezone.zoneName);
+        const dateTime = dayjs(dateTimeMs).tz(TimeIO.state.casioTimezone.zoneName);
 
         const timeData = TimeEncoder.prepareCurrentTime(dateTime);
         const timeCommand = [
@@ -153,15 +161,15 @@ const TimeIO = {
 };
 
 const TimeEncoder = {
-    prepareCurrentTime(date: DateTime): Uint8Array {
-        const year = date.year;
-        const month = date.month; // Luxon months are 1-12
-        const day = date.day;
-        const hour = date.hour;
-        const minute = date.minute;
-        const second = date.second;
-        const dayOfWeek = date.weekday === 7 ? 0 : date.weekday; // JS/Casio: Sun=0, Mon=1
-        const millisecond = date.millisecond;
+    prepareCurrentTime(date: Dayjs): Uint8Array {
+        const year = date.year();
+        const month = date.month() + 1; // dayjs months are 0-11
+        const day = date.date();
+        const hour = date.hour();
+        const minute = date.minute();
+        const second = date.second();
+        const dayOfWeek = date.day() === 0 ? 0 : date.day(); // Sun=0, Casio Sun=0
+        const millisecond = date.millisecond();
         const lastByte = 1;
 
         const arr = new Uint8Array(10);

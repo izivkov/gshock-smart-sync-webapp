@@ -44,7 +44,7 @@ chmod +x deploy-rpi.sh
 ```
 
 The script will:
-1. Build the Next.js application
+1. Build the Vite application
 2. Create minimal deployment package
 3. Transfer files to Raspberry Pi via rsync
 4. Setup systemd service for auto-start
@@ -70,7 +70,7 @@ npm run build
 ```bash
 # Create minimal package with only production files
 mkdir -p deploy-package
-cp -r out/ package.json deploy-package/
+cp -r dist/* package.json deploy-package/
 cd deploy-package
 npm install --production
 cd ..
@@ -224,7 +224,7 @@ To deploy a new version:
 ### Option 2: Quick Update
 ```bash
 # For code-only changes (no build changes)
-rsync -avz --delete out/ [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/out/
+rsync -avz dist/* [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/
 ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 ```
 
@@ -296,7 +296,8 @@ EOF
 
 ```
 /home/[USERNAME]/gshock-smart-sync/          - Application root
-├── out/                               - Built Next.js static files
+├── index.html                         - Built Vite static entry
+├── assets/                            - Built Vite static assets
 ├── public/                            - Static assets
 ├── package.json                       - Dependencies
 ├── package-lock.json                  - Lock file

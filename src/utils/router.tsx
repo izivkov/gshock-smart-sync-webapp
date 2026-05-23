@@ -13,25 +13,6 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const push = useCallback((path: string) => {
     setPathname(path);
-    // Update browser history for back/forward support
-    window.history.pushState({ path }, '', `#${path}`);
-  }, []);
-
-  // Handle browser back/forward buttons
-  React.useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.hash.slice(1) || '/';
-      setPathname(path);
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  // Initialize from URL hash
-  React.useEffect(() => {
-    const initialPath = window.location.hash.slice(1) || '/';
-    setPathname(initialPath);
   }, []);
 
   const router: Router = {

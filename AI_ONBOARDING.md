@@ -13,7 +13,7 @@ This project is a Vite-based Single Page Application (SPA) that connects directl
 *   **Styling**: MUI's `sx` prop and global CSS (`globals.css`). The app uses a custom peach/brown theme (defined in `src/App.tsx` and custom components).
 *   **State & Events**: RxJS (`^7.8.2`) is heavily used as an event bus and for state tracking (see `ProgressEvents.ts`).
 *   **Bluetooth**: Native Web Bluetooth API.
-*   **Date/Time**: `dayjs`, `luxon`.
+*   **Date/Time**: `dayjs`.
 
 ## Architecture Overview
 
@@ -33,10 +33,9 @@ The application relies heavily on **RxJS** `BehaviorSubject` and `Observable` to
 
 ### 4. Router System (`src/utils/router.tsx` and `src/utils/componentRouter.tsx`)
 The application uses a custom lightweight SPA router instead of Next.js routing:
-*   **`RouterProvider`**: React context providing `useRouter()` hook with `push()` and `pathname` properties
-*   **Component Registry**: Routes registered in `src/main.tsx` map paths to React components
-*   **Hash-based URLs**: Navigation uses `#/path` format (e.g., `/#/time`, `/#/settings`)
-*   **Browser History**: Back/forward buttons supported via `window.history`
+*   **`RouterProvider`**: React context providing `useRouter()` hook with `push()` and `pathname` properties, managing state locally via `useState` instead of browser history.
+*   **Component Registry**: Routes registered in `src/main.tsx` map paths to React components.
+*   **State-based Routing**: Navigation is done purely by updating the `pathname` state and rendering the mapped component via `ComponentRouter`, allowing for smooth direct component replacement.
 
 ### 5. UI Layer (`src/pages`)
 *   **`src/App.tsx`**: Root component, sets up MUI Theme, Context (`ConnectionContext`), and route protection (redirects to `/` if not connected to a watch).

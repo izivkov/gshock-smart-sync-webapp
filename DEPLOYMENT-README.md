@@ -82,7 +82,7 @@ Output: ✓ All checks passed! or ✗ Some checks failed
 **Automated one-command deployment**
 
 What it does:
-1. Builds Next.js application with `npm run build`
+1. Builds Vite application with `npm run build`
 2. Creates minimal deployment package
 3. Transfers to Raspberry Pi via rsync
 4. Sets up systemd service for auto-start
@@ -253,7 +253,7 @@ Each watch has 24 capability flags for intelligent feature adaptation.
 
 For quick updates (code only, no build changes):
 ```bash
-rsync -avz --delete out/ [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/out/
+rsync -avz dist/* [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/
 ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 ```
 

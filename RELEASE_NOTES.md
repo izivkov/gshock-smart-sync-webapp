@@ -1,5 +1,10 @@
-# Release Notes - G-Shock Smart Sync Webapp — May 20, 2026
+# Release Notes - G-Shock Smart Sync Webapp
 
+## ✨ Vite Migration
+*   **Performance**: Successfully migrated the entire application from Next.js to Vite, resulting in significantly faster build times and a lighter production bundle.
+*   **Routing**: Implemented a lightweight, custom component-based SPA router replacing Next.js file-based routing.
+*   **Deployment**: Updated all deployment scripts (`deploy-rpi.sh`, `setup-rpi.sh`) and documentation to support the new Vite build output (`dist/`).
+*   **Housekeeping**: Cleaned up legacy `.next` artifacts and configurations.
 ## ✨ Security & Maintenance
 
 ### 🛡️ Critical Security Update

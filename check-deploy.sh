@@ -103,7 +103,7 @@ else
     CHECKS_FAILED=$((CHECKS_FAILED + 1))
 fi
 
-# Check Next.js project
+# Check Vite project
 echo -n "Checking package.json... "
 if [ -f "package.json" ]; then
     echo "✓ present"
@@ -115,11 +115,11 @@ fi
 
 # Check if build exists
 echo -n "Checking previous build... "
-if [ -d "out" ]; then
-    echo "✓ out/ directory exists"
+if [ -d "dist" ]; then
+    echo "✓ dist/ directory exists"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 else
-    echo "⚠ out/ directory not found (will be created during deploy)"
+    echo "⚠ dist/ directory not found (will be created during deploy)"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 fi
 

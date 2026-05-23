@@ -22,10 +22,10 @@ This document outlines the changes made to migrate from Next.js to Vite.
 
 #### How the New Router Works
 1. `RouterProvider` manages the current pathname in React context
-2. Uses URL hash for state management (e.g., `/#/time`, `/#/settings`)
+2. Uses React state (`useState`) for route management
 3. `registerComponents()` maps routes to React components
 4. `ComponentRouter` component dynamically renders the appropriate component based on pathname
-5. Browser history is managed via `window.history.pushState()`
+5. Navigation acts as a pure direct component replacement driven by state.
 
 ### 3. Application Entry Point
 - **Removed**: Next.js `_app.page.tsx` and `_document.page.tsx`
@@ -103,18 +103,18 @@ npm run preview
 ```
 
 ## URL Structure
-The application now uses hash-based URLs:
-- Home: `http://localhost:3000/#/`
-- Time: `http://localhost:3000/#/time`
-- Alarms: `http://localhost:3000/#/alarms`
-- Reminders: `http://localhost:3000/#/reminders`
-- Settings: `http://localhost:3000/#/settings`
+The application uses state-based virtual paths for routing (URL remains static):
+- Home: `/`
+- Time: `/time`
+- Alarms: `/alarms`
+- Reminders: `/reminders`
+- Settings: `/settings`
 
 ## Key Differences from Next.js
 
 1. **No Server-Side Rendering**: This is now a pure SPA. There's no server-side rendering capability.
 2. **Client-Side Only**: All rendering happens in the browser
-3. **Hash-Based URLs**: URLs use `#` for navigation (can be changed to history mode if needed)
+3. **State-Based Routing**: Navigation doesn't change the browser URL; it relies on direct component replacement via state.
 4. **No API Routes**: Next.js API routes (`pages/api/`) are not used. All API communication should be through the existing API services.
 5. **Build Output**: Production build is in `dist/` instead of `.next/`
 

@@ -15,22 +15,13 @@
         "@mui/material": "^9.0.0",
         "@mui/x-date-pickers": "^9.0.0",
         "dayjs": "^1.11.20",
-        "luxon": "^3.5.0",
-        "object-hash": "^3.0.0",
         "react": "^19.2.5",
-        "react-copy-to-clipboard": "^5.1.1",
-        "react-datepicker": "^7.0.0",
         "react-dom": "^19.2.5",
-        "rxjs": "^7.8.2",
-        "web-bluetooth": "^0.1.2",
-        "wouter": "^3.10.0"
+        "rxjs": "^7.8.2"
     },
     "devDependencies": {
-        "@types/luxon": "^3.4.2",
         "@types/node": "^20.0.0",
-        "@types/object-hash": "^3.0.6",
         "@types/react": "^19.0.0",
-        "@types/react-copy-to-clipboard": "^5.0.7",
         "@types/react-dom": "^19.0.0",
         "@types/web-bluetooth": "^0.0.21",
         "@vitejs/plugin-react": "^4.3.0",

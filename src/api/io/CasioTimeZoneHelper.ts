@@ -1,4 +1,9 @@
-import { DateTime, IANAZone } from "luxon";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface CasioTimeZoneData {
     name: string;
@@ -9,20 +14,49 @@ interface CasioTimeZoneData {
     offset: number;     // in 15-min intervals
 }
 
+export function getStandardAndSummerOffsets(zoneName: string): { stdOffset: number, dstOffset: number } {
+    try {
+        const year = dayjs().year();
+        const janOffset = dayjs.tz(`${year}-01-01`, zoneName).utcOffset();
+        const julOffset = dayjs.tz(`${year}-07-01`, zoneName).utcOffset();
+
+        const stdOffset = Math.min(janOffset, julOffset);
+        const summerOffset = Math.max(janOffset, julOffset);
+        return { stdOffset, dstOffset: summerOffset - stdOffset };
+    } catch {
+        return { stdOffset: 0, dstOffset: 0 };
+    }
+}
+
+function getDSTOffset(zoneName: string): number {
+    return getStandardAndSummerOffsets(zoneName).dstOffset;
+}
+
+function isEquivalent(zoneName1: string, zoneName2: string): boolean {
+    const s1 = getStandardAndSummerOffsets(zoneName1);
+    const s2 = getStandardAndSummerOffsets(zoneName2);
+
+    return (
+        s1.stdOffset === s2.stdOffset &&
+        s1.dstOffset === s2.dstOffset
+    );
+}
+
 function makeCasioTimeZone(
     name: string,
     zoneName: string,
     dstRules: number = 0
 ): CasioTimeZoneData {
-    const now = DateTime.now().setZone(zoneName);
-    const zone = IANAZone.create(zoneName);
+    let nowOffset = 0;
+    try {
+        nowOffset = dayjs().tz(zoneName).utcOffset();
+    } catch {
+        // fallback
+    }
 
-    // Standard offset in 15-min intervals
-    const offsetMinutes = now.offset; // total current offset in minutes
-    const dstOffsetMinutes = getDSTOffset(zoneName);
-    const standardOffsetMinutes = offsetMinutes - dstOffsetMinutes;
+    const { stdOffset, dstOffset: dstOffsetMinutes } = getStandardAndSummerOffsets(zoneName);
 
-    const offset = standardOffsetMinutes / 15;
+    const offset = stdOffset / 15;
     const dstOffset = dstOffsetMinutes / 15;
 
     // If no DST, override dstRules to 0
@@ -36,53 +70,6 @@ function makeCasioTimeZone(
         dstOffset,
         offset,
     };
-}
-
-function getDSTOffset(zoneName: string): number {
-    const zone = IANAZone.create(zoneName);
-    if (!zone.isValid) return 0;
-
-    const now = DateTime.now().setZone(zoneName);
-    const isInDST = now.isInDST;
-
-    if (!isInDST) {
-        // Look ahead up to a year to find a DST period
-        for (let days = 1; days <= 365; days++) {
-            const future = now.plus({ days });
-            if (future.isInDST) {
-                const dstTotal = future.offset;
-                const stdTotal = now.offset;
-                return dstTotal - stdTotal;
-            }
-        }
-        return 0;
-    } else {
-        // Currently in DST — find the standard offset by looking forward
-        for (let days = 1; days <= 365; days++) {
-            const future = now.plus({ days });
-            if (!future.isInDST) {
-                return now.offset - future.offset;
-            }
-        }
-        return 0;
-    }
-}
-
-function isEquivalent(zoneName1: string, zoneName2: string): boolean {
-    const year = DateTime.now().year;
-
-    const toSamples = (zone: string) => ({
-        winter: DateTime.fromObject({ year, month: 1, day: 1 }, { zone }),
-        summer: DateTime.fromObject({ year, month: 7, day: 1 }, { zone }),
-    });
-
-    const s1 = toSamples(zoneName1);
-    const s2 = toSamples(zoneName2);
-
-    return (
-        s1.winter.offset === s2.winter.offset &&
-        s1.summer.offset === s2.summer.offset
-    );
 }
 
 // --- The table ---
@@ -149,7 +136,6 @@ export function findTimeZone(timeZoneName: string): CasioTimeZoneData {
     if (exact) return exact;
 
     // 2. Equivalent rules match
-    // Convert the iterator to an array using the spread operator [...]
     const entries = [...timeZoneMap.values()];
 
     for (const entry of entries) {

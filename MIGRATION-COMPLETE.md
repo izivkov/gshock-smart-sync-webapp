@@ -26,8 +26,8 @@ pages/                  src/pages/
 
 **How it works:**
 - All routes are registered in `src/main.tsx` using `registerComponents()`
-- Navigation uses hash-based URLs: `/#/time`, `/#/settings`, etc.
-- Back/forward buttons work via browser history API
+- Navigation uses pure state-based component replacement.
+- The URL remains static, providing a true app-like dashboard experience.
 - All existing page logic remains the same
 
 ### 3. Key Files Created
@@ -102,15 +102,15 @@ Test the production build locally
 
 ## URL Structure
 
-The app now uses hash-based URLs:
+The app now uses state-based virtual paths for component rendering:
 
-| Page | URL |
+| Page | Virtual Path |
 |------|-----|
-| Home | http://localhost:3000/#/ |
-| Time | http://localhost:3000/#/time |
-| Alarms | http://localhost:3000/#/alarms |
-| Reminders | http://localhost:3000/#/reminders |
-| Settings | http://localhost:3000/#/settings |
+| Home | / |
+| Time | /time |
+| Alarms | /alarms |
+| Reminders | /reminders |
+| Settings | /settings |
 
 ## What Works the Same
 
@@ -169,7 +169,7 @@ Build verified successfully:
 - This is a pure SPA (Single Page Application) - no server-side rendering
 - All rendering happens in the browser
 - No backend API routes from Next.js (use your existing API services)
-- Hash-based navigation is production-ready
+- State-based component navigation is production-ready
 - All data persists in browser/API calls as before
 
 ## Troubleshooting

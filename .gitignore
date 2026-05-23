@@ -16,10 +16,7 @@ yarn-error.log
 yarn.lock
 
 # Build files
-/.next/
 /out/
-/.vercel/
-/.now/
 /build/
 /public/
 /.nuxt/
@@ -91,7 +88,6 @@ setup-rpi.sh
 monitor.sh
 activity_report.sh
 analyze_logs.py
-next-env.d.ts
 
 # Credentials and Secrets
 .cloudflared/

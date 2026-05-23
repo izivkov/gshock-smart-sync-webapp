@@ -61,7 +61,7 @@ http://[IP of your server]:3000
 
 ## What the Deploy Script Does
 
-1. **Builds** Next.js application
+1. **Builds** Vite application
 2. **Packages** only production files
 3. **Transfers** to Raspberry Pi via rsync
 4. **Creates** systemd service for auto-start
@@ -136,7 +136,7 @@ To deploy updated code:
 ./deploy-rpi.sh
 
 # Option 2: Quick code update only
-rsync -avz --delete out/ [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/out/
+rsync -avz dist/* [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/
 ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 ```
 
@@ -173,7 +173,8 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 
 ```
 Raspberry Pi (/home/[USERNAME]/gshock-smart-sync/):
-├── out/                    ← Compiled Next.js app
+├── index.html              ← Compiled Vite SPA entry
+├── assets/                 ← Compiled static assets
 ├── public/                 ← Static assets
 ├── package.json            ← Production dependencies
 └── node_modules/           ← Installed packages
