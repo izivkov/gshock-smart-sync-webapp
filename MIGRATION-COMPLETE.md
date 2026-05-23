@@ -161,8 +161,11 @@ Build verified successfully:
 1. **Dev Server**: Vite's instant restart (vs Next.js cold start)
 2. **HMR**: Faster hot updates with file-based HMR
 3. **Build**: Faster production builds with esbuild
-4. **Bundle**: Tree-shaking optimizations
-5. **No SSR overhead**: Pure client-side rendering
+4. **Code Splitting**: `React.lazy` chunks routes automatically, reducing initial load bundle by over 50%.
+5. **PWA Local Caching**: `vite-plugin-pwa` caches the entire app via Service Worker for instant offline-capable loads.
+6. **WebP Assets**: Watch images converted to WebP for massive bandwidth savings.
+7. **Bundle**: Tree-shaking optimizations and source map cleanup.
+8. **No SSR overhead**: Pure client-side rendering
 
 ## Notes
 

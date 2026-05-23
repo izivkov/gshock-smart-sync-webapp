@@ -1,10 +1,15 @@
 # Release Notes - G-Shock Smart Sync Webapp
 
-## ✨ Vite Migration
+## ✨ Vite Migration & Optimizations
 *   **Performance**: Successfully migrated the entire application from Next.js to Vite, resulting in significantly faster build times and a lighter production bundle.
+*   **Code Splitting**: Implemented `React.lazy` and `Suspense` for all router pages, reducing the main Javascript bundle size by over 50% (from ~828 KB to ~391 KB).
+*   **PWA Ready**: Integrated `vite-plugin-pwa` to automatically cache all static assets via a Service Worker, allowing the application to boot instantly from local cache without network overhead.
+*   **Image Optimization**: Converted heavy PNG watch assets to highly optimized WebP formats, drastically improving visual load times.
 *   **Routing**: Implemented a lightweight, custom component-based SPA router replacing Next.js file-based routing.
-*   **Deployment**: Updated all deployment scripts (`deploy-rpi.sh`, `setup-rpi.sh`) and documentation to support the new Vite build output (`dist/`).
-*   **Housekeeping**: Cleaned up legacy `.next` artifacts and configurations.
+*   **Deployment**: Updated all deployment scripts (`deploy-rpi.sh`, `setup-rpi.sh`) to use `npx serve -s` instead of Python's basic HTTP server, properly supporting SPA fallback routing and fixing MIME type loading issues. Cleaned up legacy `.next` artifacts.
+
+## ✨ Standardization
+*   **Date Libraries**: Standardized date and time management strictly on `dayjs`, completely removing all legacy `luxon` dependencies across the entire codebase to reduce duplicate logic and simplify development.
 ## ✨ Security & Maintenance
 
 ### 🛡️ Critical Security Update
