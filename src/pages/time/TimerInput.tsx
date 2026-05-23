@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState, ChangeEvent, useEffect, useRef } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';

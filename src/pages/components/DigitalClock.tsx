@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import { isNorthAmerica12HourClock } from '@/utils/localeDisplay';

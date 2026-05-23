@@ -1,10 +1,8 @@
-"use client"
-
 import ConnectButton from '@pages/home/ConnectButton'
 import React, { useEffect, useMemo, useState } from 'react'
 import { connection } from '@api/Connection';
 import { progressEvents } from "@api/ProgressEvents"
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/utils/router';
 import { EventAction } from "@api/ProgressEvents";
 import GShockAPI from '@/api/GShockAPI';
 import { PhoneFinder } from './home/PhoneFinder';
@@ -190,7 +188,7 @@ function Home() {
                   '&:hover': { transform: 'scale(1.1) rotate(5deg)' }
                 }}>
                   <img
-                    src={typeof imgSrc === 'string' ? imgSrc : imgSrc.src as string}
+                    src={imgSrc}
                     alt="Supported Watch"
                     style={{ height: '100%', objectFit: 'contain' }}
                   />

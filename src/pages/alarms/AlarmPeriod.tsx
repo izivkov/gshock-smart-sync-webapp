@@ -1,5 +1,3 @@
-"use client"
-
 import AppText from "@components/AppText";
 
 interface AlarmPeriodProps {

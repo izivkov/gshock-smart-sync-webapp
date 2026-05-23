@@ -1,5 +1,3 @@
-"use client"
-
 import AppButton from "@components/AppButton";
 import { connection } from "@api/Connection";
 import React from "react";

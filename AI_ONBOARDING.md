@@ -3,13 +3,14 @@
 Welcome! This document is designed to quickly bring AI assistants and LLMs up to speed on the **G-Shock Smart Sync** web application.
 
 ## Project Mission
-This project is a Next.js-based web application that connects directly to Casio G-Shock Bluetooth watches directly from the browser using the **Web Bluetooth API**. It allows users to read state from the watch, adjust settings, sync time, set alarms, and configure other watch features.
+This project is a Vite-based Single Page Application (SPA) that connects directly to Casio G-Shock Bluetooth watches directly from the browser using the **Web Bluetooth API**. It allows users to read state from the watch, adjust settings, sync time, set alarms, and configure other watch features.
 
 ## Tech Stack
-*   **Framework**: Next.js 16 (Pages Router, using `.page.tsx` extensions)
+*   **Framework**: Vite 5 (React 19 SPA)
+*   **Router**: Custom lightweight component-based router (`src/utils/router.tsx`)
 *   **Language**: TypeScript (`^5.2.2`)
 *   **UI Library**: React 19 (`^19.2.5`), Material-UI (MUI `^9.0.0`), Emotion
-*   **Styling**: MUI's `sx` prop and global CSS (`globals.css`). The app uses a custom peach/brown theme (defined in `_app.page.tsx` and custom components).
+*   **Styling**: MUI's `sx` prop and global CSS (`globals.css`). The app uses a custom peach/brown theme (defined in `src/App.tsx` and custom components).
 *   **State & Events**: RxJS (`^7.8.2`) is heavily used as an event bus and for state tracking (see `ProgressEvents.ts`).
 *   **Bluetooth**: Native Web Bluetooth API.
 *   **Date/Time**: `dayjs`, `luxon`.
@@ -28,10 +29,17 @@ This directory contains classes responsible for translating high-level JavaScrip
 ### 3. Event Bus (`src/api/ProgressEvents.ts`)
 The application relies heavily on **RxJS** `BehaviorSubject` and `Observable` to stream events globally.
 *   The `progressEvents` instance handles connection state changes ("Connected", "Disconnected"), data loaded events, and UI update requests without requiring deep prop-drilling.
-*   `_app.page.tsx` listens to these events to globally manage routing and the `ConnectionContext`.
+*   `src/App.tsx` listens to these events to globally manage routing and the `ConnectionContext`.
 
-### 4. UI Layer (`src/pages`)
-*   **`_app.page.tsx`**: Sets up MUI Theme, Context (`ConnectionContext`), and route protection (redirects to `/` if not connected to a watch).
+### 4. Router System (`src/utils/router.tsx` and `src/utils/componentRouter.tsx`)
+The application uses a custom lightweight SPA router instead of Next.js routing:
+*   **`RouterProvider`**: React context providing `useRouter()` hook with `push()` and `pathname` properties
+*   **Component Registry**: Routes registered in `src/main.tsx` map paths to React components
+*   **Hash-based URLs**: Navigation uses `#/path` format (e.g., `/#/time`, `/#/settings`)
+*   **Browser History**: Back/forward buttons supported via `window.history`
+
+### 5. UI Layer (`src/pages`)
+*   **`src/App.tsx`**: Root component, sets up MUI Theme, Context (`ConnectionContext`), and route protection (redirects to `/` if not connected to a watch).
 *   **`index.page.tsx`**: The landing page and connection entry point.
 *   **Feature Pages**:
     *   `/settings`: Device settings configuration (e.g., auto-light, tone, language).
@@ -42,14 +50,14 @@ The application relies heavily on **RxJS** `BehaviorSubject` and `Observable` to
 
 ## Key Patterns and Quirks
 
-1.  **Pages Router**: The application uses the `pages` directory but uses `.page.tsx` as the page extension (configured in `next.config.js` via `pageExtensions`).
-2.  **No Server-Side Code**: Because this app requires the browser's native Web Bluetooth API, all core functionality runs on the client. Server-side rendering (SSR) is minimally used or avoided for watch interaction.
+1.  **Vite SPA Structure**: Pages use `.page.tsx` extension in `src/pages/` directory. Routes are registered in `src/main.tsx` instead of file-based routing.
+2.  **No Server-Side Code**: Because this app requires the browser's native Web Bluetooth API, all core functionality runs on the client. This is a pure client-side SPA with no server-side rendering.
 3.  **RxJS Event System**: If you need to trigger an update across the app when data from the watch changes, use `progressEvents.onNext("EventName")`.
 4.  **MUI Styling**: The UI heavily leans on MUI components (Card, Button, Typography) and `sx` prop styling.
 5.  **Watch Abstraction**: Always check `watchInfo` before rendering UI for a feature. Do not assume all G-Shocks support features like "vibrate" or "auto light". (e.g., `watchInfo.vibrate`, `watchInfo.hasAutoLight`).
 
 ## Design System & Theming (Google Dynamic Design)
-The application adheres to **Material Design 3 (Material You)** principles, configured in `_app.page.tsx`.
+The application adheres to **Material Design 3 (Material You)** principles, configured in `src/App.tsx`.
 
 *   **Dynamic Theme Inheritance**: The global theme handles fluid micro-animations, bouncy transitions (`cubic-bezier(0.2, 0, 0, 1)`), pill-shaped buttons, rounded cards (`24px`), and **Tonal Elevation** (surfaces glow instead of casting harsh shadows on hover).
 *   **DO NOT Hardcode Styles**: Avoid using `sx` props for structural or state-based styling (like `boxShadow`, `backgroundColor`, or `border`) in custom wrapper components (e.g., `AppButton`, `PeachCard`). Hardcoded `sx` props override the dynamic theme and break the fluid MD3 experience.

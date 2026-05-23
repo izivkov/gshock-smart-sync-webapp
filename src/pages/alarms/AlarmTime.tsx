@@ -1,5 +1,3 @@
-"use client"
-
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Typography } from '@mui/material';

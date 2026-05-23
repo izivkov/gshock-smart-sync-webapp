@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useEffect, useRef, useState, useContext } from 'react';
 import {
     Box,
@@ -35,7 +33,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import GShockAPI from '@/api/GShockAPI';
 import { dateFormatType, languageType, lightDurationType, timeFormatType } from '@api/WatchInfo';
 import { watchInfo } from '@/api/WatchInfo';
-import { ConnectionContext } from '../_app.page';
+import { ConnectionContext } from '@/App';
 import ScreenTitle from '../components/ScreenTitle';
 import { PEACH_BORDER, PEACH_SHADOW, PEACH_SURFACE } from '../theme/peachCardStyles';
 import { getSmartDefaultsForSettings } from './smartDefaults';

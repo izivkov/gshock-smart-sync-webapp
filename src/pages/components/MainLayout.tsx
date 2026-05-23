@@ -1,7 +1,5 @@
-"use client"
-
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from '@/utils/router';
 import {
     Box,
     BottomNavigation,
@@ -15,7 +13,7 @@ import AlarmsIcon from '@mui/icons-material/Alarm';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SideNavigation, { SIDEBAR_WIDTH } from './SideNavigation';
-import { ConnectionContext } from '../_app.page';
+import { ConnectionContext } from '@/App';
 import { watchInfo } from '@api/WatchInfo';
 
 interface MainLayoutProps {
@@ -31,7 +29,6 @@ const NAV_ITEMS = [
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const router = useRouter();
-    const pathname = usePathname();
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
     const { isConnected } = useContext(ConnectionContext);
@@ -47,7 +44,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     };
 
     const currentTabIndex = (() => {
-        const idx = visibleItems.findIndex(item => item.path === pathname);
+        const idx = visibleItems.findIndex(item => item.path === router.pathname);
         if (idx !== -1) return idx;
         return 0;
     })();

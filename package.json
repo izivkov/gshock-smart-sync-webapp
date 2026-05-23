@@ -3,10 +3,10 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --webpack",
-        "build": "next build",
-        "start": "next start",
-        "lint": "next lint"
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
     },
     "dependencies": {
         "@emotion/react": "^11.14.0",
@@ -16,14 +16,14 @@
         "@mui/x-date-pickers": "^9.0.0",
         "dayjs": "^1.11.20",
         "luxon": "^3.5.0",
-        "next": "^16.2.6",
         "object-hash": "^3.0.0",
         "react": "^19.2.5",
         "react-copy-to-clipboard": "^5.1.1",
         "react-datepicker": "^7.0.0",
         "react-dom": "^19.2.5",
         "rxjs": "^7.8.2",
-        "web-bluetooth": "^0.1.2"
+        "web-bluetooth": "^0.1.2",
+        "wouter": "^3.10.0"
     },
     "devDependencies": {
         "@types/luxon": "^3.4.2",
@@ -33,9 +33,10 @@
         "@types/react-copy-to-clipboard": "^5.0.7",
         "@types/react-dom": "^19.0.0",
         "@types/web-bluetooth": "^0.0.21",
+        "@vitejs/plugin-react": "^4.3.0",
         "eslint": "^9.0.0",
-        "eslint-config-next": "^16.2.6",
-        "typescript": "^5.2.2"
+        "typescript": "^5.2.2",
+        "vite": "^5.1.0"
     },
     "overrides": {
         "postcss": "^8.5.10"

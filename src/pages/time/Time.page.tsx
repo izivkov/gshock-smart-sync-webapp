@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import { Box, Typography, Button, Snackbar, Alert, Stack } from '@mui/material';
 import WatchIcon from '@mui/icons-material/Watch';
@@ -13,7 +11,7 @@ import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
 import { watchInfo } from '@api/WatchInfo';
-import { ConnectionContext } from '../_app.page';
+import { ConnectionContext } from '@/App';
 import ScreenTitle from '../components/ScreenTitle';
 import PeachCard from '../components/PeachCard';
 import {

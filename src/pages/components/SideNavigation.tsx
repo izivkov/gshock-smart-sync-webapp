@@ -1,7 +1,5 @@
-"use client"
-
 import React, { useContext, useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from '@/utils/router';
 import {
     Box,
     Drawer,
@@ -16,7 +14,7 @@ import AlarmsIcon from '@mui/icons-material/Alarm';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WatchIcon from '@mui/icons-material/Watch';
-import { ConnectionContext } from '../_app.page';
+import { ConnectionContext } from '@/App';
 import { watchInfo } from '@api/WatchInfo';
 
 export const SIDEBAR_WIDTH = 260;
@@ -30,7 +28,6 @@ const NAV_ITEMS = [
 
 const SideNavigation: React.FC = () => {
     const router = useRouter();
-    const pathname = usePathname();
     const { isConnected } = useContext(ConnectionContext);
     const visibleItems = React.useMemo(() => {
         if (isConnected && !watchInfo.hasReminders) {
@@ -45,9 +42,9 @@ const SideNavigation: React.FC = () => {
 
     const isActive = (path: string) => {
         if (path === '/') {
-            return pathname === '/';
+            return router.pathname === '/';
         }
-        return pathname === path;
+        return router.pathname === path;
     };
 
     return (

@@ -1,5 +1,3 @@
-"use client"
-
 import { Switch as MuiSwitch, Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import AppText from "./AppText";

@@ -1,14 +1,14 @@
 import "@/styles/globals.css";
-import type { AppProps } from "next/app";
 
 import { ThemeProvider as MUIThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import MainLayout from './components/MainLayout';
-import { useRouter } from 'next/router';
+import MainLayout from '@components/MainLayout';
+import { useRouter } from '@/utils/router';
 import { useEffect, useState, createContext } from 'react';
 import { connection } from '@api/Connection';
 import { progressEvents, EventAction } from '@api/ProgressEvents';
 import GShockAPI from '@/api/GShockAPI';
+import { ComponentRouter } from '@/utils/componentRouter';
 
 let theme = createTheme({
   cssVariables: true,
@@ -143,7 +143,7 @@ export const ConnectionContext = createContext({
   setIsConnected: (status: boolean) => { },
 });
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App() {
   const router = useRouter();
   const [isConnected, setIsConnected] = useState(false);
 
@@ -162,7 +162,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   // Route protection: redirect to home if visiting restricted paths while disconnected
   useEffect(() => {
-    const restrictedPaths = ['/time', '/alarms', '/events', '/settings'];
+    const restrictedPaths = ['/time', '/alarms', '/events', '/settings', '/reminders'];
     if (!isConnected && restrictedPaths.some(path => router.pathname.startsWith(path))) {
       router.push('/');
     }
@@ -173,7 +173,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <MUIThemeProvider theme={theme}>
         <CssBaseline />
         <MainLayout>
-          <Component {...pageProps} />
+          <ComponentRouter pathname={router.pathname} fallback={<div>Loading...</div>} />
         </MainLayout>
       </MUIThemeProvider>
     </ConnectionContext.Provider>
