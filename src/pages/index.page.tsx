@@ -22,10 +22,10 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import SecurityIcon from '@mui/icons-material/Security';
 
 // Import local images directly based on project structure
-import dw_b5600 from '../../images/dw-b5600.png';
-import ecb_30d from '../../images/ecb_30d.png';
-import ga_b2100 from '../../images/ga_b2100.png';
-import gw_b5600 from '../../images/gw_b5600.png';
+import dw_b5600 from '../../images/dw-b5600.webp';
+import ecb_30d from '../../images/ecb_30d.webp';
+import ga_b2100 from '../../images/ga_b2100.webp';
+import gw_b5600 from '../../images/gw_b5600.webp';
 
 // ─── OS / Platform detection ────────────────────────────────────────────────
 

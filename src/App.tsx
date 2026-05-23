@@ -4,7 +4,7 @@ import { ThemeProvider as MUIThemeProvider, createTheme, responsiveFontSizes } f
 import CssBaseline from '@mui/material/CssBaseline';
 import MainLayout from '@components/MainLayout';
 import { useRouter } from '@/utils/router';
-import { useEffect, useState, createContext } from 'react';
+import { useEffect, useState, createContext, Suspense } from 'react';
 import { connection } from '@api/Connection';
 import { progressEvents, EventAction } from '@api/ProgressEvents';
 import GShockAPI from '@/api/GShockAPI';
@@ -173,7 +173,9 @@ export default function App() {
       <MUIThemeProvider theme={theme}>
         <CssBaseline />
         <MainLayout>
-          <ComponentRouter pathname={router.pathname} fallback={<div>Loading...</div>} />
+          <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}>
+            <ComponentRouter pathname={router.pathname} fallback={<div>Page not found</div>} />
+          </Suspense>
         </MainLayout>
       </MUIThemeProvider>
     </ConnectionContext.Provider>

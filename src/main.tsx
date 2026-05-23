@@ -1,15 +1,15 @@
-import React from 'react'
+import React, { lazy } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import { RouterProvider } from '@/utils/router'
 import { registerComponents } from '@/utils/componentRouter'
 
-// Import all page components
-import HomePage from '@pages/index.page'
-import TimePage from '@pages/time/Time.page'
-import AlarmsPage from '@pages/alarms/Alarms.page'
-import RemindersPage from '@pages/reminders/Reminders.page'
-import SettingsPage from '@pages/settings/Settings.page'
+// Import all page components lazily
+const HomePage = lazy(() => import('@pages/index.page'))
+const TimePage = lazy(() => import('@pages/time/Time.page'))
+const AlarmsPage = lazy(() => import('@pages/alarms/Alarms.page'))
+const RemindersPage = lazy(() => import('@pages/reminders/Reminders.page'))
+const SettingsPage = lazy(() => import('@pages/settings/Settings.page'))
 
 // Register all routes
 registerComponents({
