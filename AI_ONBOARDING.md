@@ -3,7 +3,7 @@
 Welcome! This document is designed to quickly bring AI assistants and LLMs up to speed on the **G-Shock Smart Sync** web application.
 
 ## Project Mission
-This project is a Vite-based Single Page Application (SPA) that connects directly to Casio G-Shock Bluetooth watches directly from the browser using the **Web Bluetooth API**. It allows users to read state from the watch, adjust settings, sync time, set alarms, and configure other watch features.
+This project is a Vite-based Single Page Application (SPA) that connects to Casio G-Shock Bluetooth watches directly from the browser using the **Web Bluetooth API**. It allows users to read state from the watch, adjust settings, sync time, set alarms, and configure other watch features.
 
 ## Tech Stack
 *   **Framework**: Vite 5 (React 19 SPA)
