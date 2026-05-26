@@ -64,7 +64,7 @@ http://[IP of your server]:3000
 1. **Builds** Vite application
 2. **Packages** only production files
 3. **Transfers** to Raspberry Pi via rsync
-4. **Creates** systemd service for auto-start
+4. **Creates** Nginx configuration for serving the static files
 5. **Verifies** application is running
 
 ---
@@ -79,16 +79,16 @@ http://[IP of your server]:3000
 ### Monitor Application
 ```bash
 # View live logs
-ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -f'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -f'
 
 # Check status
-ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status nginx'
 
 # Stop if needed
-ssh [USERNAME]@[  hock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl stop nginx'
 
 # Start/Restart
-ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 ```
 
 ---
@@ -121,7 +121,7 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 | Issue | Solution |
 |-------|----------|
 | Cannot access http://192.168.1.100:3000 | See QUICK-START.md → "Cannot Connect" |
-| Service won't start | Check logs: `ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 100'` |
+| Service won't start | Check logs: `ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -n 100'` |
 | Out of memory | See QUICK-START.md → "Out of Memory Errors" |
 | SSH connection fails | See QUICK-START.md → "SSH Connection Issues" |
 
@@ -137,7 +137,7 @@ To deploy updated code:
 
 # Option 2: Quick code update only
 rsync -avz dist/* [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/
-ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 ```
 
 ---
@@ -175,15 +175,13 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
 Raspberry Pi (/home/[USERNAME]/gshock-smart-sync/):
 ├── index.html              ← Compiled Vite SPA entry
 ├── assets/                 ← Compiled static assets
-├── public/                 ← Static assets
-├── package.json            ← Production dependencies
-└── node_modules/           ← Installed packages
+└── public/                 ← Static assets
 
-Systemd:
-└── /etc/systemd/system/gshock-webapp.service ← Auto-start config
+Systemd / Nginx:
+└── /etc/nginx/sites-available/gshock-webapp ← Web server config
 
 Logs:
-└── journalctl -u gshock-webapp ← Real-time application logs
+└── journalctl -u nginx ← Real-time Nginx logs
 ```
 
 ---

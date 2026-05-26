@@ -176,7 +176,13 @@ const ReminderEditDialog: React.FC<ReminderEditDialogProps> = ({ open, handleClo
                         fullWidth
                         label="Title"
                         value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={(e) => {
+                            const input = e.target.value;
+                            // Regex matching anything NOT in the allowed list:
+                            // A-Z, a-z, 0-9, space, and the specific ASCII symbols provided
+                            const filtered = input.replace(/[^A-Za-z0-9 !\"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}]/g, '');
+                            setTitle(filtered);
+                        }}
                         variant="outlined"
                     />
 

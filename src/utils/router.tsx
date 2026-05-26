@@ -13,6 +13,8 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const push = useCallback((path: string) => {
     setPathname(path);
+    // Ping the server to ensure Nginx access logs record the navigation
+    fetch(path).catch(() => {});
   }, []);
 
   const router: Router = {

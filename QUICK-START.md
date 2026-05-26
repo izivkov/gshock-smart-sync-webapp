@@ -105,45 +105,46 @@ http://192.168.1.100:3000
 
 ---
 
-## Systemd Service Management
+## Nginx Service Management
 
-After deployment, the app runs as a systemd service `gshock-webapp`.
+After deployment, the app runs via the Nginx web server.
 
 ### View Service Status
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status nginx'
 ```
 
-### View Application Logs (Real-time)
+### View Nginx Logs (Real-time)
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -f'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -f'
 ```
 
 ### View Last 50 Log Lines
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 50'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -n 50'
 ```
 
 ### Stop Application
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl stop gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl stop nginx'
 ```
 
 ### Start Application
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl start gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl start nginx'
 ```
 
 ### Restart Application
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 ```
 
 ### Check Service Logs on Startup Failure
 If the service fails to start, check for errors:
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
-ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 100'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status nginx'
+ssh [USERNAME]@[IP of your server] 'sudo nginx -t'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -n 100'
 ```
 
 ---
@@ -154,7 +155,7 @@ ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 100'
 
 **Check if service is running:**
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status nginx'
 ```
 
 **Check if port 3000 is listening:**
@@ -162,9 +163,9 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
 ssh [USERNAME]@[IP of your server] 'sudo netstat -tlnp | grep 3000'
 ```
 
-**Check application logs:**
+**Check Nginx logs:**
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 100'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -n 100'
 ```
 
 ### Out of Memory Errors
@@ -225,7 +226,7 @@ To deploy a new version:
 ```bash
 # For code-only changes (no build changes)
 rsync -avz dist/* [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/
-ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 ```
 
 ---
@@ -246,15 +247,6 @@ EOF
 **Monitor resource usage:**
 ```bash
 ssh [USERNAME]@[IP of your server] 'top'
-```
-
-**Enable Node.js heap size limiting:**
-```bash
-ssh [USERNAME]@[IP of your server] << 'EOF'
-sudo sed -i 's/ExecStart=/ExecStart=NODE_OPTIONS=--max-old-space-size=256 /' /etc/systemd/system/gshock-webapp.service
-sudo systemctl daemon-reload
-sudo systemctl restart gshock-webapp
-EOF
 ```
 
 ### For Raspberry Pi 4B / Pi 5 (Better Performance)
@@ -283,10 +275,10 @@ scp ./backups/gshock-backup-YYYYMMDD-HHMMSS.tar.gz [USERNAME]@[IP of your server
 
 # Restore on Raspberry Pi
 ssh [USERNAME]@[IP of your server] << 'EOF'
-sudo systemctl stop gshock-webapp
+sudo systemctl stop nginx
 sudo rm -rf /home/[USERNAME]/gshock-smart-sync
 tar xzf ~/gshock-backup-YYYYMMDD-HHMMSS.tar.gz -C /
-sudo systemctl start gshock-webapp
+sudo systemctl start nginx
 EOF
 ```
 
@@ -298,13 +290,10 @@ EOF
 /home/[USERNAME]/gshock-smart-sync/          - Application root
 ├── index.html                         - Built Vite static entry
 ├── assets/                            - Built Vite static assets
-├── public/                            - Static assets
-├── package.json                       - Dependencies
-├── package-lock.json                  - Lock file
-└── node_modules/                      - Installed packages
+└── public/                            - Static assets
 
-/etc/systemd/system/gshock-webapp.service  - Systemd service definition
-/var/log/gshock-webapp/                    - Application logs (via journalctl)
+/etc/nginx/sites-available/gshock-webapp   - Nginx configuration
+/var/log/nginx/                            - Nginx logs
 ```
 
 ---
@@ -316,18 +305,16 @@ To remove the application from Raspberry Pi:
 ```bash
 ssh [USERNAME]@[IP of your server] << 'EOF'
 # Stop service
-sudo systemctl stop gshock-webapp
-sudo systemctl disable gshock-webapp
+sudo systemctl stop nginx
+sudo systemctl disable nginx
 
-# Remove service file
-sudo rm /etc/systemd/system/gshock-webapp.service
-sudo systemctl daemon-reload
+# Remove Nginx configuration
+sudo rm /etc/nginx/sites-enabled/gshock-webapp
+sudo rm /etc/nginx/sites-available/gshock-webapp
+sudo systemctl reload nginx
 
 # Remove application directory
 rm -rf ~/gshock-smart-sync
-
-# Optional: View what would be deleted
-# rm -rf ~/.npm   # Only if you want to remove global npm cache
 EOF
 ```
 
@@ -339,7 +326,7 @@ If you encounter issues:
 
 1. **Check logs first:**
    ```bash
-   ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 100'
+   ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -n 100'
    ```
 
 2. **Verify all prerequisites are met** (Node.js 18+, SSH, rsync)

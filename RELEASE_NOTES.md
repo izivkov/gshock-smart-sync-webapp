@@ -6,7 +6,16 @@
 *   **PWA Ready**: Integrated `vite-plugin-pwa` to automatically cache all static assets via a Service Worker, allowing the application to boot instantly from local cache without network overhead.
 *   **Image Optimization**: Converted heavy PNG watch assets to highly optimized WebP formats, drastically improving visual load times.
 *   **Routing**: Implemented a lightweight, custom component-based SPA router replacing Next.js file-based routing.
-*   **Deployment**: Updated all deployment scripts (`deploy-rpi.sh`, `setup-rpi.sh`) to use `npx serve -s` instead of Python's basic HTTP server, properly supporting SPA fallback routing and fixing MIME type loading issues. Cleaned up legacy `.next` artifacts.
+*   **Deployment**: Updated all deployment scripts (`deploy-rpi.sh`, `setup-rpi.sh`) to use **Nginx** as the production web server, replacing `npx serve`. Nginx provides robust SPA fallback routing, proper MIME types, and runs as a managed `systemd` service on the Raspberry Pi. Cleaned up legacy `.next` artifacts and removed unnecessary `node_modules`/`package.json` from the deployed bundle.
+
+## ✨ New in This Release
+
+### 🔒 Reminder Title Input Validation
+*   **Character Restriction**: The Reminder title input field now strictly validates input in real-time, blocking any characters outside the G-Shock watch's supported ASCII character set (`A-Z`, `a-z`, `0-9`, and standard symbols). Non-ASCII characters (e.g. Japanese, Chinese, emoji) are silently filtered as you type.
+
+### 📊 Activity Report Improvements
+*   **Nginx Log Support**: Updated `analyze_logs.py` to natively parse the standard **Nginx combined log format**, in addition to the existing custom `[ACCESS]` format. The script now automatically detects which format each log line uses.
+*   **Navigation Tracking**: The SPA router now sends silent background `fetch()` requests on page navigation, allowing Nginx to record user activity in its access logs, which is analysed by `analyze_logs.py`.
 
 ## ✨ Standardization
 *   **Date Libraries**: Standardized date and time management strictly on `dayjs`, completely removing all legacy `luxon` dependencies across the entire codebase to reduce duplicate logic and simplify development.

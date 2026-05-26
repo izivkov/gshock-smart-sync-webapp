@@ -54,7 +54,7 @@ The script will:
 2. Create a minimal deployment package
 3. Transfer files to the Raspberry Pi via rsync
 4. Install dependencies on the RPi
-5. Setup systemd service for auto-start
+5. Setup Nginx site for serving the SPA
 6. Verify the application is running
 
 ### 3. Access the application
@@ -64,49 +64,49 @@ Once deployed, access the application at:
 http://192.168.1.100:3000
 ```
 
-## Systemd Service Management
+## Service Management
 
-The deployment script sets up a systemd service called `gshock-webapp` for automatic start and management.
+The deployment script sets up Nginx for automatic start and management.
 
 ### View logs in real-time:
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -f'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -f'
 ```
 
-### Stop the application:
+### Stop Nginx:
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl stop gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl stop nginx'
 ```
 
-### Start the application:
+### Start Nginx:
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl start gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl start nginx'
 ```
 
-### Restart the application:
+### Restart Nginx:
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 ```
 
 ### Check service status:
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status nginx'
 ```
 
 ### Enable/disable auto-start:
 ```bash
 # Enable auto-start on boot
-ssh [USERNAME]@[IP of your server] 'sudo systemctl enable gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl enable nginx'
 
 # Disable auto-start on boot
-ssh [USERNAME]@[IP of your server] 'sudo systemctl disable gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl disable nginx'
 ```
 
 ## File Locations on Raspberry Pi
 
 - **Application root**: `/home/[USERNAME]/gshock-smart-sync`
-- **Service file**: `/etc/systemd/system/gshock-webapp.service`
-- **Logs**: `journalctl -u gshock-webapp`
+- **Nginx config**: `/etc/nginx/sites-available/gshock-webapp`
+- **Logs**: `journalctl -u nginx` or `/var/log/nginx/`
 - **Node modules**: `/home/[USERNAME]/gshock-smart-sync/node_modules`
 
 ## Production Optimization
@@ -136,23 +136,12 @@ The Node.js process may use significant memory on a Raspberry Pi. You can:
 - Consider using PM2 for better process management (optional)
 - Enable gzip compression in Vite config
 
-### 4. Nginx as reverse proxy (optional)
-For better performance and SSL support, setup Nginx:
+### 4. Advanced Nginx Configuration (optional)
+If you need SSL/TLS, modify the Nginx config created by the setup script:
 
 ```bash
-sudo apt-get install nginx
-
-# Configure Nginx as reverse proxy to :3000
-# Edit /etc/nginx/sites-available/default and add:
-location / {
-    proxy_pass http://localhost:3000;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-}
-
+# Edit /etc/nginx/sites-available/gshock-webapp
+# Add your SSL certificates and directives
 sudo systemctl restart nginx
 ```
 
@@ -160,11 +149,14 @@ sudo systemctl restart nginx
 
 ### Application won't start
 ```bash
+# Check Nginx config syntax
+ssh [USERNAME]@[IP of your server] 'sudo nginx -t'
+
 # Check logs
-ssh [USERNAME]@[IP of your server] 'sudo journalctl -u gshock-webapp -n 50'
+ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -n 50'
 
 # Check service status
-ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl status nginx'
 ```
 
 ### Out of memory errors
@@ -178,11 +170,12 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl status gshock-webapp'
 - Check firewall rules
 
 ### Port 3000 already in use
-Change the port in the systemd service file:
+Change the port in the Nginx configuration file:
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo nano /etc/systemd/system/gshock-webapp.service'
-# Change: ExecStart=/usr/bin/npm start -- -p 3001
-sudo systemctl restart gshock-webapp
+ssh [USERNAME]@[IP of your server] 'sudo nano /etc/nginx/sites-available/gshock-webapp'
+# Change: listen 3000;
+sudo nginx -t
+sudo systemctl restart nginx
 ```
 
 ## Updating the application
@@ -209,13 +202,13 @@ scp [USERNAME]@[IP of your server]:gshock-backup-*.tar.gz ./backups/
 ```bash
 scp ./backups/gshock-backup-*.tar.gz [USERNAME]@[IP of your server]:
 ssh [USERNAME]@[IP of your server] 'tar -xzf gshock-backup-*.tar.gz -C /'
-ssh [USERNAME]@[IP of your server] 'sudo systemctl restart gshock-webapp'
+ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 ```
 
 ## Support
 
 For issues or questions, check:
-- Application logs: `journalctl -u gshock-webapp -f`
+- Application logs: `journalctl -u nginx -f` or `/var/log/nginx/`
 - Node.js documentation: https://nodejs.org/
 - Vite documentation: https://vitejs.dev/guide/
 - Raspberry Pi documentation: https://www.raspberrypi.com/documentation/
