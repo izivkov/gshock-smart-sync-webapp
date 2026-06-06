@@ -96,7 +96,10 @@ const TimeIO = {
     async initializeForSettingTime(): Promise<void> {
         await this.writeDST();
         await this.writeDSTForWorldCities();
-        await this.writeWorldCities();
+
+        if (watchInfo.hasWorldCities) {
+            await this.writeWorldCities();
+        }
     },
 
     async readAndWrite(functionName: Function, param: any): Promise<void> {
