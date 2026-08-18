@@ -1,0 +1,11 @@
+- [x] API & Mocking
+    - [x] Create `MockStepData.ts`
+    - [x] Update `GShockAPI.ts` with mock logic
+    - [x] Enable `hasStepCounterMock` for `GENERIC` in `WatchInfo.ts`
+- [/] UI Components
+    - [x] Create `StepCounterView.tsx`
+    - [ ] Integrate into `Time.page.tsx`
+- [ ] Integration & Polling
+    - [ ] Add `stepData` state to `Time.page.tsx`
+    - [ ] Implement polling logic in `Time.page.tsx`
+    - [ ] Add `StepCounterView` to `Time` page layout

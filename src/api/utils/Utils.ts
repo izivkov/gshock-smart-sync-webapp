@@ -65,10 +65,18 @@ const Utils = {
 
         const intArray: number[] = [];
         for (let i = start; i < dataView.byteLength; i += 1) {
-            const value = dataView.getInt8(i); // Use true for little-endian encoding
+            const value = dataView.getUint8(i);
             intArray.push(value);
         }
         return intArray;
+    },
+
+    bytesToHex(bytes: number[]): string {
+        return bytes.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    },
+
+    bytesToHexWithSpaces(bytes: number[]): string {
+        return '0x' + bytes.map(byte => byte.toString(16).padStart(2, '0')).join(' ');
     },
 
     toAsciiString(intArray: number[], commandLengthToSkip?: number): string {

@@ -1,44 +1,48 @@
 import { cachedIO } from "@io/CachedIO";
 import CasioIO from "@io/CasioIO";
-import Utils from "@utils/Utils";
 
-interface CasioTimeZone {
+export interface CasioTimeZone {
     offset: number;
-    dstOffset: string;
+    dstOffset: string | number;
     dstRules: number;
 }
 
-let deferredResult: Promise<any>;
-let resolver: ((value?: any | PromiseLike<any>) => void);
+export const DstForWorldCitiesIOFunctional = {
+    setDST(dst: number[], casioTimeZone: CasioTimeZone): number[] {
+        const result = [...dst];
+        if (result.length >= 7) {
+            result[4] = casioTimeZone.offset;
+            result[5] = typeof casioTimeZone.dstOffset === 'string' ? parseInt(casioTimeZone.dstOffset) : casioTimeZone.dstOffset;
+            result[6] = casioTimeZone.dstRules;
+        }
+        return result;
+    }
+};
+
+let resolver: ((value: number[]) => void) | null = null;
 
 const DstForWorldCitiesIO = {
-    async request(cityNumber: number): Promise<any> {
-        return await cachedIO.request(`1e0${cityNumber}`, this.getDSTForWorldCities);
+    async request(cityNumber: number): Promise<number[]> {
+        return await cachedIO.request(`1e0${cityNumber}`, DstForWorldCitiesIO.getDSTForWorldCities);
     },
 
-    async getDSTForWorldCities(key: string): Promise<any> {
-        CasioIO.request(key);
-
-        deferredResult = new Promise<any>((resolve) => {
-            resolver = resolve as ((value?: any | PromiseLike<any>) => void);
+    async getDSTForWorldCities(key: string): Promise<number[]> {
+        const promise = new Promise<number[]>((resolve) => {
+            resolver = resolve;
         });
-
-        return deferredResult
+        CasioIO.request(key);
+        return promise;
     },
 
     async setDST(dst: number[], casioTimeZone: CasioTimeZone): Promise<number[]> {
-        let intArray = Array.from(dst);
-        if (intArray.length >= 7) {
-            intArray[4] = casioTimeZone.offset;
-            intArray[5] = parseInt(casioTimeZone.dstOffset);
-            intArray[6] = casioTimeZone.dstRules;
-        }
-
-        return intArray;
+        return DstForWorldCitiesIOFunctional.setDST(dst, casioTimeZone);
     },
 
-    onReceived(data: any): any {
-        resolver!(data);
+    onReceived(data: number[]) {
+        if (resolver) {
+            resolver(data);
+            resolver = null;
+        }
     },
 };
 

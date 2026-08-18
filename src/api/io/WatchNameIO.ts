@@ -1,33 +1,35 @@
 import { cachedIO } from "@io/CachedIO";
 import Utils from "@utils/Utils";
 import CasioIO from "@io/CasioIO";
-import { resolve } from "path";
 
-let deferredResult: Promise<string>;
-let resolver: ((value?: string | PromiseLike<string>) => void) | undefined;
+export const WatchNameIOFunctional = {
+    decode(data: number[]): string {
+        return Utils.trimNonAsciiCharacters(Utils.toAsciiString(data, 3));
+    }
+};
+
+let resolver: ((value: string) => void) | null = null;
 
 const WatchNameIO = {
+    async request(): Promise<string> {
+        return await cachedIO.request("23", WatchNameIO.getWatchName);
+    },
 
-  request: async function (): Promise<string> {
-    const key = "23";
-    const watchName = await cachedIO.request(key, this.getWatchName);
-    return watchName;
-  },
+    async getWatchName(key: string): Promise<string> {
+        const promise = new Promise<string>((resolve) => {
+            resolver = resolve;
+        });
+        CasioIO.request(key);
+        return promise;
+    },
 
-  getWatchName: async (key: string): Promise<string> => {
-    CasioIO.request(key);
-
-    deferredResult = new Promise<string>((resolve) => {
-      resolver = resolve as (value?: string | PromiseLike<string>) => void;
-    });
-
-    return deferredResult;
-  },
-
-  onReceived: (data: any) => {
-    const result = Utils.trimNonAsciiCharacters(Utils.toAsciiString(data, 3));
-    resolver!(result);
-  },
+    onReceived(data: number[]) {
+        const result = WatchNameIOFunctional.decode(data);
+        if (resolver) {
+            resolver(result);
+            resolver = null;
+        }
+    },
 }
 
 export default WatchNameIO;

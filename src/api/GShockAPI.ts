@@ -1,6 +1,5 @@
 import CasioIO from "@io/CasioIO"
 import watchNameIO from "@io/WatchNameIO"
-import HomeTimeIO from "@io/HomeTimeIO"
 import WorldCitiesIO from "@io/WorldCitiesIO"
 import TimerIO from "@io/TimerIO"
 import WatchConditionIO from "@io/WatchConditionIO"
@@ -13,9 +12,21 @@ import ButtonPressedIO from "@io/ButtonPressedIO"
 import { cachedIO } from "@io/CachedIO";
 import { progressEvents } from "@api/ProgressEvents"
 import AppInfoIO from "@io/AppInfoIO"
+import StepCounterIO from "@io/StepCounterIO"
+import { watchInfo } from "./WatchInfo"
+import { StepCounterData } from "./StepCounterData"
+import { Alarm } from "./Alarms"
+import { Settings } from "./Settings"
+import WatchDataListener from "./WatchDataListener"
+import { connection } from "@api/Connection"
+import { generateMockStepData } from "./utils/MockStepData"
 
 const GShockAPI = {
     init: async (): Promise<boolean> => {
+        CasioIO.setWriter(async (handle, value) => {
+            await connection.write(handle, value);
+        });
+        WatchDataListener.init();
         await CasioIO.init();
         await cachedIO.init();
         await GShockAPI.getPressedButton();
@@ -33,14 +44,8 @@ const GShockAPI = {
         return await watchNameIO.request();
     },
 
-    getHomeTime: async (): Promise<any> => {
-        try {
-            const result = await HomeTimeIO.request();
-            return result;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
+    getHomeTime: async (): Promise<string> => {
+        return await watchInfo.protocol!.getHomeTime();
     },
 
     getWorldCities: async (cityNumber: number): Promise<any> => {
@@ -53,42 +58,33 @@ const GShockAPI = {
         }
     },
 
-    getTimer: async (): Promise<any> => {
-        try {
-            const timerValue = await TimerIO.request();
-            return timerValue;
-        } catch (error) {
-            console.error("Error:", error);
-            throw error;
-        }
+    getTimer: async (): Promise<number> => {
+        return await watchInfo.protocol!.getTimer();
     },
 
-    setTimer: async (timerValue: any): Promise<void> => {
-        TimerIO.set(timerValue);
+    setTimer: (timerValue: number): void => {
+        watchInfo.protocol!.setTimer(timerValue);
     },
 
     getBatteryLevel: async (): Promise<number> => {
-        const condition = await WatchConditionIO.request();
-        return condition.batteryLevel;
+        return await watchInfo.protocol!.getBatteryLevel();
     },
 
     getWatchTemperature: async (): Promise<number> => {
-        const condition = await WatchConditionIO.request();
-        return condition.temperature;
+        return await watchInfo.protocol!.getWatchTemperature();
     },
 
     setTime: async (timeZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone): Promise<void> => {
         await TimeIO.setTimezone(timeZone);
-        await TimeIO.set();
+        await watchInfo.protocol!.setTime();
     },
 
-    getAlarms: async (): Promise<any> => {
-        const alarms = await AlarmsIO.request();
-        return alarms;
+    getAlarms: async (): Promise<Alarm[]> => {
+        return await watchInfo.protocol!.getAlarms();
     },
 
-    setAlarms: async (alarms: any): Promise<void> => {
-        await AlarmsIO.set(alarms);
+    setAlarms: (alarms: Alarm[]): void => {
+        watchInfo.protocol!.setAlarms(alarms);
     },
 
     getEventFromWatch: async (eventNumber: number): Promise<any> => {
@@ -111,24 +107,27 @@ const GShockAPI = {
         await EventsIO.setEvents(events);
     },
 
-    getBasicSettings: async (): Promise<any> => {
-        return await SettingsIO.request();
+    getBasicSettings: async (): Promise<Settings> => {
+        return await watchInfo.protocol!.getBasicSettings();
     },
 
     getTimeAdjustment: async (): Promise<any> => {
-        return await TimeAdjustmentIO.request();
+        return await watchInfo.protocol!.getTimeAdjustment();
     },
 
-    getSettings: async (): Promise<any> => {
-        const settings = await GShockAPI.getBasicSettings();
-        const timeAdjustment = await GShockAPI.getTimeAdjustment();
-        settings.timeAdjustment = timeAdjustment;
-        return settings;
+    getSettings: async (): Promise<Settings> => {
+        return await watchInfo.protocol!.getSettings();
     },
 
-    setSettings: async (settings: any): Promise<void> => {
-        await SettingsIO.set(settings);
-        await TimeAdjustmentIO.set(settings);
+    setSettings: (settings: Settings): void => {
+        watchInfo.protocol!.setSettings(settings);
+    },
+
+    getStepCount: async (): Promise<StepCounterData> => {
+        if (watchInfo.hasStepCounterMock) {
+            return generateMockStepData();
+        }
+        return await StepCounterIO.request();
     },
 
     getPressedButton: async (): Promise<string> => {

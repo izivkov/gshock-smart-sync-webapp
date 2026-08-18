@@ -1,43 +1,42 @@
 import { cachedIO } from "@io/CachedIO";
 import Utils from "@utils/Utils";
-import CasioIO from "@io/CasioIO";
+import CasioIO, { GET_SET_MODE } from "@io/CasioIO";
 
-let deferredResult: Promise<void>;
-let resolver: ((value?: void | PromiseLike<void>) => void);
+export const AppInfoIOFunctional = {
+    shouldSetDefaultAppInfo(data: number[]): boolean {
+        const compact = Utils.toCompactString(data);
+        return compact.toUpperCase() === "22FFFFFFFFFFFFFFFFFFFF00";
+    },
+
+    getDefaultAppInfoCmd(): string {
+        return "223488F4E5D5AFC829E06D02";
+    }
+};
+
+let resolver: ((value: number[]) => void) | null = null;
 
 const AppInfoIO = {
-    async request(): Promise<void> {
-        return await cachedIO.request("22", this.getAppInfo);
+    async request(): Promise<number[]> {
+        return await cachedIO.request("22", AppInfoIO.getAppInfo);
     },
 
-    async getAppInfo(key: string): Promise<void> {
-        CasioIO.request(key);
-
-        deferredResult = new Promise<void>((resolve) => {
-            resolver = resolve as ((value?: void | PromiseLike<void>) => void);
+    async getAppInfo(key: string): Promise<number[]> {
+        const promise = new Promise<number[]>((resolve) => {
+            resolver = resolve;
         });
-
-        return deferredResult
+        CasioIO.request(key);
+        return promise;
     },
 
-    onReceived(data: any): any {
-        function setAppInfo(data: any): void {
-            // App info:
-            // This is needed to re-enable button D (Lower-right) after the watch has been reset or BLE has been cleared.
-            // It is a hard-coded value, which is what the official app does as well.
-
-            // If the watch was reset, the app info will come as:
-            // 0x22 FF FF FF FF FF FF FF FF FF FF 00
-            // In this case, set it to the hardcoded value below, so 'D' button will work again.
-            const appInfoCompactStr = Utils.toCompactString(data);
-            if (appInfoCompactStr === "22FFFFFFFFFFFFFFFFFFFF00") {
-                CasioIO.writeCmdFromString(0xE, "223488F4E5D5AFC829E06D02");
-            }
+    onReceived(data: number[]) {
+        if (AppInfoIOFunctional.shouldSetDefaultAppInfo(data)) {
+            CasioIO.writeCmdFromString(GET_SET_MODE.SET, AppInfoIOFunctional.getDefaultAppInfoCmd());
         }
 
-        setAppInfo(data);
-
-        resolver!(data);
+        if (resolver) {
+            resolver(data);
+            resolver = null;
+        }
     },
 };
 

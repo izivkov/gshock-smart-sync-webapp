@@ -7,10 +7,12 @@ import ThermostatIcon from '@mui/icons-material/Thermostat';
 import SendIcon from '@mui/icons-material/Send';
 import BluetoothConnectedIcon from '@mui/icons-material/BluetoothConnected';
 import TimerInput from './TimerInput';
+import StepCounterView from './StepCounterView';
 import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
 import { watchInfo } from '@api/WatchInfo';
+import { StepCounterData } from '@/api/StepCounterData';
 import { ConnectionContext } from '@/App';
 import ScreenTitle from '../components/ScreenTitle';
 import PeachCard from '../components/PeachCard';
@@ -129,6 +131,7 @@ const Time: React.FC = () => {
     const [homeTime, setHomeTime] = useState<string>("");
     const [batteryLevel, setBatteryLevel] = useState<number>(0);
     const [temperature, setTemperature] = useState<number>(0);
+    const [stepData, setStepData] = useState<StepCounterData>(StepCounterData.unavailable());
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
@@ -138,14 +141,22 @@ const Time: React.FC = () => {
     const refreshWatchData = useCallback(async () => {
         if (!isConnected) return;
         try {
-            const timer = await GShockAPI.getTimer();
-            setTimerValue(timer);
+            const timerSeconds = await GShockAPI.getTimer();
+            setTimerValue({
+                hours: Math.floor(timerSeconds / 3600),
+                minutes: Math.floor((timerSeconds % 3600) / 60),
+                seconds: timerSeconds % 60
+            });
             const ht = await GShockAPI.getHomeTime();
             setHomeTime(ht);
             const temp = await GShockAPI.getWatchTemperature();
             setTemperature(temp);
             const level = await GShockAPI.getBatteryLevel();
             setBatteryLevel(level);
+            if (watchInfo.hasStepCounter || watchInfo.hasStepCounterMock) {
+                const steps = await GShockAPI.getStepCount();
+                setStepData(steps);
+            }
         } catch (error) {
             console.error("Watch refresh failed:", error);
         }
@@ -154,6 +165,23 @@ const Time: React.FC = () => {
     useEffect(() => {
         refreshWatchData();
     }, [isConnected, refreshWatchData]);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout | null = null;
+        if (isConnected && (watchInfo.hasStepCounter || watchInfo.hasStepCounterMock)) {
+            interval = setInterval(async () => {
+                try {
+                    const data = await GShockAPI.getStepCount();
+                    setStepData(data);
+                } catch (e) {
+                    console.error("Step polling failed", e);
+                }
+            }, 3000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [isConnected]);
 
     const handleSetTime = async () => {
         try {
@@ -227,6 +255,10 @@ const Time: React.FC = () => {
                             setTimerValue={setTimerValue} 
                             onSetTimer={handleSetTimer} 
                         />
+
+                        {(watchInfo.hasStepCounter || watchInfo.hasStepCounterMock) && (
+                            <StepCounterView stepData={stepData} />
+                        )}
 
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
                             <HomeTimeCard 

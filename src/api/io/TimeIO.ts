@@ -1,10 +1,9 @@
-import CasioIO from "@io/CasioIO";
+import CasioIO, { GET_SET_MODE } from "@io/CasioIO";
 import { watchInfo } from "@/api/WatchInfo";
 import DstWatchStateIO from "@io/DstWatchStateIO";
 import DstForWorldCitiesIO from "@io/DstForWorldCitiesIO";
-import WorldCitiesIO from "@io/WorldCitiesIO";
+import WorldCitiesIO, { WorldCitiesIOFunctional } from "@io/WorldCitiesIO";
 import { CasioConstants } from "@api/CasioConstants";
-import { connection } from "@api/Connection";
 import Utils from "../utils/Utils";
 import { findTimeZone, getStandardAndSummerOffsets } from "./CasioTimeZoneHelper";
 import dayjs, { Dayjs } from "dayjs";
@@ -36,9 +35,7 @@ const TimeIO = {
         await this.initializeForSettingTime();
 
         const currentTime = Date.now();
-        const currentTimeMessage = JSON.stringify({ action: "SET_TIME", value: currentTime });
-
-        await connection.sendMessage(currentTimeMessage);
+        await this.sendToWatchSet(JSON.stringify({ value: currentTime }));
     },
 
     async setTimezone(timeZone?: string): Promise<void> {
@@ -86,8 +83,8 @@ const TimeIO = {
     },
 
     getWorldCitiesWithTZ: async (cityNum: number): Promise<number[]> => {
-        const newCity: string = WorldCitiesIO.parseCity(TimeIO.state.timeZone);
-        const encoded: string = WorldCitiesIO.encodeAndPad(newCity, cityNum);
+        const newCity: string = WorldCitiesIOFunctional.parseCity(TimeIO.state.timeZone);
+        const encoded: string = WorldCitiesIOFunctional.encodeAndPad(newCity, cityNum);
         CasioIO.removeFromCache(encoded);
 
         return Utils.hexToBytes(encoded);
@@ -104,7 +101,7 @@ const TimeIO = {
 
     async readAndWrite(functionName: Function, param: any): Promise<void> {
         const ret = await functionName(param);
-        await CasioIO.writeCmd(0xE, ret);
+        await CasioIO.writeCmd(GET_SET_MODE.SET, ret);
     },
 
     async writeDST(): Promise<void> {
@@ -149,7 +146,7 @@ const TimeIO = {
         }
     },
 
-    sendToWatchSet(message: string): void {
+    async sendToWatchSet(message: string): Promise<void> {
         const dateTimeMs = JSON.parse(message).value;
         const dateTime = dayjs(dateTimeMs).tz(TimeIO.state.casioTimezone.zoneName);
 
@@ -159,7 +156,7 @@ const TimeIO = {
             ...Array.from(timeData),
         ];
 
-        CasioIO.writeCmd(0x000e, timeCommand);
+        await CasioIO.writeCmd(GET_SET_MODE.SET, timeCommand);
     },
 };
 

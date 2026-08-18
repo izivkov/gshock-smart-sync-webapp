@@ -1,11 +1,13 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import isBetween from "dayjs/plugin/isBetween";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(isBetween);
 
-interface CasioTimeZoneData {
+export interface CasioTimeZoneData {
     name: string;
     zoneName: string;
     dstRules: number;
@@ -28,7 +30,7 @@ export function getStandardAndSummerOffsets(zoneName: string): { stdOffset: numb
     }
 }
 
-function getDSTOffset(zoneName: string): number {
+function getDSTOffsetMinutes(zoneName: string): number {
     return getStandardAndSummerOffsets(zoneName).dstOffset;
 }
 
@@ -71,8 +73,6 @@ function makeCasioTimeZone(
         offset,
     };
 }
-
-// --- The table ---
 
 const timeZoneTable: CasioTimeZoneData[] = [
     makeCasioTimeZone("BAKER ISLAND", "UTC-12"),
@@ -131,21 +131,85 @@ const timeZoneMap = new Map<string, CasioTimeZoneData>(
 );
 
 export function findTimeZone(timeZoneName: string): CasioTimeZoneData {
-    // 1. Exact match
     const exact = timeZoneMap.get(timeZoneName);
     if (exact) return exact;
 
-    // 2. Equivalent rules match
     const entries = [...timeZoneMap.values()];
-
     for (const entry of entries) {
         if (isEquivalent(entry.zoneName, timeZoneName)) {
             return entry;
         }
     }
 
-    // 3. Fallback
     const name = timeZoneName.split("/").pop()?.toUpperCase() ?? "UNKNOWN";
     const DEFAULT_OFFSET = 0x00;
     return makeCasioTimeZone(name, timeZoneName, DEFAULT_OFFSET);
+}
+
+const worldCityCoordinates: Record<string, { lat: number, lon: number }> = {
+    "Asia/Ho_Chi_Minh": { lat: 10.7958, lon: 106.7062 },
+    "Europe/Madrid": { lat: 41.4548, lon: 2.2502 },
+    "Asia/Shanghai": { lat: 22.7230, lon: 114.2611 },
+    "UTC-12": { lat: 0.1936, lon: -176.4769 },
+    "Pacific/Marquesas": { lat: -8.9167, lon: -140.1000 },
+    "Pacific/Pago_Pago": { lat: -14.2781, lon: -170.7025 },
+    "Pacific/Honolulu": { lat: 21.3069, lon: -157.8583 },
+    "America/Anchorage": { lat: 61.2181, lon: -149.9003 },
+    "America/Los_Angeles": { lat: 34.0522, lon: -118.2437 },
+    "America/Denver": { lat: 39.7392, lon: -104.9903 },
+    "America/Chicago": { lat: 41.8781, lon: -87.6298 },
+    "America/New_York": { lat: 40.7128, lon: -74.0060 },
+    "America/Halifax": { lat: 44.6488, lon: -63.5752 },
+    "America/St_Johns": { lat: 47.5615, lon: -52.7126 },
+    "America/Sao_Paulo": { lat: -22.9068, lon: -43.1729 },
+    "America/Noronha": { lat: -3.8536, lon: -32.4297 },
+    "Atlantic/Cape_Verde": { lat: 14.9330, lon: -23.5133 },
+    "UTC": { lat: 0.0, lon: 0.0 },
+    "Europe/London": { lat: 51.5074, lon: -0.1278 },
+    "Europe/Paris": { lat: 48.8566, lon: 2.3522 },
+    "Europe/Athens": { lat: 37.9838, lon: 23.7275 },
+    "Asia/Riyadh": { lat: 21.4858, lon: 39.1925 },
+    "Asia/Jerusalem": { lat: 31.7683, lon: 35.2137 },
+    "Asia/Tehran": { lat: 35.6892, lon: 51.3890 },
+    "Asia/Dubai": { lat: 25.2048, lon: 55.2708 },
+    "Asia/Kabul": { lat: 34.5553, lon: 69.2075 },
+    "Asia/Karachi": { lat: 24.8607, lon: 67.0011 },
+    "Asia/Kolkata": { lat: 28.6139, lon: 77.2090 },
+    "Asia/Kathmandu": { lat: 27.7172, lon: 85.3240 },
+    "Asia/Dhaka": { lat: 23.8103, lon: 90.4125 },
+    "Asia/Yangon": { lat: 16.8661, lon: 96.1951 },
+    "Asia/Bangkok": { lat: 13.7563, lon: 100.5018 },
+    "Asia/Hong_Kong": { lat: 22.3193, lon: 114.1694 },
+    "Asia/Pyongyang": { lat: 39.0392, lon: 125.7625 },
+    "Australia/Eucla": { lat: -31.6784, lon: 128.8869 },
+    "Asia/Tokyo": { lat: 35.6762, lon: 139.6503 },
+    "Australia/Adelaide": { lat: -34.9285, lon: 138.6007 },
+    "Australia/Sydney": { lat: -33.8688, lon: 151.2093 },
+    "Australia/Lord_Howe": { lat: -31.5553, lon: 159.0821 },
+    "Pacific/Noumea": { lat: -22.2758, lon: 166.4581 },
+    "Pacific/Auckland": { lat: -41.2865, lon: 174.7762 },
+    "Pacific/Chatham": { lat: -43.9500, lon: -176.5500 },
+    "Pacific/Tongatapu": { lat: -21.1789, lon: -175.1982 },
+    "Pacific/Kiritimati": { lat: 1.8721, lon: -157.4278 },
+    "Africa/Casablanca": { lat: 33.5731, lon: -7.5898 },
+    "Asia/Beirut": { lat: 33.8938, lon: 35.5018 },
+    "Pacific/Norfolk": { lat: -29.0408, lon: 167.9547 },
+    "Pacific/Easter": { lat: -27.1127, lon: -109.3497 },
+    "America/Havana": { lat: 23.1136, lon: -82.3666 },
+    "America/Santiago": { lat: -33.4489, lon: -70.6693 },
+    "America/Asuncion": { lat: -25.2637, lon: -57.5759 },
+    "Atlantic/Azores": { lat: 37.7412, lon: -25.6756 },
+};
+
+export function getWorldCityCoordinates(zoneId: string): { lat: number, lon: number, isConfirmed: boolean } {
+    const coords = worldCityCoordinates[zoneId];
+    if (coords) return { ...coords, isConfirmed: true };
+
+    try {
+        const offsetMinutes = dayjs().tz(zoneId).utcOffset();
+        const approxLon = (offsetMinutes / 60.0) * 15.0;
+        return { lat: 0.0, lon: Math.max(-180, Math.min(180, approxLon)), isConfirmed: false };
+    } catch {
+        return { lat: 0.0, lon: 0.0, isConfirmed: false };
+    }
 }

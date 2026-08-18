@@ -3,30 +3,22 @@
 import { CasioConstants } from '@api/CasioConstants';
 import { progressEvents } from '@api/ProgressEvents';
 import { watchInfo } from '@/api/WatchInfo';
-import { messageDispatcher } from '@api/MessageDispatcher';
 
 class Connection {
   name: string;
   device: BluetoothDevice | null;
   server: BluetoothRemoteGATTServer | null;
   service: BluetoothRemoteGATTService | null;
-  readCharacteristic: BluetoothRemoteGATTCharacteristic | null;
-  writeCharacteristic: BluetoothRemoteGATTCharacteristic | null;
-  writeCharacteristicSetValue: BluetoothRemoteGATTCharacteristic | null;
-  notifyCharacteristic: BluetoothRemoteGATTCharacteristic | null;
 
   public connecting: boolean = false;
   private characteristicCache: Map<string, BluetoothRemoteGATTCharacteristic>;
+  private dataReceivedCallback: ((receivedData: DataView, characteristicUuid: string) => void) | null = null;
 
   constructor() {
     this.name = "";
     this.device = null;
     this.server = null;
     this.service = null;
-    this.readCharacteristic = null;
-    this.writeCharacteristic = null;
-    this.writeCharacteristicSetValue = null;
-    this.notifyCharacteristic = null;
     this.characteristicCache = new Map();
   }
 
@@ -60,24 +52,16 @@ class Connection {
     try {
       this.device = device;
       
-      // Connect to the device
       const server = await device.gatt!.connect();
       this.server = server;
 
-      // Wait 1 second for the GATT connection and encryption to settle
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       device.addEventListener('gattserverdisconnected', () => {
         this.device = null;
         this.server = null;
         this.service = null;
-        this.readCharacteristic = null;
-        this.writeCharacteristic = null;
-        this.writeCharacteristicSetValue = null;
-        this.notifyCharacteristic = null;
-
         this.characteristicCache.clear();
-
         progressEvents.onNext("Disconnected");
       });
 
@@ -86,15 +70,24 @@ class Connection {
       try {
         this.service = await server.getPrimaryService(CasioConstants.WATCH_FEATURES_SERVICE_UUID);
 
-        // Enable notifications for a characteristic
-        this.notifyCharacteristic = await this.service.getCharacteristic(CasioConstants.CASIO_ALL_FEATURES_CHARACTERISTIC_UUID);
-        await this.notifyCharacteristic.startNotifications();
+        const characteristics = await this.service.getCharacteristics();
+        for (const char of characteristics) {
+            if (char.properties.notify || char.properties.indicate) {
+                await char.startNotifications();
+                char.addEventListener('characteristicvaluechanged', (event: Event) => {
+                    const target = event.target as BluetoothRemoteGATTCharacteristic;
+                    if (this.dataReceivedCallback && target.value) {
+                        this.dataReceivedCallback(target.value, target.uuid);
+                    }
+                });
+                console.log(`Subscribed to notifications: ${char.uuid}`);
+            }
+        }
 
         console.log(`Connected to ${device.name}`);
         progressEvents.onNext("Connected");
       } catch (e) {
         console.error("Failed to get services/characteristics", e);
-        // Even if characteristics fail, we are connected at the GATT level
         progressEvents.onNext("Connected");
       }
     } finally {
@@ -109,60 +102,38 @@ class Connection {
     progressEvents.onNext("Disconnected");
   };
 
-  write = async (handle: BluetoothCharacteristicUUID, value: any): Promise<void> => {
+  write = async (handleOrUuid: string, value: any): Promise<void> => {
     if (this.service) {
-      let characteristic = this.characteristicCache.get(handle.toString());
+      let characteristic = this.characteristicCache.get(handleOrUuid);
       if (!characteristic) {
-        characteristic = await this.service.getCharacteristic(handle);
-        this.characteristicCache.set(handle.toString(), characteristic);
+        // handleOrUuid might be a short handle string like "26eb002d-..." or a full UUID.
+        // It could also be a short handle ID from CasioIO.
+        // We'll try to find it in the service if it looks like a UUID.
+        try {
+            characteristic = await this.service.getCharacteristic(handleOrUuid);
+            this.characteristicCache.set(handleOrUuid, characteristic);
+        } catch (e) {
+            console.error(`Characteristic ${handleOrUuid} not found`);
+            return;
+        }
       }
       await characteristic.writeValue(new Uint8Array(value));
-      console.log(`Write: ${handle} | value: ${value.toString(16)}`);
+      console.log(`Write: ${handleOrUuid} | value: ${Array.from(new Uint8Array(value)).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
     }
   };
 
-  request = async (request: number[]): Promise<void> => {
-    const REQUEST_HANDLE_ID = 0xC;
-    await this.write(REQUEST_HANDLE_ID.toString(), request);
-  };
-
-  setDataReceivedCallback = (callback: (receivedData: DataView) => void): void => {
-    if (this.notifyCharacteristic) {
-      this.notifyCharacteristic.addEventListener('characteristicvaluechanged', (event: Event) => {
-        const target = event.target as BluetoothRemoteGATTCharacteristic;
-        const receivedData = target!.value;
-        callback(receivedData!);
-      });
-    }
+  setDataReceivedCallback = (callback: (receivedData: DataView, characteristicUuid: string) => void): void => {
+    this.dataReceivedCallback = callback;
   };
 
   sendMessage = async (message: string): Promise<void> => {
-    await messageDispatcher.sendToWatch(message);
+    // Moved to GShockAPI or handled directly by IOs to avoid circular dependency
+    console.warn("Connection.sendMessage is deprecated. Use MessageDispatcher directly if needed.");
   };
 
-  isExperimentalFeatureEnabled = (): boolean => {
-    // Check if the Web Bluetooth API is available
-    if ('bluetooth' in navigator && 'Bluetooth' in window) {
-      // Web Bluetooth API is available, so it's likely that experimental features are enabled
-      return true;
-    } else {
-      // Web Bluetooth API is not available, indicating experimental features are not enabled
-      return false;
-    }
-  }
-
   isConnected = (): boolean => {
-    if (this.device) {
-      return this.device.gatt!.connected;
-    } else {
-      return false;
-    }
+    return !!(this.device && this.device.gatt && this.device.gatt.connected);
   }
 }
 
 export const connection = new Connection();
-
-/*
-Read request:  26eb002c-b012-49a8-b1f8-394fb2032b0f | value: 0x10
-Write request: 26eb002d-b012-49a8-b1f8-394fb2032b0f | value: 0x18 00 04 0A 00 00 00
-*/

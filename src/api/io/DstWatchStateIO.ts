@@ -1,33 +1,38 @@
 import { cachedIO } from "@io/CachedIO";
 import CasioIO from "@io/CasioIO";
-import Utils from "@utils/Utils";
 
-let deferredResult: Promise<any>;
-let resolver: ((value?: any | PromiseLike<any>) => void);
+export const DstWatchStateIOFunctional = {
+    setDST(dstState: number[], dst: number): number[] {
+        const result = [...dstState];
+        result[3] = dst;
+        return result;
+    }
+};
+
+let resolver: ((value: number[]) => void) | null = null;
 
 const DstWatchStateIO = {
-    async request(state: number): Promise<any> {
-        return await cachedIO.request(`1d0${state}`, this.getDSTWatchState);
+    async request(state: number): Promise<number[]> {
+        return await cachedIO.request(`1d0${state}`, DstWatchStateIO.getDSTWatchState);
     },
 
-    async getDSTWatchState(key: string): Promise<any> {
-        CasioIO.request(key);
-
-        deferredResult = new Promise<any>((resolve) => {
-            resolver = resolve as ((value?: any | PromiseLike<any>) => void);
+    async getDSTWatchState(key: string): Promise<number[]> {
+        const promise = new Promise<number[]>((resolve) => {
+            resolver = resolve;
         });
-
-        return deferredResult
+        CasioIO.request(key);
+        return promise;
     },
 
     async setDST(dstState: number[], dst: number): Promise<number[]> {
-        const intArray = Array.from(dstState);
-        intArray[3] = dst;
-        return intArray;
+        return DstWatchStateIOFunctional.setDST(dstState, dst);
     },
 
-    onReceived(data: any): any {
-        resolver!(data);
+    onReceived(data: number[]) {
+        if (resolver) {
+            resolver(data);
+            resolver = null;
+        }
     },
 };
 

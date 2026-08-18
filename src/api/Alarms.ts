@@ -1,7 +1,7 @@
 import Utils from "@utils/Utils";
 import { CasioConstants } from "@api/CasioConstants";
 
-class Alarm {
+export class Alarm {
     hour: number;
     minute: number;
     enabled: boolean;

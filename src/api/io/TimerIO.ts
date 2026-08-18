@@ -1,7 +1,5 @@
-import CasioIO from "@io/CasioIO";
-import Utils from "@utils/Utils";
+import CasioIO, { GET_SET_MODE } from "@io/CasioIO";
 import { cachedIO } from "@io/CachedIO";
-import { connection } from "@api/Connection";
 
 interface TimerData {
     hours: number;
@@ -9,67 +7,14 @@ interface TimerData {
     seconds: number;
 }
 
-let deferredResult: Promise<TimerData>;
-let resolver: ((value?: TimerData | PromiseLike<TimerData>) => void);
-
-const TimerIO = {
-    async request(): Promise<number> {
-        const key = `18`;
-        const timerValue = await cachedIO.request(key, this._getTimer);
-        return timerValue;
-    },
-
-    async _getTimer(key: string): Promise<TimerData> {
-        CasioIO.request(key);
-
-        deferredResult = new Promise<TimerData>((resolve) => {
-            resolver = resolve as ((value?: TimerData | PromiseLike<TimerData>) => void);
-        });
-
-        return deferredResult
-    },
-
-    set(timerValue: number): void {
-        const key = "18";
-        cachedIO.delete(key);
-        connection.sendMessage(`{"action": "SET_TIMER", "value": ${timerValue}}`);
-    },
-
-    onReceived(data: any): void {
-        const getTimer = (data: Uint8Array): TimerData => {
-            return TimerDecoder.decodeValue(data);
-        };
-
-        resolver!(getTimer(data));
-    },
-
-    async sendToWatch(message: string): Promise<void> {
-        const characteristicsCode = 0x18;
-        const byteArray: any = Utils.byteArray(characteristicsCode);
-        await CasioIO.writeCmd(0x000c, byteArray);
-    },
-
-    sendToWatchSet(message: string): void {
-        const seconds = JSON.parse(message).value.toString();
-        const encodedData = TimerEncoder.encode(seconds);
-        CasioIO.writeCmd(0x000e, encodedData);
-    },
-};
-
-const TimerDecoder = {
-    decodeValue(data: Uint8Array): TimerData {
-        const timerIntArray = data;
-
-        const hours = timerIntArray[1];
-        const minutes = timerIntArray[2];
-        const seconds = timerIntArray[3];
-
-        const inSeconds = hours * 3600 + minutes * 60 + seconds;
+export const TimerIOFunctional = {
+    decode(data: number[]): TimerData {
+        const hours = data[1];
+        const minutes = data[2];
+        const seconds = data[3];
         return { hours, minutes, seconds };
     },
-};
 
-const TimerEncoder = {
     encode(secondsStr: string): number[] {
         const inSeconds = parseInt(secondsStr, 10);
         const hours = Math.floor(inSeconds / 3600);
@@ -77,13 +22,49 @@ const TimerEncoder = {
         const minutes = Math.floor(minutesAndSeconds / 60);
         const seconds = minutesAndSeconds % 60;
 
-        const arr = new Uint8Array(7);
-        arr[0] = 0x18;
-        arr[1] = hours;
-        arr[2] = minutes;
-        arr[3] = seconds;
+        return [0x18, hours, minutes, seconds, 0, 0, 0]; // 7 bytes
+    }
+};
 
-        return Array.from(arr);
+let resolver: ((value: TimerData) => void) | null = null;
+
+const TimerIO = {
+    async request(requestStr: string = "18"): Promise<number> {
+        const data = await cachedIO.request(requestStr, TimerIO._getTimer);
+        return data.hours * 3600 + data.minutes * 60 + data.seconds;
+    },
+
+    async _getTimer(key: string): Promise<TimerData> {
+        const promise = new Promise<TimerData>((resolve) => {
+            resolver = resolve;
+        });
+        await TimerIO.sendToWatch("");
+        return promise;
+    },
+
+    set(timerValue: number): void {
+        cachedIO.delete("18");
+        TimerIO.sendToWatchSet(JSON.stringify({ value: timerValue }));
+    },
+
+    onReceived(data: number[]): void {
+        const result = TimerIOFunctional.decode(data);
+        if (resolver) {
+            resolver(result);
+            resolver = null;
+        }
+    },
+
+    async sendToWatch(message: string): Promise<void> {
+        const characteristicsCode = 0x18;
+        const byteArray = [characteristicsCode];
+        await CasioIO.writeCmd(GET_SET_MODE.GET, byteArray);
+    },
+
+    sendToWatchSet(message: string): void {
+        const seconds = JSON.parse(message).value.toString();
+        const encodedData = TimerIOFunctional.encode(seconds);
+        CasioIO.writeCmd(GET_SET_MODE.SET, encodedData);
     },
 };
 

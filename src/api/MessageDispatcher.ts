@@ -14,57 +14,52 @@ import ButtonPressedIO from "@io/ButtonPressedIO";
 import ErrorIO from "@io/ErrorIO";
 import UnknownIO from "@io/UnknownIO";
 import AppInfoIO from "@io/AppInfoIO";
+import { watchInfo } from "./WatchInfo";
+import Utils from "@utils/Utils";
+import StepCounterIO from "@io/StepCounterIO";
 
 class MessageDispatcher {
-    watchSenders: Record<string, Function> = {
-        "GET_ALARMS": AlarmsIO.sendToWatch,
-        "SET_ALARMS": AlarmsIO.sendToWatchSet,
-        "SET_REMINDERS": EventsIO.sendToWatchSet,
-        "GET_SETTINGS": SettingsIO.sendToWatch,
-        "SET_SETTINGS": SettingsIO.sendToWatchSet,
-        "GET_TIME_ADJUSTMENT": TimeAdjustmentIO.sendToWatch,
-        "SET_TIME_ADJUSTMENT": TimeAdjustmentIO.sendToWatchSet,
-        "GET_TIMER": TimerIO.sendToWatch,
-        "SET_TIMER": TimerIO.sendToWatchSet,
-        "SET_TIME": TimeIO.sendToWatchSet,
-    };
-
-    dataReceivedMessages: Record<string, Function> = {
-        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM]: AlarmsIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM2]: AlarmsIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_DST_SETTING]: DstForWorldCitiesIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TIME]: EventsIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TITLE]: EventsIO.onReceivedTitle,
-        [CasioConstants.CHARACTERISTICS.CASIO_TIMER]: TimerIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_WORLD_CITIES]: WorldCitiesIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_DST_WATCH_STATE]: DstWatchStateIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_WATCH_NAME]: WatchNameIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_WATCH_CONDITION]: WatchConditionIO.onReceved,
-        [CasioConstants.CHARACTERISTICS.CASIO_APP_INFORMATION]: AppInfoIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_BLE_FEATURES]: ButtonPressedIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_BASIC]: SettingsIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_BLE]: TimeAdjustmentIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.ERROR]: ErrorIO.onReceived,
-        [CasioConstants.CHARACTERISTICS.UNKNOWN]: UnknownIO.onReceived,
-    };
+    private get watchSenders(): Record<string, (message: string) => Promise<void> | void> {
+        return {
+            "GET_ALARMS": (msg) => AlarmsIO.sendToWatch(msg),
+            "SET_ALARMS": (msg) => AlarmsIO.sendToWatchSet(msg),
+            "SET_REMINDERS": (msg) => EventsIO.sendToWatchSet(msg),
+            "GET_SETTINGS": (msg) => SettingsIO.sendToWatch(msg),
+            "SET_SETTINGS": (msg) => SettingsIO.sendToWatchSet(msg),
+            "GET_TIME_ADJUSTMENT": (msg) => TimeAdjustmentIO.sendToWatch(msg),
+            "SET_TIME_ADJUSTMENT": (msg) => TimeAdjustmentIO.sendToWatchSet(msg),
+            "GET_TIMER": (msg) => TimerIO.sendToWatch(msg),
+            "SET_TIMER": (msg) => TimerIO.sendToWatchSet(msg),
+            "SET_TIME": (msg) => TimeIO.sendToWatchSet(msg),
+        };
+    }
 
     async sendToWatch(message: string) {
         const parsedMessage = JSON.parse(message);
         const action = parsedMessage.action;
-        if (this.watchSenders[action]) {
-            await this.watchSenders[action](message);
+        const senders = this.watchSenders;
+        if (senders[action]) {
+            await senders[action](message);
         } else {
             console.error("Unknown action: " + action);
         }
     }
 
-    onReceived(data: any) {
-        const key = data[0];
-        if (this.dataReceivedMessages[key]) {
-            return this.dataReceivedMessages[key](data);
+    onReceived(data: number[], characteristicUuid: string) {
+        if (characteristicUuid === CasioConstants.CASIO_DATA_REQUEST_SP_CHARACTERISTIC_UUID) {
+            return StepCounterIO.onDrspReceived(data);
+        }
+
+        const hex = Utils.bytesToHex(data);
+        const key = watchInfo.protocol!.extractKey(hex);
+
+        if (key !== null && watchInfo.protocol!.dataReceivedHandlers[key]) {
+            const unwrappedHex = watchInfo.protocol!.unwrapPayload(hex, key);
+            const unwrappedData = Utils.hexToBytes(unwrappedHex);
+            return watchInfo.protocol!.dataReceivedHandlers[key](unwrappedData as any);
         } else {
-            console.error("GShockAPI", "Unknown key: " + key);
-            return null; // You can handle this case as needed
+            console.error("GShockAPI", "Unknown key: " + key + " in data: " + hex + " from char: " + characteristicUuid);
+            return null;
         }
     }
 }
