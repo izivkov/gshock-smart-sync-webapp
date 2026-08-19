@@ -1,12 +1,19 @@
 # Release Notes - G-Shock Smart Sync Webapp
 
+## v2.0.1
+*   **Renamed Deployment References**: Updated all scripts, variable names, and documentation to refer to a generic "Server" instead of "Raspberry Pi". This makes the deployment infrastructure more suitable for VPS and other remote hosting environments.
+*   **Library Alignment**: Synced with the latest Kotlin `GShockAPI` standards, including improved protocol dispatching and functional IO separation.
+*   **Step Counter**: Introduced an interactive Step Counter UI on the Time page with support for Today, Hourly, and Daily views.
+*   **Mocking**: Added `hasStepCounterMock` feature for the `GENERIC` model to facilitate UI testing.
+*   **UI Version Display**: Added a small version tag at the bottom-right of the screen for easier identification of the running version.
+
 ## ✨ Vite Migration & Optimizations
 *   **Performance**: Successfully migrated the entire application from Next.js to Vite, resulting in significantly faster build times and a lighter production bundle.
 *   **Code Splitting**: Implemented `React.lazy` and `Suspense` for all router pages, reducing the main Javascript bundle size by over 50% (from ~828 KB to ~391 KB).
 *   **PWA Ready**: Integrated `vite-plugin-pwa` to automatically cache all static assets via a Service Worker, allowing the application to boot instantly from local cache without network overhead.
 *   **Image Optimization**: Converted heavy PNG watch assets to highly optimized WebP formats, drastically improving visual load times.
 *   **Routing**: Implemented a lightweight, custom component-based SPA router replacing Next.js file-based routing.
-*   **Deployment**: Updated all deployment scripts (`deploy-rpi.sh`, `setup-rpi.sh`) to use **Nginx** as the production web server, replacing `npx serve`. Nginx provides robust SPA fallback routing, proper MIME types, and runs as a managed `systemd` service on the Raspberry Pi. Cleaned up legacy `.next` artifacts and removed unnecessary `node_modules`/`package.json` from the deployed bundle.
+*   **Deployment**: Updated all deployment scripts (`deploy.sh`, `setup-server.sh`) to use **Nginx** as the production web server, replacing `npx serve`. Nginx provides robust SPA fallback routing, proper MIME types, and runs as a managed `systemd` service. Cleaned up legacy `.next` artifacts and removed unnecessary `node_modules`/`package.json` from the deployed bundle.
 
 ## ✨ New in This Release
 

@@ -31,7 +31,7 @@ import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import GShockAPI from '@/api/GShockAPI';
-import { dateFormatType, languageType, lightDurationType, timeFormatType } from '@api/WatchInfo';
+import type { dateFormatType, languageType, lightDurationType, timeFormatType } from '@/api/WatchInfo';
 import { watchInfo } from '@/api/WatchInfo';
 import { ConnectionContext } from '@/App';
 import ScreenTitle from '../components/ScreenTitle';
@@ -180,7 +180,13 @@ const Settings: React.FC = () => {
                 initialized.current = true;
                 try {
                     const newSettings = await GShockAPI.getSettings();
-                    setSettings(newSettings);
+                    setSettings({
+                        ...newSettings,
+                        timeAdjustment: newSettings.timeAdjustment ?? true,
+                        vibrate: newSettings.keyVibration ?? false,
+                        fineAdjustment: newSettings.fineAdjustment ?? 0,
+                        font: (newSettings.font as fontType) ?? 'Standard',
+                    });
                 } catch (e) {
                     console.error("Failed to fetch settings", e);
                 }

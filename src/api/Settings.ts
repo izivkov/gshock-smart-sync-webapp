@@ -1,9 +1,11 @@
+import { lightDurationType } from "./WatchInfo";
+
 export interface Settings {
     timeFormat: "12h" | "24h";
     buttonTone: boolean;
     autoLight: boolean;
     powerSavingMode: boolean;
-    lightDuration: "2s" | "4s";
+    lightDuration: lightDurationType;
     dateFormat: "DD:MM" | "MM:DD";
     language: "English" | "Spanish" | "French" | "German" | "Italian" | "Russian";
     keyVibration?: boolean;   // vibrate (DW-H5600 extended format)
@@ -12,4 +14,5 @@ export interface Settings {
     font?:         "Standard" | "Classic";  // hasMultipleFonts models
     timeAdjustment?: boolean;
     adjustmentTimeMinutes?: number;
+    fineAdjustment?: number;
 }

@@ -29,6 +29,9 @@ export enum WATCH_MODEL {
     GENERIC = "GENERIC",
 }
 
+export type dateFormatType = "MM:DD" | "DD:MM";
+export type timeFormatType = "12h" | "24h";
+export type languageType = "English" | "Spanish" | "French" | "German" | "Italian" | "Russian";
 export type lightDurationType = "1.5s" | "2s" | "3s" | "4s" | "5s";
 
 export interface ModelInfo {
@@ -114,7 +117,7 @@ const modelList: ModelInfo[] = [
         hasAutoLight: true, hasReminders: true,
         shortLightDuration: "2s", longLightDuration: "4s",
         batteryLevelLowerLimit: 9, batteryLevelUpperLimit: 19,
-        hasStepCounterMock: true,
+        hasStepCounterMock: false,
     },
     {
         model: WATCH_MODEL.DW_B5600,

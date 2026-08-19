@@ -1,11 +1,19 @@
-- [x] API & Mocking
-    - [x] Create `MockStepData.ts`
-    - [x] Update `GShockAPI.ts` with mock logic
-    - [x] Enable `hasStepCounterMock` for `GENERIC` in `WatchInfo.ts`
-- [/] UI Components
-    - [x] Create `StepCounterView.tsx`
-    - [ ] Integrate into `Time.page.tsx`
-- [ ] Integration & Polling
-    - [ ] Add `stepData` state to `Time.page.tsx`
-    - [ ] Implement polling logic in `Time.page.tsx`
-    - [ ] Add `StepCounterView` to `Time` page layout
+# Tasks - Rename Raspberry Pi to Server
+
+- `[x]` Scripts and Configuration
+    - `[x]` Update `deploy.sh`
+    - `[x]` Update `setup-server.sh`
+    - `[x]` Update `check-deploy.sh`
+    - `[x]` Update `monitor.sh`
+    - `[x]` Update `cloudflared-config.yml`
+    - `[x]` Update `.gitignore`
+- `[x]` Documentation
+    - `[x]` Update `README.md`
+    - `[x]` Update `QUICK-START.md`
+    - `[x]` Update `DEPLOYMENT.md`
+    - `[x]` Update `DEPLOYMENT-FILES.txt`
+    - `[x]` Update `DEPLOYMENT-SUMMARY.md`
+    - `[x]` Update `RELEASE_NOTES.md`
+    - `[x]` Update `DEPLOYMENT-README.md`
+- `[x]` Verification
+    - `[x]` Run grep to ensure no remaining references

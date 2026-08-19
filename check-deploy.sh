@@ -60,33 +60,33 @@ else
     CHECKS_FAILED=$((CHECKS_FAILED + 1))
 fi
 
-# Check SSH connectivity to RPi
-echo -n "Checking Raspberry Pi connectivity (192.168.1.100)... "
+# Check SSH connectivity to SERVER
+echo -n "Checking Server connectivity (192.168.1.100)... "
 if timeout 3 ssh -o ConnectTimeout=2 ivo@192.168.1.100 "echo 'Connected'" &> /dev/null; then
     echo "✓ SSH accessible"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
     
-    # Check Node.js on RPi
-    echo -n "Checking Node.js on Raspberry Pi... "
+    # Check Node.js on SERVER
+    echo -n "Checking Node.js on Server... "
     NODE_VERSION=$(ssh ivo@192.168.1.100 'node --version' 2>/dev/null)
     if [ $? -eq 0 ]; then
         echo "✓ $NODE_VERSION"
         CHECKS_PASSED=$((CHECKS_PASSED + 1))
     else
-        echo "✗ NOT INSTALLED on RPi"
-        echo "  See QUICK-START.md → 'Prepare Raspberry Pi'"
+        echo "✗ NOT INSTALLED on SERVER"
+        echo "  See QUICK-START.md → 'Prepare Server'"
         CHECKS_FAILED=$((CHECKS_FAILED + 1))
     fi
 else
     echo "✗ NOT ACCESSIBLE"
-    echo "  Is Raspberry Pi running at 192.168.1.100?"
+    echo "  Is Server running at 192.168.1.100?"
     echo "  Can you reach it? Try: ping 192.168.1.100"
     CHECKS_FAILED=$((CHECKS_FAILED + 1))
 fi
 
 # Check project files
-echo -n "Checking deploy-rpi.sh... "
-if [ -f "deploy-rpi.sh" ] && [ -x "deploy-rpi.sh" ]; then
+echo -n "Checking deploy.sh... "
+if [ -f "deploy.sh" ] && [ -x "deploy.sh" ]; then
     echo "✓ present and executable"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 else
@@ -94,8 +94,8 @@ else
     CHECKS_FAILED=$((CHECKS_FAILED + 1))
 fi
 
-echo -n "Checking setup-rpi.sh... "
-if [ -f "setup-rpi.sh" ] && [ -x "setup-rpi.sh" ]; then
+echo -n "Checking setup-server.sh... "
+if [ -f "setup-server.sh" ] && [ -x "setup-server.sh" ]; then
     echo "✓ present and executable"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 else
@@ -133,7 +133,7 @@ if [ $CHECKS_FAILED -eq 0 ]; then
     echo "✓ All checks passed! Ready to deploy."
     echo ""
     echo "Next steps:"
-    echo "  1. Run: ./deploy-rpi.sh"
+    echo "  1. Run: ./deploy.sh"
     echo "  2. Wait for deployment to complete (~3-5 minutes)"
     echo "  3. Access: http://192.168.1.100:3000"
     echo ""
@@ -144,7 +144,7 @@ else
     echo "Common fixes:"
     echo "  • Install Node.js: https://nodejs.org/"
     echo "  • Install rsync: apt-get install rsync (Linux) / brew install rsync (Mac)"
-    echo "  • Verify RPi is online: ping 192.168.1.100"
+    echo "  • Verify SERVER is online: ping 192.168.1.100"
     echo "  • Check SSH setup: ssh ivo@192.168.1.100"
     echo ""
     echo "See QUICK-START.md for more details."

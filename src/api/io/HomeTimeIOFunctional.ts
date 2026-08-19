@@ -5,7 +5,8 @@ const HomeTimeIOFunctional = {
         if (!data || (typeof data === 'string' && data.length === 0) || (Array.isArray(data) && data.length === 0)) {
             return "N/A";
         }
-        const name = Utils.toAsciiString(data, offset);
+        const bytes = typeof data === 'string' ? Utils.hexToBytes(data) : data;
+        const name = Utils.toAsciiString(bytes, offset);
         const trimmed = Utils.trimNonAsciiCharacters(name);
         return (trimmed.length === 0 || trimmed.split('').every(c => c === 'ÿ')) ? "N/A" : trimmed;
     }

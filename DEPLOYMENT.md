@@ -1,26 +1,26 @@
-# G-Shock Smart Sync - Raspberry Pi Production Deployment
+# G-Shock Smart Sync - Production Deployment
 
-This guide explains how to deploy the G-Shock Smart Sync web application to a Raspberry Pi in production.
+This guide explains how to deploy the G-Shock Smart Sync web application to a remote server in production.
 
 ## Prerequisites
 
 ### On your development machine:
 - Node.js 18+ and npm
-- SSH access configured to the Raspberry Pi
+- SSH access configured to the remote server (SSH keys recommended)
 - `rsync` installed (for file transfer)
 - Git (to clone the repository)
 
-### On the Raspberry Pi:
-- Raspberry Pi OS (Bullseye or newer)
+### On the Server:
+- Linux OS (Ubuntu, Debian, Raspberry Pi OS, etc.)
 - SSH enabled
 - Node.js 18+ installed
 - Internet connection
 
 ## Quick Start
 
-### 1. Prepare Raspberry Pi
+### 1. Prepare Server
 
-Connect to your Raspberry Pi and run initial setup:
+Connect to your server and run initial setup:
 
 ```bash
 ssh [USERNAME]@[IP of your server]
@@ -43,17 +43,17 @@ On your local machine, in the project root directory:
 
 ```bash
 # Make the script executable
-chmod +x deploy-rpi.sh
+chmod +x deploy.sh
 
 # Run the deployment script
-./deploy-rpi.sh
+./deploy.sh
 ```
 
 The script will:
 1. Build the Vite application
 2. Create a minimal deployment package
-3. Transfer files to the Raspberry Pi via rsync
-4. Install dependencies on the RPi
+3. Transfer files to the server via rsync
+4. Install dependencies on the server
 5. Setup Nginx site for serving the SPA
 6. Verify the application is running
 
@@ -102,7 +102,7 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl enable nginx'
 ssh [USERNAME]@[IP of your server] 'sudo systemctl disable nginx'
 ```
 
-## File Locations on Raspberry Pi
+## File Locations on Server
 
 - **Application root**: `/home/[USERNAME]/gshock-smart-sync`
 - **Nginx config**: `/etc/nginx/sites-available/gshock-webapp`
@@ -111,10 +111,11 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl disable nginx'
 
 ## Production Optimization
 
-For a Raspberry Pi with limited resources, consider these optimizations:
+For a server with limited resources, consider these optimizations:
 
 ### 1. Enable swap (if not already done)
 ```bash
+# For systems using dphys-swapfile
 sudo dphys-swapfile swapon
 ```
 
@@ -127,14 +128,13 @@ htop
 df -h
 
 # Check process memory
-ps aux | grep node
+ps aux | grep nginx
 ```
 
 ### 3. Performance tuning
-The Node.js process may use significant memory on a Raspberry Pi. You can:
-- Use older Raspberry Pi models with larger memory allocations
-- Consider using PM2 for better process management (optional)
-- Enable gzip compression in Vite config
+The serving process is very efficient as it uses Nginx for static files. You can:
+- Enable gzip compression in Nginx config
+- Use a CDN like Cloudflare for assets caching
 
 ### 4. Advanced Nginx Configuration (optional)
 If you need SSL/TLS, modify the Nginx config created by the setup script:
@@ -165,7 +165,7 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl status nginx'
 - Consider stopping other services
 
 ### SSH connection refused
-- Check if SSH is enabled on RPi: `sudo systemctl status ssh`
+- Check if SSH is enabled on server: `sudo systemctl status ssh`
 - Verify network connectivity: `ping 192.168.1.100`
 - Check firewall rules
 
@@ -185,7 +185,7 @@ To deploy a new version:
 ```bash
 # On your development machine
 git pull origin main
-./deploy-rpi.sh
+./deploy.sh
 ```
 
 The script will redeploy and restart the service automatically.
@@ -211,4 +211,4 @@ For issues or questions, check:
 - Application logs: `journalctl -u nginx -f` or `/var/log/nginx/`
 - Node.js documentation: https://nodejs.org/
 - Vite documentation: https://vitejs.dev/guide/
-- Raspberry Pi documentation: https://www.raspberrypi.com/documentation/
+- Linux distribution documentation

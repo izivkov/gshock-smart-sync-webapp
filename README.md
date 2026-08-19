@@ -78,11 +78,11 @@ npm run build
 npm start
 ```
 
-### 🍓 Raspberry Pi (Automated)
-We provide scripts for automated deployment to a Raspberry Pi:
-1. Configure `RPI_USER` and `RPI_HOST` in `deploy-rpi.sh`.
-2. Run `./deploy-rpi.sh` from your local machine.
-3. Run `./setup-rpi.sh` on the Pi to configure the systemd service.
+### ☁️ Automated Server Deployment
+We provide scripts for automated deployment to a remote server (e.g., Raspberry Pi or VPS):
+1. Configure `SERVER_USER` and `SERVER_HOST` in `deploy.sh`.
+2. Run `./deploy.sh` from your local machine.
+3. Run `./setup-server.sh` on the server to configure the systemd service.
 
 ### Documentation
 - **[RELEASE_NOTES.md](./RELEASE_NOTES.md)** - Latest changes and security updates.

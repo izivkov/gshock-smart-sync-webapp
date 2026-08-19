@@ -2,13 +2,13 @@
 
 ## Deployment Overview
 
-The application is ready for production deployment to your Raspberry Pi at **192.168.1.100**. Two deployment methods are provided:
+The application is ready for production deployment to your server at **192.168.1.100**. Two deployment methods are provided:
 
 ### Method 1: Automated Deployment (Recommended)
-Uses `deploy-rpi.sh` to build, package, transfer, and setup everything automatically from your development machine.
+Uses `deploy.sh` to build, package, transfer, and setup everything automatically from your development machine.
 
 ### Method 2: Manual Deployment
-Transfer files manually and run setup script on the Raspberry Pi.
+Transfer files manually and run setup script on the remote server.
 
 ---
 
@@ -16,12 +16,13 @@ Transfer files manually and run setup script on the Raspberry Pi.
 
 ### Prerequisites
 - Development machine: Node.js, npm, rsync, SSH client
-- Raspberry Pi: Raspberry Pi OS Bullseye or newer, SSH enabled, internet access
-- Network: Both devices on same network, Raspberry Pi accessible at 192.168.1.100
+- SSH Keys: Recommended for passwordless deployment (run `ssh-copy-id [USERNAME]@[IP]`)
+- Server: Linux OS (Ubuntu, Debian, Raspberry Pi OS, etc.), SSH enabled, internet access
+- Network: Both devices on same network, server accessible at 192.168.1.100
 
-### Step 1: Prepare Raspberry Pi (One-time setup)
+### Step 1: Prepare Server (One-time setup)
 ```bash
-# SSH into your Raspberry Pi and run these commands:
+# SSH into your server and run these commands:
 ssh [USERNAME]@[IP of your server]
 
 # Update system
@@ -39,14 +40,14 @@ exit
 ### Step 2: Deploy from Development Machine
 ```bash
 # From project root
-chmod +x deploy-rpi.sh
-./deploy-rpi.sh
+chmod +x deploy.sh
+./deploy.sh
 ```
 
 The script will:
 1. Build the Vite application
 2. Create minimal deployment package
-3. Transfer files to Raspberry Pi via rsync
+3. Transfer files to Server via rsync
 4. Setup systemd service for auto-start
 5. Verify application is running
 
@@ -76,26 +77,26 @@ npm install --production
 cd ..
 ```
 
-### Step 3: Transfer to Raspberry Pi
+### Step 3: Transfer to Server
 ```bash
 # From development machine
 rsync -avz --delete deploy-package/ [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/
 ```
 
-### Step 4: Setup on Raspberry Pi
+### Step 4: Setup on Server
 ```bash
-# SSH into Raspberry Pi
+# SSH into Server
 ssh [USERNAME]@[IP of your server]
 
 # Download and run setup script
 cd ~
-curl -fsSL https://raw.githubusercontent.com/your-repo/setup-rpi.sh -o setup-rpi.sh
-chmod +x setup-rpi.sh
-./setup-rpi.sh
+curl -fsSL https://raw.githubusercontent.com/your-repo/setup-server.sh -o setup-server.sh
+chmod +x setup-server.sh
+./setup-server.sh
 
 # Or manually:
-chmod +x /home/[USERNAME]/gshock-smart-sync/setup-rpi.sh
-/home/[USERNAME]/gshock-smart-sync/setup-rpi.sh
+chmod +x /home/[USERNAME]/gshock-smart-sync/setup-server.sh
+/home/[USERNAME]/gshock-smart-sync/setup-server.sh
 ```
 
 ### Step 5: Access the Application
@@ -170,7 +171,7 @@ ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -n 100'
 
 ### Out of Memory Errors
 
-Raspberry Pi may have limited RAM. Check and create swap:
+Server may have limited RAM. Check and create swap:
 ```bash
 ssh [USERNAME]@[IP of your server] << 'EOF'
 # Check current memory
@@ -191,7 +192,7 @@ EOF
 
 **Verify SSH is enabled:**
 ```bash
-# On Raspberry Pi terminal
+# On Server terminal
 sudo systemctl status ssh
 sudo systemctl enable ssh
 ```
@@ -208,7 +209,7 @@ Check if Node.js is installed:
 ssh [USERNAME]@[IP of your server] 'node --version'
 ```
 
-If not, reinstall Node.js as shown in "Prepare Raspberry Pi" section.
+If not, reinstall Node.js as shown in "Prepare Server" section.
 
 ---
 
@@ -219,7 +220,7 @@ To deploy a new version:
 ### Option 1: Full Redeploy
 ```bash
 # From development machine
-./deploy-rpi.sh
+./deploy.sh
 ```
 
 ### Option 2: Quick Update
@@ -233,7 +234,7 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 
 ## Performance Optimization
 
-### For Raspberry Pi Zero / Pi 3B (Limited RAM)
+### For Low-resource Servers (Limited RAM)
 
 **Increase swap:**
 ```bash
@@ -249,7 +250,7 @@ EOF
 ssh [USERNAME]@[IP of your server] 'top'
 ```
 
-### For Raspberry Pi 4B / Pi 5 (Better Performance)
+### For Modern Servers (Better Performance)
 
 **Use default settings** - No optimization needed. Service will auto-restart on failure.
 
@@ -259,7 +260,7 @@ ssh [USERNAME]@[IP of your server] 'top'
 
 ### Backup Application
 ```bash
-# On Raspberry Pi
+# On Server
 ssh [USERNAME]@[IP of your server] << 'EOF'
 tar czf ~/gshock-backup-$(date +%Y%m%d-%H%M%S).tar.gz /home/[USERNAME]/gshock-smart-sync
 EOF
@@ -273,7 +274,7 @@ scp [USERNAME]@[IP of your server]:~/gshock-backup-*.tar.gz ./backups/
 # Upload backup
 scp ./backups/gshock-backup-YYYYMMDD-HHMMSS.tar.gz [USERNAME]@[IP of your server]:~/
 
-# Restore on Raspberry Pi
+# Restore on Server
 ssh [USERNAME]@[IP of your server] << 'EOF'
 sudo systemctl stop nginx
 sudo rm -rf /home/[USERNAME]/gshock-smart-sync
@@ -284,7 +285,7 @@ EOF
 
 ---
 
-## File Locations on Raspberry Pi
+## File Locations on Server
 
 ```
 /home/[USERNAME]/gshock-smart-sync/          - Application root
@@ -300,7 +301,7 @@ EOF
 
 ## Uninstall
 
-To remove the application from Raspberry Pi:
+To remove the application from Server:
 
 ```bash
 ssh [USERNAME]@[IP of your server] << 'EOF'
@@ -341,7 +342,7 @@ If you encounter issues:
    ping [IP of your server]
    ```
 
-5. **Check Raspberry Pi resource availability:**
+5. **Check Server resource availability:**
    ```bash
    ssh [USERNAME]@[IP of your server] 'free -h && df -h'
    ```

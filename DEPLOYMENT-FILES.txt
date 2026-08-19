@@ -4,8 +4,8 @@ G-SHOCK SMART SYNC - DEPLOYMENT FILES READY
 📦 DEPLOYMENT INFRASTRUCTURE CREATED:
 
 Scripts (Executable):
-  ✓ deploy-rpi.sh              - One-command deployment from dev machine
-  ✓ setup-rpi.sh               - Standalone setup script for Raspberry Pi  
+  ✓ deploy.sh                  - One-command deployment from dev machine
+  ✓ setup-server.sh            - Standalone setup script for remote server
   ✓ check-deploy.sh            - Pre-flight system verification
 
 Documentation:
@@ -20,8 +20,8 @@ Documentation:
   1. Verify prerequisites:
      $ ./check-deploy.sh
 
-  2. Deploy to Raspberry Pi:
-     $ ./deploy-rpi.sh
+  2. Deploy to Server:
+     $ ./deploy.sh
 
   3. Access application:
      http://192.168.1.100:3000
@@ -45,7 +45,7 @@ Application Features:
 Deployment Infrastructure:
   ✓ Automated build and package
   ✓ Secure SSH-based transfer
-  ✓ Systemd service for auto-start
+  ✓ Nginx service for static serving
   ✓ Production-ready configuration
   ✓ Health check verification
   ✓ Comprehensive logging
@@ -56,16 +56,16 @@ For First-Time Users:
   1. Read: DEPLOYMENT-README.md
   2. Read: DEPLOYMENT-SUMMARY.md
   3. Run: ./check-deploy.sh
-  4. Run: ./deploy-rpi.sh
+  4. Run: ./deploy.sh
   5. Access: http://192.168.1.100:3000
 
 For Troubleshooting:
-  1. Check logs: ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -f'
+  1. Check logs: ssh ivo@192.168.1.100 'sudo journalctl -u nginx -f'
   2. Read: QUICK-START.md → Troubleshooting
   3. See also: DEPLOYMENT.md → Troubleshooting
 
 For System Administration:
-  1. Read: DEPLOYMENT.md → Systemd Service Management
+  1. Read: DEPLOYMENT.md → Nginx Service Management
   2. See: QUICK-START.md → Service Management
   3. Check: File locations and service status
 
@@ -78,12 +78,12 @@ Development Machine:
   • SSH client
   • 500 MB disk space
 
-Raspberry Pi:
-  • OS: Bullseye or newer
-  • RAM: 2 GB minimum (4 GB recommended)
+Server:
+  • OS: Linux (Ubuntu, Debian, etc.)
+  • RAM: 1 GB minimum
   • Disk: 500 MB available
   • Network: Connected, SSH enabled
-  • Node.js: Will be installed if missing
+  • Node.js: Required for build (dev machine)
 
 ✅ DEPLOYMENT VALIDATION CHECKLIST:
 
@@ -94,11 +94,11 @@ System Check:
   [ ] SSH client accessible
   
 Connectivity:
-  [ ] Can ping Raspberry Pi (192.168.1.100)
+  [ ] Can ping Server (192.168.1.100)
   [ ] Can SSH to ivo@192.168.1.100
   [ ] No firewall blocking ports 22, 3000
 
-Raspberry Pi:
+Server:
   [ ] Running and accessible
   [ ] SSH enabled
   [ ] Sufficient free disk space
@@ -113,7 +113,7 @@ Raspberry Pi:
    $ ./check-deploy.sh
 
 3. Deploy Application:
-   $ ./deploy-rpi.sh
+   $ ./deploy.sh
 
 4. Access the App:
    Open browser to: http://192.168.1.100:3000
@@ -123,36 +123,35 @@ Raspberry Pi:
 
 📊 DEPLOYMENT SCRIPT DETAILS:
 
-deploy-rpi.sh does:
-  1. Builds Next.js application
-  2. Creates minimal package (no source code, only compiled files)
-  3. Transfers to Raspberry Pi via rsync
-  4. Creates systemd service for auto-start
+deploy.sh does:
+  1. Builds Vite application
+  2. Creates minimal package (compiled assets only)
+  3. Transfers to Server via rsync
+  4. Configures Nginx service
   5. Verifies application is running
   6. Shows access URL and log commands
 
 Estimated time: 3-5 minutes
 
-setup-rpi.sh does (runs on Raspberry Pi):
-  1. Installs Node.js 18 if needed
-  2. Installs npm dependencies
-  3. Creates systemd service
-  4. Starts application
-  5. Shows status and useful commands
+setup-server.sh does (runs on Server):
+  1. Installs Nginx if needed
+  2. Creates Nginx configuration
+  3. Restarts Nginx
+  4. Shows status and useful commands
 
 🔒 PRODUCTION SETUP:
 
 The deployment creates:
-  ✓ Systemd service for auto-start on reboot
+  ✓ Nginx service for high-performance serving
   ✓ Application runs as 'ivo' user (non-root)
   ✓ Restricted file permissions
   ✓ Automatic restart on failure
   ✓ Centralized logging via journalctl
 
 Optional Enhancements:
-  • Nginx reverse proxy with SSL/TLS
-  • PM2 process manager
-  • Automated backup to cloud
+  • SSL/TLS with Let's Encrypt
+  • Cloudflare Tunnel for secure HTTPS
+  • Automated backup scripts
   • Remote monitoring setup
 
 📞 SUPPORT:
@@ -165,7 +164,7 @@ Documentation:
 
 Debugging:
   • Run: ./check-deploy.sh
-  • View logs: ssh ivo@192.168.1.100 'sudo journalctl -u gshock-webapp -f'
+  • View logs: ssh ivo@192.168.1.100 'sudo journalctl -u nginx -f'
   • Test connection: ping 192.168.1.100
   • SSH test: ssh ivo@192.168.1.100 'uname -a'
 
@@ -173,7 +172,7 @@ Debugging:
 
 Your application is production-ready. The deployment infrastructure is complete 
 and tested. Simply run './check-deploy.sh' to verify prerequisites, then 
-'./deploy-rpi.sh' to deploy to your Raspberry Pi.
+'./deploy.sh' to deploy to your server.
 
 After deployment, your G-Shock Smart Sync web application will be running at:
   http://192.168.1.100:3000

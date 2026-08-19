@@ -11,8 +11,8 @@
 - Automatic screen navigation on watch connection
 
 ✅ **Automated Deployment Infrastructure**
-- `deploy-rpi.sh` - One-command deployment from dev machine
-- `setup-rpi.sh` - Standalone setup script for Raspberry Pi
+- `deploy.sh` - One-command deployment from dev machine
+- `setup-server.sh` - Standalone setup script for remote server
 - `DEPLOYMENT.md` - Comprehensive 10+ section documentation
 - `QUICK-START.md` - Quick reference guide with troubleshooting
 
@@ -28,28 +28,28 @@ Dev Machine:
 □ SSH client available
 □ rsync installed
 
-Raspberry Pi:
+Server:
 □ Running at [IP of your server]
 □ SSH enabled and accessible (user: USERNAME)
 □ Internet connection
-□ Raspberry Pi OS Bullseye or newer
+□ Linux OS (Ubuntu, Debian, Raspberry Pi OS, etc.)
 ```
 
 ### Deploy in 3 Steps
 
-**Step 1: Prepare Raspberry Pi (First time only)**
+**Step 1: Prepare Server (First time only)**
 ```bash
 ssh [USERNAME]@[IP of your server]
 sudo apt-get update && sudo apt-get upgrade -y
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
+# Node.js is only needed on the dev machine to build the project.
+# The server only needs Nginx to host the static files.
 exit
 ```
 
 **Step 2: Deploy from Dev Machine**
 ```bash
 cd ~/projects/gshock-smart-sync-webapp
-./deploy-rpi.sh
+./deploy.sh
 ```
 
 **Step 3: Access Application**
@@ -62,9 +62,9 @@ http://[IP of your server]:3000
 ## What the Deploy Script Does
 
 1. **Builds** Vite application
-2. **Packages** only production files
-3. **Transfers** to Raspberry Pi via rsync
-4. **Creates** Nginx configuration for serving the static files
+2. **Packages** only production files (static assets)
+3. **Transfers** to remote server via rsync
+4. **Configures** Nginx for serving the static files
 5. **Verifies** application is running
 
 ---
@@ -96,10 +96,10 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 ## Files Created
 
 ### Deployment Scripts (in project root)
-- `deploy-rpi.sh` (4.1 KB) - Automated deployment from dev machine
-- `setup-rpi.sh` (2.7 KB) - Standalone setup for Raspberry Pi
-- `DEPLOYMENT.md` (5.2 KB) - Complete deployment documentation
-- `QUICK-START.md` (7.7 KB) - Quick reference and troubleshooting
+- `deploy.sh` (4 KB) - Automated deployment from dev machine
+- `setup-server.sh` (2.5 KB) - Standalone setup for remote server
+- `DEPLOYMENT.md` (5 KB) - Complete deployment documentation
+- `QUICK-START.md` (7.5 KB) - Quick reference and troubleshooting
 
 ### Features Implemented This Session
 
@@ -133,7 +133,7 @@ To deploy updated code:
 
 ```bash
 # Option 1: Full redeploy (rebuilds everything)
-./deploy-rpi.sh
+./deploy.sh
 
 # Option 2: Quick code update only
 rsync -avz dist/* [USERNAME]@[IP of your server]:/home/[USERNAME]/gshock-smart-sync/
@@ -144,17 +144,17 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 
 ## Performance Notes
 
-### Raspberry Pi Compatibility
-- ✅ **Pi 5 / Pi 4B** - Recommended, excellent performance
-- ✅ **Pi 3B+** - Works well with default settings
-- ⚠️ **Pi 3B / Pi Zero** - May need 2GB swap file (see QUICK-START.md)
-- ❌ **Pi Zero / Pi 1** - Insufficient resources
+### Server Compatibility
+- ✅ **VPS / Modern Server** - Excellent performance
+- ✅ **Raspberry Pi 5 / 4B** - Recommended for local hosting
+- ✅ **Raspberry Pi 3B+** - Works well with default settings
+- ⚠️ **Raspberry Pi 3B / Zero** - May need 2GB swap file (see QUICK-START.md)
 
 ### Resource Usage
-- **Memory:** ~100-150 MB idle, ~250-300 MB under load
-- **CPU:** Minimal usage, single-threaded Node.js process
-- **Storage:** ~200 MB for app + node_modules
-- **Network:** Low bandwidth usage
+- **Memory:** ~20-50 MB (Nginx serving static files)
+- **CPU:** Minimal usage
+- **Storage:** ~5-10 MB for the built application
+- **Network:** Low bandwidth usage (client-side app)
 
 ---
 
@@ -162,7 +162,7 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 
 1. **Verify prerequisites** - Ensure dev machine has SSH, rsync, Node.js
 2. **Test SSH access** - `ssh [USERNAME]@[IP of your server]`
-3. **Run deployment** - `./deploy-rpi.sh`
+3. **Run deployment** - `./deploy.sh`
 4. **Access application** - Open `http://[IP of your server]:3000`
 5. **Connect watch** - Use Bluetooth to pair G-Shock
 6. **Test features** - Time sync, alarms, events, settings
@@ -172,7 +172,7 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 ## File Structure After Deployment
 
 ```
-Raspberry Pi (/home/[USERNAME]/gshock-smart-sync/):
+Remote Server (/home/[USERNAME]/gshock-smart-sync/):
 ├── index.html              ← Compiled Vite SPA entry
 ├── assets/                 ← Compiled static assets
 └── public/                 ← Static assets
@@ -201,9 +201,9 @@ You now have:
 ✅ Complete, tested web application for G-Shock watch management
 ✅ Automated deployment infrastructure
 ✅ Comprehensive documentation
-✅ Ready for production deployment to Raspberry Pi
+✅ Ready for production deployment to your server
 
-**To deploy:** Simply run `./deploy-rpi.sh` and access at `http://[IP of your server]:3000`
+**To deploy:** Simply run `./deploy.sh` and access at `http://[IP of your server]:3000`
 
 ---
 

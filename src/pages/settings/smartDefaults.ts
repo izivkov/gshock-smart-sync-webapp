@@ -5,7 +5,7 @@ import {
     type languageType,
     type lightDurationType,
     type timeFormatType,
-} from "@api/WatchInfo";
+} from "@/api/WatchInfo";
 
 /** Matches Kotlin `Locale.DayOfWeekLanguage` → API `language` string. */
 function languageFromNavigator(): languageType {
