@@ -1,6 +1,6 @@
 {
     "name": "Gshock-smart-sync-webapp",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "private": true,
     "scripts": {
         "dev": "vite",
@@ -24,13 +24,14 @@
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
         "@types/web-bluetooth": "^0.0.21",
-        "@vitejs/plugin-react": "^4.3.0",
+        "@vitejs/plugin-react": "^4.7.0",
         "eslint": "^9.0.0",
         "typescript": "^5.2.2",
-        "vite": "^5.1.0",
+        "vite": "^6.4.3",
         "vite-plugin-pwa": "^1.3.0"
     },
     "overrides": {
-        "postcss": "^8.5.10"
+        "postcss": "^8.5.23",
+        "esbuild": "^0.25.0"
     }
 }

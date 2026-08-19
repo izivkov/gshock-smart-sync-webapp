@@ -3,6 +3,7 @@
 ## v2.0.2
 *   **Model Consolidation**: Organized all shared data objects into the `src/model/` directory for better architectural alignment with the GShockAPI ecosystem.
 *   **GATT Concurrency Fix**: Implemented full asynchronous awaiting for Bluetooth write operations, resolving "GATT operation already in progress" errors during watch configuration.
+*   **Security & Maintenance**: Resolved several high-severity vulnerabilities by upgrading `vite` to `v6.4.3` and applying dependency overrides for `esbuild` and `postcss`.
 *   **Code Cleanup**: Removed redundant model definitions and streamlined imports across the application.
 
 ## v2.0.1
