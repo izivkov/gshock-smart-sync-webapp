@@ -1,7 +1,7 @@
 import CasioIO, { GET_SET_MODE } from "@io/CasioIO";
 import { cachedIO } from "@io/CachedIO";
 import { CasioConstants } from "@api/CasioConstants";
-import { Settings } from "@api/Settings";
+import { Settings } from "@model/Settings";
 
 const MASK_24_HOURS        = 0b00000001;
 const MASK_BUTTON_TONE_OFF = 0b00000010;

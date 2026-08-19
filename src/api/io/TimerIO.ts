@@ -42,9 +42,9 @@ const TimerIO = {
         return promise;
     },
 
-    set(timerValue: number): void {
+    async set(timerValue: number): Promise<void> {
         cachedIO.delete("18");
-        TimerIO.sendToWatchSet(JSON.stringify({ value: timerValue }));
+        await TimerIO.sendToWatchSet(JSON.stringify({ value: timerValue }));
     },
 
     onReceived(data: number[]): void {
@@ -61,10 +61,10 @@ const TimerIO = {
         await CasioIO.writeCmd(GET_SET_MODE.GET, byteArray);
     },
 
-    sendToWatchSet(message: string): void {
+    async sendToWatchSet(message: string): Promise<void> {
         const seconds = JSON.parse(message).value.toString();
         const encodedData = TimerIOFunctional.encode(seconds);
-        CasioIO.writeCmd(GET_SET_MODE.SET, encodedData);
+        await CasioIO.writeCmd(GET_SET_MODE.SET, encodedData);
     },
 };
 

@@ -64,11 +64,15 @@ const Alarms: React.FC = () => {
         setAlarms(newAlarms);
     }
 
-    const onSignalChange = (checked: boolean) => {
+    const onSignalChange = async (checked: boolean) => {
         const newAlarms = [...alarms];
         newAlarms.forEach(a => a.hasHourlyChime = checked); // Ensure consistent update
         setAlarms([...newAlarms]);
-        GShockAPI.setAlarms(newAlarms);
+        try {
+            await GShockAPI.setAlarms(newAlarms);
+        } catch (error) {
+            console.error("Failed to update signal status", error);
+        }
     }
 
     if (!alarms || alarms.length === 0) {

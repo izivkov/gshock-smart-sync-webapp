@@ -12,7 +12,7 @@ import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
 import { watchInfo } from '@api/WatchInfo';
-import { StepCounterData } from '@/api/StepCounterData';
+import { StepCounterData } from '@model/StepCounterData';
 import { ConnectionContext } from '@/App';
 import ScreenTitle from '../components/ScreenTitle';
 import PeachCard from '../components/PeachCard';

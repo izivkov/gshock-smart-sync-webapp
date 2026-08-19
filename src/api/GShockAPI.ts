@@ -14,12 +14,12 @@ import { progressEvents } from "@api/ProgressEvents"
 import AppInfoIO from "@io/AppInfoIO"
 import StepCounterIO from "@io/StepCounterIO"
 import { watchInfo } from "./WatchInfo"
-import { StepCounterData } from "./StepCounterData"
-import { Alarm } from "./Alarms"
-import { Settings } from "./Settings"
+import { StepCounterData } from "@model/StepCounterData"
+import Alarm from "@model/Alarm"
+import { Settings } from "@model/Settings"
 import WatchDataListener from "./WatchDataListener"
 import { connection } from "@api/Connection"
-import { generateMockStepData } from "./utils/MockStepData"
+import { generateMockStepData } from "@model/MockStepData"
 
 const GShockAPI = {
     init: async (): Promise<boolean> => {
@@ -62,8 +62,8 @@ const GShockAPI = {
         return await watchInfo.protocol!.getTimer();
     },
 
-    setTimer: (timerValue: number): void => {
-        watchInfo.protocol!.setTimer(timerValue);
+    setTimer: async (timerValue: number): Promise<void> => {
+        await watchInfo.protocol!.setTimer(timerValue);
     },
 
     getBatteryLevel: async (): Promise<number> => {
@@ -83,8 +83,8 @@ const GShockAPI = {
         return await watchInfo.protocol!.getAlarms();
     },
 
-    setAlarms: (alarms: Alarm[]): void => {
-        watchInfo.protocol!.setAlarms(alarms);
+    setAlarms: async (alarms: Alarm[]): Promise<void> => {
+        await watchInfo.protocol!.setAlarms(alarms);
     },
 
     getEventFromWatch: async (eventNumber: number): Promise<any> => {
@@ -119,8 +119,8 @@ const GShockAPI = {
         return await watchInfo.protocol!.getSettings();
     },
 
-    setSettings: (settings: Settings): void => {
-        watchInfo.protocol!.setSettings(settings);
+    setSettings: async (settings: Settings): Promise<void> => {
+        await watchInfo.protocol!.setSettings(settings);
     },
 
     getStepCount: async (): Promise<StepCounterData> => {

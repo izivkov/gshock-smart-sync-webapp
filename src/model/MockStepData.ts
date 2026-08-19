@@ -1,4 +1,4 @@
-import { StepCounterData } from "@api/StepCounterData";
+import { StepCounterData } from "@model/StepCounterData";
 
 /**
  * Generates mock step data representing 144 hours (6 days) of history.

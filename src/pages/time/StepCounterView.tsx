@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, MenuItem, Select, useTheme } from '@mui/material';
 import PeachCard from '../components/PeachCard';
-import { StepCounterData } from '@/api/StepCounterData';
+import { StepCounterData } from '@model/StepCounterData';
 
 export enum StepDataOption {
     TODAY = "Today",

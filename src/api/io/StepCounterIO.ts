@@ -1,6 +1,6 @@
 import CasioIO, { GET_SET_MODE } from "@io/CasioIO";
 import { watchInfo } from "@/api/WatchInfo";
-import { StepCounterData } from "@api/StepCounterData";
+import { StepCounterData } from "@model/StepCounterData";
 import { StepCounterIOFunctional } from "./StepCounterIOFunctional";
 import Utils from "@utils/Utils";
 

@@ -1,49 +1,45 @@
-# Implementation Plan - Rename Raspberry Pi to Server
+# Implementation Plan - Fix GATT Concurrency Issues
 
-This plan outlines the steps to rename all references to "Raspberry Pi" (and its variations like RPi) to a generic "Server" throughout the project, including filenames and contents.
+This plan addresses the `NetworkError: GATT operation already in progress` error by ensuring all BLE write operations are correctly awaited throughout the application layers.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> This change updates script filenames and internal variable names (e.g., `RPI_USER` -> `SERVER_USER`). Any external automation or manual workflows relying on these names will need to be updated.
+> This change modifies the `WatchProtocol` interface and several IO handlers to be asynchronous. Any custom protocol implementations or direct IO calls will need to be updated to `await` these operations.
 
 ## Proposed Changes
 
-### Files to Rename
-- No further renames are needed as `deploy.sh` and `setup-server.sh` already use generic or near-generic names, but I will ensure they are fully generic in content.
+### 1. Protocol Layer
+#### [MODIFY] [WatchProtocol.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/api/protocols/WatchProtocol.ts)
+- Update `setTimer`, `setAlarms`, and `setSettings` to return `Promise<void>`.
 
-### Content Updates
-The following terms will be replaced globally (with appropriate case matching):
-- "Raspberry Pi" -> "Server"
-- "RPi" -> "Server"
-- "raspberry-pi" -> "server"
-- "rpi" -> "server" (except where it's part of a path that shouldn't change, but I'll check)
-- `RPI_USER` -> `SERVER_USER`
-- `RPI_HOST` -> `SERVER_HOST`
-- `RPI_PATH` -> `SERVER_PATH`
+#### [MODIFY] [StandardProtocol.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/api/protocols/StandardProtocol.ts)
+- Mark `setTimer`, `setAlarms`, and `setSettings` as `async`.
+- `await` all internal IO calls (`TimerIO.set`, `AlarmsIO.set`, `SettingsIO.set`, `TimeAdjustmentIO.set`).
 
-#### [MODIFY] Scripts
-- [deploy.sh](file:///home/izivkov/projects/gshock-smart-sync-webapp/deploy.sh)
-- [setup-server.sh](file:///home/izivkov/projects/gshock-smart-sync-webapp/setup-server.sh)
-- [check-deploy.sh](file:///home/izivkov/projects/gshock-smart-sync-webapp/check-deploy.sh)
-- [monitor.sh](file:///home/izivkov/projects/gshock-smart-sync-webapp/monitor.sh)
-- [.gitignore](file:///home/izivkov/projects/gshock-smart-sync-webapp/.gitignore)
-- [cloudflared-config.yml](file:///home/izivkov/projects/gshock-smart-sync-webapp/cloudflared-config.yml)
+### 2. IO Layer
+#### [MODIFY] [TimerIO.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/api/io/TimerIO.ts)
+- Update `set` and `sendToWatchSet` to be `async` and `await` the `CasioIO.writeCmd` call.
 
-#### [MODIFY] Documentation
-- [README.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/README.md)
-- [QUICK-START.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/QUICK-START.md)
-- [DEPLOYMENT.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/DEPLOYMENT.md)
-- [DEPLOYMENT-FILES.txt](file:///home/izivkov/projects/gshock-smart-sync-webapp/DEPLOYMENT-FILES.txt)
-- [DEPLOYMENT-SUMMARY.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/DEPLOYMENT-SUMMARY.md)
-- [RELEASE_NOTES.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/RELEASE_NOTES.md)
-- [DEPLOYMENT-README.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/DEPLOYMENT-README.md)
+### 3. API Layer
+#### [MODIFY] [GShockAPI.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/api/GShockAPI.ts)
+- `await` all calls to `watchInfo.protocol!.setTimer`, `setAlarms`, and `setSettings`.
+
+### 4. UI Layer
+#### [MODIFY] [Settings.page.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/settings/Settings.page.tsx)
+- `await GShockAPI.setSettings(settings)` in the `onSave` handler.
+
+#### [MODIFY] [Alarms.page.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/alarms/Alarms.page.tsx)
+- `await GShockAPI.setAlarms(alarms)` in the `onSave` handler.
+
+#### [MODIFY] [Time.page.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/time/Time.page.tsx)
+- `await GShockAPI.setTimer(totalSeconds)` in the timer update handler.
 
 ## Verification Plan
 
 ### Automated Tests
-- None, but I will run `grep` again after changes to ensure no "Raspberry Pi" or "RPi" references remain in project files.
+- Run `npx tsc --noEmit` to verify type safety and that all `async` methods are correctly used.
 
 ### Manual Verification
-- Verify that scripts still have the correct logic and paths.
-- Read through updated documentation to ensure the tone is consistent and references are clear.
+- Test sending settings to the watch and verify that the `GATT operation already in progress` error no longer appears in the console.
+- Test setting alarms and the timer.

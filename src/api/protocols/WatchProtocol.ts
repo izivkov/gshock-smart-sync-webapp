@@ -1,5 +1,5 @@
-import { Alarm } from "@api/Alarms";
-import { Settings } from "@api/Settings";
+import Alarm from "@model/Alarm";
+import { Settings } from "@model/Settings";
 import { TimeAdjustmentInfo } from "@api/TimeAdjustmentInfo";
 
 export interface WatchProtocol {
@@ -10,16 +10,16 @@ export interface WatchProtocol {
     getWatchConditionRequest(): string;
     setTime(timeMs?: number, offset?: number): Promise<void>;
     getTimer(): Promise<number>;
-    setTimer(timerValue: number): void;
+    setTimer(timerValue: number): Promise<void>;
     getTimerRequest(): string;
     getTimerSize(): number;
     getHomeTime(): Promise<string>;
     getBatteryLevel(): Promise<number>;
     getWatchTemperature(): Promise<number>;
     getAlarms(): Promise<Alarm[]>;
-    setAlarms(alarms: Alarm[]): void;
+    setAlarms(alarms: Alarm[]): Promise<void>;
     getSettings(): Promise<Settings>;
-    setSettings(settings: Settings): void;
+    setSettings(settings: Settings): Promise<void>;
     getBasicSettings(): Promise<Settings>;
     getTimeAdjustment(): Promise<TimeAdjustmentInfo>;
 }

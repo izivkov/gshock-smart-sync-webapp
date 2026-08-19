@@ -1,4 +1,4 @@
-import { StepCounterData } from "@api/StepCounterData";
+import { StepCounterData } from "@model/StepCounterData";
 
 const HEADER_SIZE = 6;
 const HOURLY_SLOT_COUNT = 144;

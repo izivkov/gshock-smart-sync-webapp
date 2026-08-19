@@ -1,11 +1,13 @@
 import { cachedIO } from "@io/CachedIO";
 import CasioIO, { GET_SET_MODE } from "@io/CasioIO";
 import Alarm from "@model/Alarm";
-import Alarms from "@api/Alarms";
 import { CasioConstants } from "@api/CasioConstants";
 import { watchInfo } from "@/api/WatchInfo";
+import Utils from "@utils/Utils";
 
 const HOURLY_CHIME_MASK = 0b10000000;
+const ENABLED_MASK = 0b01000000;
+const ALARM_CONSTANT_VALUE = 0x40;
 
 export const AlarmsIOFunctional = {
     parseReceivedAlarms(data: number[]): Alarm[] {
@@ -30,7 +32,7 @@ export const AlarmsIOFunctional = {
     },
 
     createAlarm(intArray: number[]): Alarm {
-        const enabled = (intArray[0] & Alarms.ENABLED_MASK) !== 0;
+        const enabled = (intArray[0] & ENABLED_MASK) !== 0;
         const hasHourlyChime = (intArray[0] & HOURLY_CHIME_MASK) !== 0;
         return new Alarm(
             intArray[2],
@@ -38,6 +40,65 @@ export const AlarmsIOFunctional = {
             enabled,
             hasHourlyChime
         );
+    },
+
+    fromJsonAlarmFirstAlarm(alarmJson: any): number[] {
+        const alarm = new Alarm(
+            alarmJson.hour,
+            alarmJson.minute,
+            alarmJson.enabled,
+            alarmJson.hasHourlyChime
+        );
+
+        return this.createFirstAlarm(alarm);
+    },
+
+    createFirstAlarm(alarm: Alarm): number[] {
+        let flag = 0;
+        if (alarm.enabled) flag |= ENABLED_MASK;
+        if (alarm.hasHourlyChime) flag |= HOURLY_CHIME_MASK;
+
+        return [
+            CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM,
+            flag,
+            ALARM_CONSTANT_VALUE,
+            alarm.hour,
+            alarm.minute
+        ];
+    },
+
+    fromJsonAlarmSecondaryAlarms(alarmsJson: any[]): number[] {
+        if (alarmsJson.length < 2) {
+            return [];
+        }
+
+        const alarms = alarmsJson.slice(1).map((alarmJson) => new Alarm(
+            alarmJson.hour,
+            alarmJson.minute,
+            alarmJson.enabled,
+            alarmJson.hasHourlyChime
+        ));
+
+        return this.createSecondaryAlarm(alarms);
+    },
+
+    createSecondaryAlarm(alarms: Alarm[]): number[] {
+        let allAlarms = Array.from(Utils.byteArrayOfInts(CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM2));
+
+        for (const alarm of alarms) {
+            let flag = 0;
+            if (alarm.enabled) flag |= ENABLED_MASK;
+            if (alarm.hasHourlyChime) flag |= HOURLY_CHIME_MASK;
+
+            allAlarms = allAlarms.concat([
+                flag,
+                ALARM_CONSTANT_VALUE,
+                alarm.hour,
+                alarm.minute
+            ]);
+        }
+
+        return allAlarms;
     }
 };
 
@@ -86,10 +147,10 @@ const AlarmsIO = {
 
     async sendToWatchSet(message: string): Promise<void> {
         const alarmsJsonArr: Alarm[] = JSON.parse(message).value;
-        const alarmCasio0 = Alarms.fromJsonAlarmFirstAlarm(alarmsJsonArr[0]);
+        const alarmCasio0 = AlarmsIOFunctional.fromJsonAlarmFirstAlarm(alarmsJsonArr[0]);
         await CasioIO.writeCmd(GET_SET_MODE.SET, alarmCasio0);
         if (watchInfo.alarmCount > 1) {
-            const alarmCasio = Alarms.fromJsonAlarmSecondaryAlarms(alarmsJsonArr);
+            const alarmCasio = AlarmsIOFunctional.fromJsonAlarmSecondaryAlarms(alarmsJsonArr);
             await CasioIO.writeCmd(GET_SET_MODE.SET, alarmCasio);
         }
     },

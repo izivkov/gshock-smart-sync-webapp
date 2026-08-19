@@ -1,5 +1,5 @@
-import { Alarm } from "@api/Alarms";
-import { Settings } from "@api/Settings";
+import Alarm from "@model/Alarm";
+import { Settings } from "@model/Settings";
 import { TimeAdjustmentInfo } from "@api/TimeAdjustmentInfo";
 import { WatchProtocol } from "./WatchProtocol";
 import { CasioConstants } from "@api/CasioConstants";
@@ -77,8 +77,8 @@ export class StandardProtocol implements WatchProtocol {
         return await TimerIO.request(this.getTimerRequest());
     }
 
-    setTimer(timerValue: number): void {
-        TimerIO.set(timerValue);
+    async setTimer(timerValue: number): Promise<void> {
+        await TimerIO.set(timerValue);
     }
 
     getTimerRequest(): string {
@@ -108,8 +108,8 @@ export class StandardProtocol implements WatchProtocol {
         return await AlarmsIO.request();
     }
 
-    setAlarms(alarms: Alarm[]): void {
-        AlarmsIO.set(alarms);
+    async setAlarms(alarms: Alarm[]): Promise<void> {
+        await AlarmsIO.set(alarms);
     }
 
     async getSettings(): Promise<Settings> {
@@ -122,9 +122,9 @@ export class StandardProtocol implements WatchProtocol {
         };
     }
 
-    setSettings(settings: Settings): void {
-        SettingsIO.set(settings);
-        TimeAdjustmentIO.set(settings);
+    async setSettings(settings: Settings): Promise<void> {
+        await SettingsIO.set(settings);
+        await TimeAdjustmentIO.set(settings);
     }
 
     async getBasicSettings(): Promise<Settings> {
