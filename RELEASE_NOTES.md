@@ -1,5 +1,10 @@
 # Release Notes - G-Shock Smart Sync Webapp
 
+## v2.0.2
+*   **Model Consolidation**: Organized all shared data objects into the `src/model/` directory for better architectural alignment with the GShockAPI ecosystem.
+*   **GATT Concurrency Fix**: Implemented full asynchronous awaiting for Bluetooth write operations, resolving "GATT operation already in progress" errors during watch configuration.
+*   **Code Cleanup**: Removed redundant model definitions and streamlined imports across the application.
+
 ## v2.0.1
 *   **Renamed Deployment References**: Updated all scripts, variable names, and documentation to refer to a generic "Server" instead of "Raspberry Pi". This makes the deployment infrastructure more suitable for VPS and other remote hosting environments.
 *   **Library Alignment**: Synced with the latest Kotlin `GShockAPI` standards, including improved protocol dispatching and functional IO separation.
