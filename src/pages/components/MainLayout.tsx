@@ -5,6 +5,7 @@ import {
     BottomNavigation,
     BottomNavigationAction,
     Paper,
+    Typography,
     useMediaQuery,
     useTheme,
 } from '@mui/material';
@@ -15,6 +16,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import SideNavigation, { SIDEBAR_WIDTH } from './SideNavigation';
 import { ConnectionContext } from '@/App';
 import { watchInfo } from '@api/WatchInfo';
+import pkg from '../../../package.json';
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -163,6 +165,22 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     </BottomNavigation>
                 </Paper>
             )}
+
+            {/* Version Display */}
+            <Typography
+                variant="caption"
+                sx={{
+                    position: 'fixed',
+                    bottom: { xs: 92, md: 16 }, // Above bottom nav on mobile
+                    right: 16,
+                    color: 'text.disabled',
+                    fontSize: '0.65rem',
+                    zIndex: 2000,
+                    pointerEvents: 'none',
+                }}
+            >
+                v{pkg.version}
+            </Typography>
         </Box>
     );
 };
