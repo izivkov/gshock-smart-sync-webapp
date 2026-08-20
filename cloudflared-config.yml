@@ -7,7 +7,7 @@ credentials-file: ~/.cloudflared/YOUR_TUNNEL_ID_HERE.json
 ingress:
   # Map your subdomain to the local web server
   - hostname: gshock.avmedia.org
-    service: http://localhost:3000
+    service: http://localhost:3002
   
   # Catch-all rule (required)
   - service: http_status:404

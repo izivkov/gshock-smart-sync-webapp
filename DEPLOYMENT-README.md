@@ -34,7 +34,7 @@ chmod +x deploy.sh
 
 ### Step 3: Access Application
 ```
-http://192.168.1.100:3000
+http://192.168.1.100:3002
 ```
 
 ---
@@ -178,7 +178,7 @@ In-depth technical guide covering:
 
 ## 🆘 Troubleshooting Quick Links
 
-**Problem:** Cannot connect to http://192.168.1.100:3000
+**Problem:** Cannot connect to http://192.168.1.100:3002
 - See: `QUICK-START.md` → "Troubleshooting"
 
 **Problem:** Service won't start
@@ -246,7 +246,7 @@ Each watch has 24 capability flags for intelligent feature adaptation.
 2. **Testing** - Test locally with `npm run dev`
 3. **Build** - Create production build with `npm run build`
 4. **Deploy** - Run `./deploy.sh`
-5. **Verify** - Access http://192.168.1.100:3000
+5. **Verify** - Access http://192.168.1.100:3002
 
 For quick updates (code only, no build changes):
 ```bash
@@ -286,7 +286,7 @@ Ready? Run:
 ## 🎉 Success Criteria
 
 After deployment, you should be able to:
-- ✅ Access http://[IP of your server]:3000 in browser
+- ✅ Access http://[IP of your server]:3002 in browser
 - ✅ Connect G-Shock watch via Bluetooth
 - ✅ View watch time and battery status
 - ✅ Manage alarms (up to 5)

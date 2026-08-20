@@ -61,7 +61,7 @@ The script will:
 
 Once deployed, access the application at:
 ```
-http://192.168.1.100:3000
+http://192.168.1.100:3002
 ```
 
 ## Service Management

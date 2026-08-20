@@ -54,7 +54,7 @@ The script will:
 ### Step 3: Access the Application
 Open browser and navigate to:
 ```
-http://192.168.1.100:3000
+http://192.168.1.100:3002
 ```
 
 ---
@@ -101,7 +101,7 @@ chmod +x /home/[USERNAME]/gshock-smart-sync/setup-server.sh
 
 ### Step 5: Access the Application
 ```
-http://192.168.1.100:3000
+http://192.168.1.100:3002
 ```
 
 ---
@@ -152,7 +152,7 @@ ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -n 100'
 
 ## Troubleshooting
 
-### Cannot Connect to http://192.168.1.100:3000
+### Cannot Connect to http://192.168.1.100:3002
 
 **Check if service is running:**
 ```bash
@@ -161,7 +161,7 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl status nginx'
 
 **Check if port 3000 is listening:**
 ```bash
-ssh [USERNAME]@[IP of your server] 'sudo netstat -tlnp | grep 3000'
+ssh [USERNAME]@[IP of your server] 'sudo netstat -tlnp | grep 3002'
 ```
 
 **Check Nginx logs:**

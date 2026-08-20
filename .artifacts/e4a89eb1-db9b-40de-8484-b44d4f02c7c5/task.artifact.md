@@ -1,26 +1,19 @@
-# Tasks - Consolidation of Models
+# Tasks - Change Application Port to 3002
 
-- [x] Consolidate `Alarm` model
-    - [x] Update `src/model/Alarm.ts` with any missing logic from `src/api/Alarms.ts`.
-    - [x] Move encoding/decoding helper logic from `src/api/Alarms.ts` to `src/api/io/AlarmsIO.ts`.
-    - [x] Delete `src/api/Alarms.ts`.
-- [x] Consolidate `Settings` model
-    - [x] Replace `src/model/Settings.ts` with the interface from `src/api/Settings.ts`.
-    - [x] Delete `src/api/Settings.ts`.
-- [x] Move `StepCounterData` model
-    - [x] Move `src/api/StepCounterData.ts` to `src/model/StepCounterData.ts`.
-- [x] Move `MockStepData.ts`
-    - [x] Move `src/api/utils/MockStepData.ts` to `src/model/MockStepData.ts`.
-- [x] Update imports across the project
-    - [x] `src/api/GShockAPI.ts`
-    - [x] `src/api/io/AlarmsIO.ts`
-    - [x] `src/api/io/SettingsIO.ts`
-    - [x] `src/api/io/StepCounterIO.ts`
-    - [x] `src/api/io/StepCounterIOFunctional.ts`
-    - [x] `src/api/protocols/WatchProtocol.ts`
-    - [x] `src/api/protocols/StandardProtocol.ts`
-    - [x] `src/api/utils/MockStepData.ts` (moved and updated)
-    - [x] `src/pages/time/StepCounterView.tsx`
-    - [x] `src/pages/time/Time.page.tsx`
-- [x] Verification
-    - [x] Run `npx tsc --noEmit`.
+- `[x]` Update Scripts
+    - `[x]` Update `deploy.sh`
+    - `[x]` Update `setup-server.sh`
+    - `[x]` Update `check-deploy.sh`
+- `[x]` Update Configuration
+    - `[x]` Update `vite.config.ts`
+    - `[x]` Update `cloudflared-config.yml`
+    - `[x]` Update `nginx-local.conf`
+- `[x]` Update Documentation
+    - `[x]` Update `DEPLOYMENT.md`
+    - `[x]` Update `QUICK-START.md`
+    - `[x]` Update `DEPLOYMENT-SUMMARY.md`
+    - `[x]` Update `DEPLOYMENT-README.md`
+    - `[x]` Update `DEPLOYMENT-FILES.txt`
+- `[ ]` Verification
+    - `[ ]` Run `./check-deploy.sh`
+    - `[ ]` Run `npm run dev` and verify port 3002

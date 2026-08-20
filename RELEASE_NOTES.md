@@ -1,9 +1,14 @@
 # Release Notes - G-Shock Smart Sync Webapp
 
+## v2.0.3
+*   **Port Conflict Resolution**: Moved the application and development server to **port 3002** to avoid common conflicts with other local services.
+*   **Security Patches**: Resolved high-severity vulnerabilities by upgrading `vite` to `v6.4.3` and applying strategic dependency overrides for `esbuild` and `postcss`.
+*   **Deployment Reliability**: Improved `deploy.sh` and `setup-server.sh` to handle remote terminal allocation and `sudo` password prompts more gracefully.
+*   **SSH Connectivity**: Enhanced the pre-deployment checklist to verify SSH accessibility with configurable timeouts.
+
 ## v2.0.2
-*   **Model Consolidation**: Organized all shared data objects into the `src/model/` directory for better architectural alignment with the GShockAPI ecosystem.
+*   **Model Consolidation**: Organized all shared data objects (Alarms, Settings, StepCounterData, Mocks) into the `src/model/` directory for better architectural alignment with the GShockAPI ecosystem.
 *   **GATT Concurrency Fix**: Implemented full asynchronous awaiting for Bluetooth write operations, resolving "GATT operation already in progress" errors during watch configuration.
-*   **Security & Maintenance**: Resolved several high-severity vulnerabilities by upgrading `vite` to `v6.4.3` and applying dependency overrides for `esbuild` and `postcss`.
 *   **Code Cleanup**: Removed redundant model definitions and streamlined imports across the application.
 
 ## v2.0.1

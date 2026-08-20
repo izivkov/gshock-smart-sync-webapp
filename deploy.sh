@@ -10,7 +10,7 @@ set -e
 SERVER_USER="ivo"
 SERVER_HOST="192.168.1.100"
 SERVER_PATH="/home/ivo/gshock-smart-sync"
-APP_PORT="3000"
+APP_PORT="3002"
 
 # Colors for output
 RED='\033[0;31m'
@@ -71,7 +71,7 @@ echo -e "${YELLOW}[4/6] Configuring Nginx on server...${NC}"
 ssh "${SERVER_USER}@${SERVER_HOST}" 'bash -s' << SERVERSETUP
     set -e
     SERVER_PATH="/home/ivo/gshock-smart-sync"
-    APP_PORT="3000"
+    APP_PORT="3002"
 
     echo "  → Installing/Updating Nginx..."
     sudo apt-get update -qq

@@ -135,7 +135,7 @@ if [ $CHECKS_FAILED -eq 0 ]; then
     echo "Next steps:"
     echo "  1. Run: ./deploy.sh"
     echo "  2. Wait for deployment to complete (~3-5 minutes)"
-    echo "  3. Access: http://192.168.1.100:3000"
+    echo "  3. Access: http://192.168.1.100:3002"
     echo ""
     exit 0
 else

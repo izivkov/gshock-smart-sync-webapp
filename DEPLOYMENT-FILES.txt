@@ -24,7 +24,7 @@ Documentation:
      $ ./deploy.sh
 
   3. Access application:
-     http://192.168.1.100:3000
+     http://192.168.1.100:3002
 
 📋 WHAT'S INCLUDED:
 
@@ -57,7 +57,7 @@ For First-Time Users:
   2. Read: DEPLOYMENT-SUMMARY.md
   3. Run: ./check-deploy.sh
   4. Run: ./deploy.sh
-  5. Access: http://192.168.1.100:3000
+  5. Access: http://192.168.1.100:3002
 
 For Troubleshooting:
   1. Check logs: ssh ivo@192.168.1.100 'sudo journalctl -u nginx -f'
@@ -96,7 +96,7 @@ System Check:
 Connectivity:
   [ ] Can ping Server (192.168.1.100)
   [ ] Can SSH to ivo@192.168.1.100
-  [ ] No firewall blocking ports 22, 3000
+  [ ] No firewall blocking ports 22, 3002
 
 Server:
   [ ] Running and accessible
@@ -116,7 +116,7 @@ Server:
    $ ./deploy.sh
 
 4. Access the App:
-   Open browser to: http://192.168.1.100:3000
+   Open browser to: http://192.168.1.100:3002
 
 5. Connect Watch:
    Use browser Bluetooth to pair your G-Shock
@@ -175,7 +175,7 @@ and tested. Simply run './check-deploy.sh' to verify prerequisites, then
 './deploy.sh' to deploy to your server.
 
 After deployment, your G-Shock Smart Sync web application will be running at:
-  http://192.168.1.100:3000
+  http://192.168.1.100:3002
 
 ═══════════════════════════════════════════════════════════════════════════════
 Generated: 2024-04-06

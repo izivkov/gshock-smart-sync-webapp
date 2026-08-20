@@ -7,7 +7,7 @@
 set -e
 
 APP_PATH="/home/ivo/gshock-smart-sync"
-APP_PORT="3000"
+APP_PORT="3002"
 
 echo "=========================================="
 echo "G-Shock Smart Sync Webapp - Server Setup"

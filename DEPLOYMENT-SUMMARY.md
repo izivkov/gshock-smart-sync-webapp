@@ -54,7 +54,7 @@ cd ~/projects/gshock-smart-sync-webapp
 
 **Step 3: Access Application**
 ```
-http://[IP of your server]:3000
+http://[IP of your server]:3002
 ```
 
 ---
@@ -72,7 +72,7 @@ http://[IP of your server]:3000
 ## After Deployment
 
 ### Access Application
-- Open browser: `http://[IP of your server]:3000`
+- Open browser: `http://[IP of your server]:3002`
 - Connect your G-Shock watch via Bluetooth
 - Manage time, alarms, events, settings
 
@@ -120,7 +120,7 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 
 | Issue | Solution |
 |-------|----------|
-| Cannot access http://192.168.1.100:3000 | See QUICK-START.md → "Cannot Connect" |
+| Cannot access http://192.168.1.100:3002 | See QUICK-START.md → "Cannot Connect" |
 | Service won't start | Check logs: `ssh [USERNAME]@[IP of your server] 'sudo journalctl -u nginx -n 100'` |
 | Out of memory | See QUICK-START.md → "Out of Memory Errors" |
 | SSH connection fails | See QUICK-START.md → "SSH Connection Issues" |
@@ -163,7 +163,7 @@ ssh [USERNAME]@[IP of your server] 'sudo systemctl restart nginx'
 1. **Verify prerequisites** - Ensure dev machine has SSH, rsync, Node.js
 2. **Test SSH access** - `ssh [USERNAME]@[IP of your server]`
 3. **Run deployment** - `./deploy.sh`
-4. **Access application** - Open `http://[IP of your server]:3000`
+4. **Access application** - Open `http://[IP of your server]:3002`
 5. **Connect watch** - Use Bluetooth to pair G-Shock
 6. **Test features** - Time sync, alarms, events, settings
 
@@ -203,7 +203,7 @@ You now have:
 ✅ Comprehensive documentation
 ✅ Ready for production deployment to your server
 
-**To deploy:** Simply run `./deploy.sh` and access at `http://[IP of your server]:3000`
+**To deploy:** Simply run `./deploy.sh` and access at `http://[IP of your server]:3002`
 
 ---
 
