@@ -1,32 +1,32 @@
-# Walkthrough - Application Port Changed to 3002
+# Walkthrough - Robust Navigation and State Management
 
-I have updated the entire project to use **port 3002** for both development and production. This avoids the conflict you encountered with port 3001 on your server.
+I have significantly improved the reliability of the application's navigation and state management during watch connection and disconnection.
 
-## Key Changes
+## Key Accomplishments
 
-### 1. Deployment Scripts
-- **`deploy.sh`**: Updated `APP_PORT` to `3002`.
-- **`setup-server.sh`**: Updated `APP_PORT` to `3002`.
-- **`check-deploy.sh`**: Updated the recommended access URL to `http://192.168.1.100:3002`.
+### 1. Centralized Connection Logic
+- **Root-Level Handling**: Moved the primary connection and initialization event listeners to the root `App.tsx` component. This ensures the app always reacts to watch events, regardless of which screen is currently visible to the user.
+- **Auto-Redirect on Connect**: The logic to intelligently navigate to the Time screen (or trigger a Time Sync/Phone Find) is now centrally managed.
+- **Reliable Disconnect Cleanup**: When a watch disconnects, the app now explicitly calls `watchInfo.reset()` and redirects the user back to the Home screen, preventing "zombie" states where the UI still shows data from a disconnected watch.
 
-### 2. Configuration Files
-- **`vite.config.ts`**: Updated the dev server port to `3002`.
-- **`cloudflared-config.yml`**: Updated the ingress service to `http://localhost:3002`.
-- **`nginx-local.conf`**: Updated the listen port to `3002`.
+### 2. UI Simplification
+- **Lean Home Page**: Removed redundant and potentially conflicting navigation code from the Home page (`index.page.tsx`). It is now focused purely on the "Connect Your Watch" presentation.
 
-### 3. Documentation
-Updated all occurrences of port `3000` or `3001` to `3002` in:
-- `README.md`
-- `QUICK-START.md`
-- `DEPLOYMENT.md`
-- `DEPLOYMENT-SUMMARY.md`
-- `DEPLOYMENT-README.md`
-- `DEPLOYMENT-FILES.txt`
+### 3. Router Stability
+- **Navigation Guard**: Added a small guard in the custom router (`router.tsx`) to prevent rapid-fire or redundant navigation calls from corrupting the internal state, which was a likely cause of the "black screen" issue.
 
-## Verification
-- Confirmed that `check-deploy.sh` now points to port `3002`.
-- Verified that all script variables are consistently set to `3002`.
+## Technical Details
+
+### Disconnect Workflow
+When the watch signal is lost or the user disconnects:
+1. `Disconnected` event fires.
+2. `isConnected` state set to `false`.
+3. `watchInfo.reset()` clears all model metadata.
+4. `router.push('/')` returns the user to the landing page.
+
+### Navigation Guard
+The router now ignores navigation requests that happen within 100ms of each other or to the same path, ensuring smooth transitions.
 
 ---
-> [!IMPORTANT]
-> Please run `./deploy.sh` now to update your server configuration. Once complete, your app will be available at **`http://192.168.1.100:3002`**.
+> [!TIP]
+> These changes make the app much more resilient to intermittent Bluetooth disconnections and model-specific initialization timing.

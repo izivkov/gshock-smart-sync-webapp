@@ -1,5 +1,11 @@
 # Release Notes - G-Shock Smart Sync Webapp
 
+## v2.0.4
+*   **Robust Navigation**: Centralized connection and disconnection event handling in the root component, ensuring consistent redirects to the Time screen and back to Home.
+*   **Router Stability**: Implemented navigation guards to prevent rapid-fire transitions and resolve "black screen" issues during watch initialization.
+*   **State Cleanup**: Fixed an issue where watch metadata remained after disconnection by implementing mandatory state resets on signal loss.
+*   **Bluetooth Robustness**: Added connection stabilization checks to handle immediate GATT disconnections common with some watch models.
+
 ## v2.0.3
 *   **Port Conflict Resolution**: Moved the application and development server to **port 3002** to avoid common conflicts with other local services.
 *   **Security Patches**: Resolved high-severity vulnerabilities by upgrading `vite` to `v6.4.3` and applying strategic dependency overrides for `esbuild` and `postcss`.

@@ -15,7 +15,7 @@ import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WatchIcon from '@mui/icons-material/Watch';
 import { ConnectionContext } from '@/App';
-import { watchInfo } from '@api/WatchInfo';
+import { WatchFeatureManager } from '@/utils/WatchFeatureManager';
 
 export const SIDEBAR_WIDTH = 260;
 
@@ -30,7 +30,7 @@ const SideNavigation: React.FC = () => {
     const router = useRouter();
     const { isConnected } = useContext(ConnectionContext);
     const visibleItems = React.useMemo(() => {
-        if (isConnected && !watchInfo.hasReminders) {
+        if (isConnected && !WatchFeatureManager.isFeatureSupported('actions.reminders')) {
             return NAV_ITEMS.filter(item => item.label !== 'Events');
         }
         return NAV_ITEMS;

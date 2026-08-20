@@ -1,36 +1,35 @@
-# Implementation Plan - Change Application Port to 3002
+# Implementation Plan - Robust Navigation and State Management
 
-This plan outlines the steps to change the application's production and development port from 3000/3001 to 3002 to avoid conflicts with other applications on the server.
+Address navigation inconsistencies and reliability issues during watch connection and disconnection by centralizing event handling in the root `App` component.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> This change updates the port used by the web server (Nginx) on the production server and the Vite development server. After applying these changes, you will need to access the app at `http://192.168.1.100:3002` (production) or `http://localhost:3002` (development).
+> This change moves the primary navigation logic (auto-switching to the Time screen on connect) from the Home page to the root `App` component. This ensures that the app always reacts to connection events regardless of which screen is currently visible.
 
 ## Proposed Changes
 
-### Deployment Scripts
-- **[MODIFY] [deploy.sh](file:///home/izivkov/projects/gshock-smart-sync-webapp/deploy.sh)**: Change `APP_PORT="3000"` to `APP_PORT="3002"`.
-- **[MODIFY] [setup-server.sh](file:///home/izivkov/projects/gshock-smart-sync-webapp/setup-server.sh)**: Change `APP_PORT="3000"` to `APP_PORT="3002"`.
-- **[MODIFY] [check-deploy.sh](file:///home/izivkov/projects/gshock-smart-sync-webapp/check-deploy.sh)**: Update status check messages and ping tests to use port 3002.
+### [MODIFY] [App.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/App.tsx)
+- Centralize all `progressEvents` listeners:
+    - `Connected`: Set `isConnected` to true.
+    - `Disconnected`: Set `isConnected` to false, call `watchInfo.reset()`, and navigate to `/`.
+    - `WatchInitializationCompleted`: Perform intelligent navigation (Phone Find, Time Sync, or go to Time screen).
+- Remove the existing `useEffect` for route protection as it will be handled more predictably by the `Disconnected` event.
 
-### Configuration Files
-- **[MODIFY] [vite.config.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/vite.config.ts)**: Change `server.port` from 3000 to 3002.
-- **[MODIFY] [cloudflared-config.yml](file:///home/izivkov/projects/gshock-smart-sync-webapp/cloudflared-config.yml)**: Change `service: http://localhost:3000` to `service: http://localhost:3002`.
-- **[MODIFY] [nginx-local.conf](file:///home/izivkov/projects/gshock-smart-sync-webapp/nginx-local.conf)**: Change `listen 3001;` to `listen 3002;`.
+### [MODIFY] [index.page.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/index.page.tsx)
+- Remove the `progressEvents.runEventActions("Home", actions)` block and all redundant navigation logic.
+- Keep only UI-specific logic.
 
-### Documentation
-- **[MODIFY] [DEPLOYMENT.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/DEPLOYMENT.md)**: Update all occurrences of port 3000 to 3002.
-- **[MODIFY] [QUICK-START.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/QUICK-START.md)**: Update all occurrences of port 3000 to 3002.
-- **[MODIFY] [DEPLOYMENT-SUMMARY.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/DEPLOYMENT-SUMMARY.md)**: Update all occurrences of port 3000 to 3002.
-- **[MODIFY] [DEPLOYMENT-README.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/DEPLOYMENT-README.md)**: Update all occurrences of port 3000 to 3002.
-- **[MODIFY] [DEPLOYMENT-FILES.txt](file:///home/izivkov/projects/gshock-smart-sync-webapp/DEPLOYMENT-FILES.txt)**: Update all occurrences of port 3000 to 3002.
+### [MODIFY] [router.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/utils/router.tsx)
+- Add a small delay/guard in `push` to prevent rapid consecutive navigations from corrupting the state.
 
 ## Verification Plan
 
 ### Automated Tests
-- Run `./check-deploy.sh` to ensure it correctly identifies port 3002 as the target.
+- Run `npx tsc --noEmit` to ensure no broken references.
 
 ### Manual Verification
-- Run `npm run dev` and verify the app is accessible at `http://localhost:3002`.
-- Run `./deploy.sh` and verify the app is correctly configured on the server to listen on port 3002.
+- **Test Connection**: Verify that connecting a watch consistently takes the user to the Time screen.
+- **Test Disconnection**: Verify that turning off Bluetooth or disconnecting the watch always returns the user to the Home screen and clears the watch name.
+- **Test Phone Finder**: Verify that the Phone Finder still triggers if the watch initiates it.
+- **Verify No Black Screen**: Repeatedly connect/disconnect to ensure the router state remains stable.

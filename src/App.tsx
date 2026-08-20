@@ -7,8 +7,10 @@ import { useRouter } from '@/utils/router';
 import { useEffect, useState, createContext, Suspense } from 'react';
 import { connection } from '@api/Connection';
 import { progressEvents, EventAction } from '@api/ProgressEvents';
+import { watchInfo } from '@api/WatchInfo';
 import GShockAPI from '@/api/GShockAPI';
 import { ComponentRouter } from '@/utils/componentRouter';
+import { PhoneFinder } from '@pages/home/PhoneFinder';
 
 let theme = createTheme({
   cssVariables: true,
@@ -147,18 +149,41 @@ export default function App() {
   const router = useRouter();
   const [isConnected, setIsConnected] = useState(false);
 
-  // Listen for connection events from the watch and try to auto-reconnect
+  // Centralized connection management
   useEffect(() => {
     const connectionActions: EventAction[] = [
-      { label: "Connected", action: () => setIsConnected(true) },
-      { label: "Disconnected", action: () => setIsConnected(false) },
+      {
+        label: "Connected",
+        action: () => setIsConnected(true)
+      },
+      {
+        label: "Disconnected",
+        action: () => {
+          setIsConnected(false);
+          watchInfo.reset();
+          router.push('/');
+        }
+      },
+      {
+        label: "WatchInitializationCompleted",
+        action: async () => {
+          if (GShockAPI.isFindPhoneButtonPressed()) {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) PhoneFinder.ring();
+          } else if (GShockAPI.isActionButtonPressed() || GShockAPI.isAutoTimeStarted()) {
+            await GShockAPI.setTime();
+          } else {
+            router.push('/time/Time');
+          }
+        }
+      }
     ];
 
     progressEvents.runEventActions("AppRoot", connectionActions);
     return () => {
       progressEvents.stop("AppRoot");
     };
-  }, []);
+  }, [router]); // Re-run if router instance changes
 
   // Route protection: redirect to home if visiting restricted paths while disconnected
   useEffect(() => {
@@ -166,7 +191,7 @@ export default function App() {
     if (!isConnected && restrictedPaths.some(path => router.pathname.startsWith(path))) {
       router.push('/');
     }
-  }, [isConnected, router]);
+  }, [isConnected, router.pathname, router]);
 
   return (
     <ConnectionContext.Provider value={{ isConnected, setIsConnected }}>

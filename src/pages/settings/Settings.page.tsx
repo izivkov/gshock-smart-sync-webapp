@@ -34,8 +34,9 @@ import GShockAPI from '@/api/GShockAPI';
 import type { dateFormatType, languageType, lightDurationType, timeFormatType } from '@/api/WatchInfo';
 import { watchInfo } from '@/api/WatchInfo';
 import { ConnectionContext } from '@/App';
+import { WatchFeatureManager } from '@/utils/WatchFeatureManager';
 import ScreenTitle from '../components/ScreenTitle';
-import { PEACH_BORDER, PEACH_SHADOW, PEACH_SURFACE } from '../theme/peachCardStyles';
+import { WatchAppCard, WatchFeature, useWatchFeatures } from '../components/WatchFeature';
 import { getSmartDefaultsForSettings } from './smartDefaults';
 
 const BOTTOM_NAV_HEIGHT = '80px';
@@ -252,108 +253,95 @@ const Settings: React.FC = () => {
                     <ScreenTitle title="Settings" />
 
                     {/* Time & Date Section */}
-                    <Card sx={{ mb: 2, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW, p: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', px: 2.5, pt: 1, display: 'block' }}>
-                            Time & Date
-                        </Typography>
-                        <SettingRow icon={<AccessTimeIcon sx={{ fontSize: 22 }} />} label="Time Format">
-                            <OptionToggle
-                                value={settings.timeFormat}
-                                options={[{ value: '12h', label: '12h' }, { value: '24h', label: '24h' }]}
-                                onChange={(value) => updateSettings({ timeFormat: value as timeFormatType })}
-                            />
-                        </SettingRow>
-                        {watchInfo.hasDateFormat && (
-                            <>
-                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                                <SettingRow icon={<LanguageIcon sx={{ fontSize: 22 }} />} label="Date Format">
-                                    <OptionToggle
-                                        value={settings.dateFormat}
-                                        options={[{ value: 'MM:DD', label: 'MM:DD' }, { value: 'DD:MM', label: 'DD:MM' }]}
-                                        onChange={(value) => updateSettings({ dateFormat: value as dateFormatType })}
-                                    />
-                                </SettingRow>
-                            </>
-                        )}
-                        {watchInfo.weekLanguageSupported && (
-                            <>
-                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                                <SettingRow icon={<LanguageIcon sx={{ fontSize: 22 }} />} label="Language">
-                                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                                        <Select
-                                            value={settings.language}
-                                            onChange={(e) => updateSettings({ language: e.target.value as languageType })}
-                                            sx={{ fontSize: '0.875rem', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(139, 94, 60, 0.3)' } }}
-                                        >
-                                            {languageOptions.map((lang) => <MenuItem key={lang} value={lang}>{lang}</MenuItem>)}
-                                        </Select>
-                                    </FormControl>
-                                </SettingRow>
-                            </>
-                        )}
-                    </Card>
- 
+                    <WatchAppCard id="locale_card" title="Time & Date">
+                        <WatchFeature id="locale.time_format">
+                            <SettingRow icon={<AccessTimeIcon sx={{ fontSize: 22 }} />} label="Time Format">
+                                <OptionToggle
+                                    value={settings.timeFormat}
+                                    options={[{ value: '12h', label: '12h' }, { value: '24h', label: '24h' }]}
+                                    onChange={(value) => updateSettings({ timeFormat: value as timeFormatType })}
+                                />
+                            </SettingRow>
+                        </WatchFeature>
+                        <WatchFeature id="locale.date_format">
+                            <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                            <SettingRow icon={<LanguageIcon sx={{ fontSize: 22 }} />} label="Date Format">
+                                <OptionToggle
+                                    value={settings.dateFormat}
+                                    options={[{ value: 'MM:DD', label: 'MM:DD' }, { value: 'DD:MM', label: 'DD:MM' }]}
+                                    onChange={(value) => updateSettings({ dateFormat: value as dateFormatType })}
+                                />
+                            </SettingRow>
+                        </WatchFeature>
+                        <WatchFeature id="locale.week_language">
+                            <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                            <SettingRow icon={<LanguageIcon sx={{ fontSize: 22 }} />} label="Language">
+                                <FormControl size="small" sx={{ minWidth: 120 }}>
+                                    <Select
+                                        value={settings.language}
+                                        onChange={(e) => updateSettings({ language: e.target.value as languageType })}
+                                        sx={{ fontSize: '0.875rem', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(139, 94, 60, 0.3)' } }}
+                                    >
+                                        {languageOptions.map((lang) => <MenuItem key={lang} value={lang}>{lang}</MenuItem>)}
+                                    </Select>
+                                </FormControl>
+                            </SettingRow>
+                        </WatchFeature>
+                    </WatchAppCard>
+
                     {/* Display & Sound Section */}
-                    <Card sx={{ mb: 1, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW, p: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', px: 2.5, pt: 1, display: 'block' }}>
-                            Display & Sound
-                        </Typography>
-                        <SettingRow icon={settings.buttonTone ? <VolumeUpIcon sx={{ fontSize: 22 }} /> : <VolumeOffIcon sx={{ fontSize: 22 }} />} label="Button Sound" description="Play tone on button press">
-                            <ModernSwitch checked={settings.buttonTone} onChange={(checked) => updateSettings({ buttonTone: checked })} />
-                        </SettingRow>
-                        {watchInfo.vibrate && (
-                            <>
-                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                                <SettingRow icon={<VibrationIcon sx={{ fontSize: 22 }} />} label="Vibrate" description="Haptic feedback on button press">
-                                    <ModernSwitch checked={settings.vibrate} onChange={(checked) => updateSettings({ vibrate: checked })} />
-                                </SettingRow>
-                            </>
-                        )}
-                        {watchInfo.hasAutoLight && (
-                            <>
-                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                                <SettingRow icon={<LightModeIcon sx={{ fontSize: 22 }} />} label="Auto Light" description="Light on wrist rotation">
-                                    <ModernSwitch checked={settings.autoLight} onChange={(checked) => updateSettings({ autoLight: checked })} />
-                                </SettingRow>
-                            </>
-                        )}
-                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                        <SettingRow icon={<LightModeIcon sx={{ fontSize: 22 }} />} label="Light Duration">
-                            <OptionToggle
-                                value={settings.lightDuration}
-                                options={[
-                                    { value: '2s', label: shortDuration },
-                                    { value: '4s', label: longDuration },
-                                ]}
-                                onChange={(value) => updateSettings({ lightDuration: value as lightDurationType })}
-                            />
-                        </SettingRow>
-                        {watchInfo.hasMultipleFonts && (
-                            <>
-                                <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                                <SettingRow icon={<TextFieldsIcon sx={{ fontSize: 22 }} />} label="Font">
-                                    <OptionToggle
-                                        value={settings.font}
-                                        options={[{ value: 'Standard', label: 'Standard' }, { value: 'Classic', label: 'Classic' }]}
-                                        onChange={(value) => updateSettings({ font: value as fontType })}
-                                    />
-                                </SettingRow>
-                            </>
-                        )}
-                    </Card>
- 
+                    <WatchAppCard id="operation_tone_card" title="Display & Sound">
+                        <WatchFeature id="operation_tone.sound">
+                            <SettingRow icon={settings.buttonTone ? <VolumeUpIcon sx={{ fontSize: 22 }} /> : <VolumeOffIcon sx={{ fontSize: 22 }} />} label="Button Sound" description="Play tone on button press">
+                                <ModernSwitch checked={settings.buttonTone} onChange={(checked) => updateSettings({ buttonTone: checked })} />
+                            </SettingRow>
+                        </WatchFeature>
+                        <WatchFeature id="operation_tone.vibrate">
+                            <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                            <SettingRow icon={<VibrationIcon sx={{ fontSize: 22 }} />} label="Vibrate" description="Haptic feedback on button press">
+                                <ModernSwitch checked={settings.vibrate} onChange={(checked) => updateSettings({ vibrate: checked })} />
+                            </SettingRow>
+                        </WatchFeature>
+                        <WatchFeature id="light.auto_light">
+                            <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                            <SettingRow icon={<LightModeIcon sx={{ fontSize: 22 }} />} label="Auto Light" description="Light on wrist rotation">
+                                <ModernSwitch checked={settings.autoLight} onChange={(checked) => updateSettings({ autoLight: checked })} />
+                            </SettingRow>
+                        </WatchFeature>
+                        <WatchFeature id="light.duration">
+                            <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                            <SettingRow icon={<LightModeIcon sx={{ fontSize: 22 }} />} label="Light Duration">
+                                <OptionToggle
+                                    value={settings.lightDuration}
+                                    options={[
+                                        { value: '2s', label: shortDuration },
+                                        { value: '4s', label: longDuration },
+                                    ]}
+                                    onChange={(value) => updateSettings({ lightDuration: value as lightDurationType })}
+                                />
+                            </SettingRow>
+                        </WatchFeature>
+                        <WatchFeature id="settings.multiple_fonts">
+                            <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                            <SettingRow icon={<TextFieldsIcon sx={{ fontSize: 22 }} />} label="Font">
+                                <OptionToggle
+                                    value={settings.font}
+                                    options={[{ value: 'Standard', label: 'Standard' }, { value: 'Classic', label: 'Classic' }]}
+                                    onChange={(value) => updateSettings({ font: value as fontType })}
+                                />
+                            </SettingRow>
+                        </WatchFeature>
+                    </WatchAppCard>
+
                     {/* Power & Sync Section */}
-                    <Card sx={{ mb: 2, borderRadius: '20px', overflow: 'hidden', bgcolor: PEACH_SURFACE, border: PEACH_BORDER, boxShadow: PEACH_SHADOW, p: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', px: 2.5, pt: 1, display: 'block' }}>
-                            Power & Sync
-                        </Typography>
-                        {watchInfo.hasPowerSavingMode && (
+                    <WatchAppCard id="time_adjustment_card" title="Power & Sync">
+                        <WatchFeature id="settings.power_saving">
                             <SettingRow icon={<BatterySaverIcon sx={{ fontSize: 22 }} />} label="Power Saving" description="Reduce battery consumption">
                                 <ModernSwitch checked={settings.powerSavingMode} onChange={(checked) => updateSettings({ powerSavingMode: checked })} />
                             </SettingRow>
-                        )}
-                        <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
-                        {watchInfo.alwaysConnected ? (
+                            <Divider sx={{ mx: 2, borderColor: 'rgba(139, 94, 60, 0.08)' }} />
+                        </WatchFeature>
+                        <WatchFeature id="time_adjustment.always_connected">
                             <SettingRow icon={<TuneIcon sx={{ fontSize: 22 }} />} label="Fine Adjustment" description="Compensate clock drift (ms)">
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                     <IconButton
@@ -375,12 +363,15 @@ const Settings: React.FC = () => {
                                     </IconButton>
                                 </Box>
                             </SettingRow>
-                        ) : (
-                            <SettingRow icon={<SyncIcon sx={{ fontSize: 22 }} />} label="Auto Time Sync" description="Sync time automatically">
-                                <ModernSwitch checked={settings.timeAdjustment} onChange={(checked) => updateSettings({ timeAdjustment: checked })} />
-                            </SettingRow>
-                        )}
-                    </Card>
+                        </WatchFeature>
+                        <WatchFeature id="time_adjustment.supported">
+                            {!WatchFeatureManager.isFeatureSupported('time_adjustment.always_connected') && (
+                                <SettingRow icon={<SyncIcon sx={{ fontSize: 22 }} />} label="Auto Time Sync" description="Sync time automatically">
+                                    <ModernSwitch checked={settings.timeAdjustment} onChange={(checked) => updateSettings({ timeAdjustment: checked })} />
+                                </SettingRow>
+                            )}
+                        </WatchFeature>
+                    </WatchAppCard>
 
                     <Box sx={{ height: 40 }} />
                 </Box>

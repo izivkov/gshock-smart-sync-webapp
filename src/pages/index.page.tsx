@@ -106,38 +106,6 @@ function Home() {
 
   const handleCloseSupportDialog = () => setShowSupportDialog(false);
 
-  const navigateToTimePage = useMemo(() => () => router.push('/time/Time'), [router]);
-  const navigateToHomePage = useMemo(() => () => router.push('/'), [router]);
-
-  const handleWatchConnectedAndInit = useMemo(() => async () => {
-    if (GShockAPI.isFindPhoneButtonPressed()) {
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (isMobile) PhoneFinder.ring();
-    } else if (GShockAPI.isActionButtonPressed() || GShockAPI.isAutoTimeStarted()) {
-      await GShockAPI.setTime();
-    } else {
-      navigateToTimePage();
-    }
-  }, [navigateToTimePage]);
-
-  const actions: EventAction[] = useMemo(() => [
-    { label: "Disconnected", action: navigateToHomePage },
-    { label: "WatchInitializationCompleted", action: handleWatchConnectedAndInit },
-  ], [navigateToHomePage, handleWatchConnectedAndInit]);
-
-  useEffect(() => {
-    progressEvents.runEventActions("Home", actions);
-    return () => {
-      progressEvents.stop("Home");
-    };
-  }, [actions]);
-
-  useEffect(() => {
-    if (connection.isConnected()) {
-      if (GShockAPI.isNormalButtonPressed()) navigateToTimePage();
-    }
-  }, [navigateToTimePage]);
-
   const suggestions = BROWSER_SUGGESTIONS[detectedOS];
   const osLabel = OS_LABELS[detectedOS];
 

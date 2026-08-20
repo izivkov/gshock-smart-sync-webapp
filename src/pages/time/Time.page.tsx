@@ -11,11 +11,13 @@ import StepCounterView from './StepCounterView';
 import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
-import { watchInfo } from '@api/WatchInfo';
 import { StepCounterData } from '@model/StepCounterData';
 import { ConnectionContext } from '@/App';
+import { progressEvents } from '@/api/ProgressEvents';
 import ScreenTitle from '../components/ScreenTitle';
 import PeachCard from '../components/PeachCard';
+import { WatchFeature, useWatchFeatures } from '../components/WatchFeature';
+import { WatchFeatureManager } from '@/utils/WatchFeatureManager';
 import {
     formatHomeTimeForDisplay,
     formatTemperatureFromCelsius,
@@ -25,33 +27,54 @@ import {
 
 const BOTTOM_NAV_HEIGHT = '80px';
 
-const WatchNameCard: React.FC<{ name: string, isConnected: boolean, batteryLevel: number }> = ({ name, isConnected, batteryLevel }) => (
-    <PeachCard sx={{ p: 1.25 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Box sx={{
-                    width: 36, height: 36, borderRadius: '8px',
-                    bgcolor: 'rgba(139, 94, 60, 0.12)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                    <WatchIcon sx={{ color: '#8B5E3C', fontSize: 20 }} />
-                </Box>
-                <Box>
-                    <Typography sx={{ fontWeight: 700, color: '#2D1A0E', fontSize: '0.95rem', lineHeight: 1 }}>
-                        {name || 'G-Shock'}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.3 }}>
-                        <BluetoothConnectedIcon sx={{ fontSize: 10, color: isConnected ? '#4CAF50' : '#f44336' }} />
-                        <Typography variant="caption" sx={{ color: isConnected ? '#4CAF50' : '#f44336', fontWeight: 600, fontSize: '0.65rem' }}>
-                            {isConnected ? 'CONNECTED' : 'DISCONNECTED'}
+const WatchNameCard: React.FC<{ isConnected: boolean, batteryLevel: number }> = ({ isConnected, batteryLevel }) => {
+    const { getWatchName } = useWatchName();
+    return (
+        <PeachCard sx={{ p: 1.25 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box sx={{
+                        width: 36, height: 36, borderRadius: '8px',
+                        bgcolor: 'rgba(139, 94, 60, 0.12)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <WatchIcon sx={{ color: '#8B5E3C', fontSize: 20 }} />
+                    </Box>
+                    <Box>
+                        <Typography sx={{ fontWeight: 700, color: '#2D1A0E', fontSize: '0.95rem', lineHeight: 1 }}>
+                            {getWatchName() || 'G-Shock'}
                         </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.3 }}>
+                            <BluetoothConnectedIcon sx={{ fontSize: 10, color: isConnected ? '#4CAF50' : '#f44336' }} />
+                            <Typography variant="caption" sx={{ color: isConnected ? '#4CAF50' : '#f44336', fontWeight: 600, fontSize: '0.65rem' }}>
+                                {isConnected ? 'CONNECTED' : 'DISCONNECTED'}
+                            </Typography>
+                        </Box>
                     </Box>
                 </Box>
+                <BatteryLevel level={batteryLevel} />
             </Box>
-            <BatteryLevel level={batteryLevel} />
-        </Box>
-    </PeachCard>
-);
+        </PeachCard>
+    );
+};
+
+const useWatchName = () => {
+    const [refresh, setRefresh] = useState(0);
+
+    useEffect(() => {
+        const actions = [
+            { label: 'DeviceName', action: () => setRefresh(prev => prev + 1) },
+            { label: 'Disconnect', action: () => setRefresh(prev => prev + 1) },
+        ];
+
+        progressEvents.runEventActions('WatchNameHook', actions);
+        return () => progressEvents.stop('WatchNameHook');
+    }, []);
+
+    return {
+        getWatchName: () => WatchFeatureManager.getWatchName(),
+    };
+};
 
 const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ timeZone, onSync }) => (
     <PeachCard sx={{ p: 1.5 }}>
@@ -127,6 +150,7 @@ const TemperatureCard: React.FC<{ tempShown: { text: string, unit: string } }> =
 
 const Time: React.FC = () => {
     const { isConnected } = useContext(ConnectionContext);
+    const { isFeatureSupported } = useWatchFeatures();
     const [timerValue, setTimerValue] = useState({ hours: 0, minutes: 0, seconds: 0 });
     const [homeTime, setHomeTime] = useState<string>("");
     const [batteryLevel, setBatteryLevel] = useState<number>(0);
@@ -153,7 +177,7 @@ const Time: React.FC = () => {
             setTemperature(temp);
             const level = await GShockAPI.getBatteryLevel();
             setBatteryLevel(level);
-            if (watchInfo.hasStepCounter || watchInfo.hasStepCounterMock) {
+            if (isFeatureSupported('time.step_counter')) {
                 const steps = await GShockAPI.getStepCount();
                 setStepData(steps);
             }
@@ -168,7 +192,7 @@ const Time: React.FC = () => {
 
     useEffect(() => {
         let interval: NodeJS.Timeout | null = null;
-        if (isConnected && (watchInfo.hasStepCounter || watchInfo.hasStepCounterMock)) {
+        if (isConnected && isFeatureSupported('time.step_counter')) {
             interval = setInterval(async () => {
                 try {
                     const data = await GShockAPI.getStepCount();
@@ -181,7 +205,7 @@ const Time: React.FC = () => {
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [isConnected]);
+    }, [isConnected, isFeatureSupported]);
 
     const handleSetTime = async () => {
         try {
@@ -240,8 +264,7 @@ const Time: React.FC = () => {
 
                     <Stack spacing={1.5} sx={{ width: '100%' }}>
                         <WatchNameCard 
-                            name={watchInfo.name} 
-                            isConnected={isConnected} 
+                            isConnected={isConnected}
                             batteryLevel={batteryLevel} 
                         />
                         
@@ -256,9 +279,9 @@ const Time: React.FC = () => {
                             onSetTimer={handleSetTimer} 
                         />
 
-                        {(watchInfo.hasStepCounter || watchInfo.hasStepCounterMock) && (
+                        <WatchFeature id="time.step_counter">
                             <StepCounterView stepData={stepData} />
-                        )}
+                        </WatchFeature>
 
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
                             <HomeTimeCard 
@@ -266,9 +289,9 @@ const Time: React.FC = () => {
                                 use12HourClock={use12HourClock} 
                             />
 
-                            {watchInfo.hasTemperature && (
+                            <WatchFeature id="time.temperature">
                                 <TemperatureCard tempShown={tempShown} />
-                            )}
+                            </WatchFeature>
                         </Box>
                     </Stack>
                 </Box>

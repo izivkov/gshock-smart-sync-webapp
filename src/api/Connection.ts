@@ -55,7 +55,12 @@ class Connection {
       const server = await device.gatt!.connect();
       this.server = server;
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Small delay to allow the connection to stabilize
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      if (!server.connected) {
+        throw new Error("GATT Server disconnected immediately after connect");
+      }
 
       device.addEventListener('gattserverdisconnected', () => {
         this.device = null;
