@@ -1,27 +1,25 @@
-# Implementation Plan - Version Bump to v2.0.5
+# Implementation Plan - Filter Bots by Default in Activity Report
 
-Increment the application version and update release notes to include recent stability, security, and deployment improvements.
-
-## User Review Required
-
-> [!NOTE]
-> This will increment the version to **v2.0.5** and update the faint version tag displayed in the app UI.
+Modify the activity report to display only real users by default and add an `--all` flag to include bots and other access.
 
 ## Proposed Changes
 
-### [MODIFY] [package.json](file:///home/izivkov/projects/gshock-smart-sync-webapp/package.json)
-- Increment `version` from `2.0.4` to `2.0.5`.
+### 1. Update `activity_report.sh`
+- Add logic to parse a new `--all` command-line argument.
+- Correctly extract the time window (hours/days) even if `--all` is present.
+- Pass both the time window and the "show all" flag to `analyze_logs.py`.
 
-### [MODIFY] [RELEASE_NOTES.md](file:///home/izivkov/projects/gshock-smart-sync-webapp/RELEASE_NOTES.md)
-- Add section for **v2.0.5**:
-    - **Stability Improvements**: Added router guards to prevent "black screens" and refined background fetch logic to eliminate "Mixed Content" warnings on HTTPS.
-    - **GATT Reliability**: Implemented a connection stabilization delay for tricky models like GA-B2100, ensuring the GATT server is fully connected before service discovery.
-    - **Deployment Overhaul**: Refined `deploy.sh` and added `setup-nginx.sh` for more reliable and standardized server configuration.
+### 2. Update `analyze_logs.py`
+- Modify the script to accept a second optional argument for the "show all" flag.
+- Conditionally print the "BOTS / OTHER ACCESS" table based on this flag.
+- Ensure the summary line always shows counts for both, even if the table is hidden.
 
 ## Verification Plan
 
 ### Automated Tests
-- None required for version bump, but I will check for syntax errors in JSON.
+- Run `./activity_report.sh` and verify only "REAL USERS" are shown.
+- Run `./activity_report.sh --all` and verify both tables are shown.
+- Run `./activity_report.sh 48h --all` and verify it handles both the time window and the flag.
 
 ### Manual Verification
-- Verify the version tag in the bottom-right corner of the web app after deployment.
+- Check the engagement and location data to ensure consistency.

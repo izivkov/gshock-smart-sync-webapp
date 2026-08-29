@@ -1,7 +1,3 @@
-# Tasks - Robust Navigation and State Management
-
-- [x] Centralize connection event handling in `App.tsx`
-- [x] Clean up redundant navigation logic in `index.page.tsx`
-- [x] Add navigation guards to `router.tsx`
-- [x] Verify connection/disconnection reliability
-- [x] Verify Phone Finder functionality
+- [x] Update `activity_report.sh` to parse `--all` flag
+- [x] Update `analyze_logs.py` to conditionally display bots
+- [x] Verify default and `--all` behavior

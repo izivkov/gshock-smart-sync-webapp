@@ -1,32 +1,34 @@
-# Walkthrough - Robust Navigation and State Management
+# Walkthrough - Filter Bots by Default in Activity Report
 
-I have significantly improved the reliability of the application's navigation and state management during watch connection and disconnection.
+I have updated the activity report to hide bots by default, providing a cleaner view of real user activity.
 
-## Key Accomplishments
+## Key Changes
 
-### 1. Centralized Connection Logic
-- **Root-Level Handling**: Moved the primary connection and initialization event listeners to the root `App.tsx` component. This ensures the app always reacts to watch events, regardless of which screen is currently visible to the user.
-- **Auto-Redirect on Connect**: The logic to intelligently navigate to the Time screen (or trigger a Time Sync/Phone Find) is now centrally managed.
-- **Reliable Disconnect Cleanup**: When a watch disconnects, the app now explicitly calls `watchInfo.reset()` and redirects the user back to the Home screen, preventing "zombie" states where the UI still shows data from a disconnected watch.
+### 1. New `--all` Flag in `activity_report.sh`
+The shell script now supports a `--all` argument. It correctly separates this flag from the time window input (e.g., `24`, `48h`, `7d`).
 
-### 2. UI Simplification
-- **Lean Home Page**: Removed redundant and potentially conflicting navigation code from the Home page (`index.page.tsx`). It is now focused purely on the "Connect Your Watch" presentation.
+- **Default**: Shows only "REAL USERS".
+- **`--all`**: Shows both "REAL USERS" and "BOTS / OTHER ACCESS".
 
-### 3. Router Stability
-- **Navigation Guard**: Added a small guard in the custom router (`router.tsx`) to prevent rapid-fire or redundant navigation calls from corrupting the internal state, which was a likely cause of the "black screen" issue.
+### 2. Conditional Display in `analyze_logs.py`
+The Python script now receives a boolean flag indicating whether to show bots. It uses this to conditionally print the bots table while always including them in the final summary counts.
 
-## Technical Details
+### 3. Clearer Summary
+Added a hint in the summary line when bots are hidden, informing the user how to see the full details.
 
-### Disconnect Workflow
-When the watch signal is lost or the user disconnects:
-1. `Disconnected` event fires.
-2. `isConnected` state set to `false`.
-3. `watchInfo.reset()` clears all model metadata.
-4. `router.push('/')` returns the user to the landing page.
+## Verification Results
 
-### Navigation Guard
-The router now ignores navigation requests that happen within 100ms of each other or to the same path, ensuring smooth transitions.
+### Standard Run
+`./activity_report.sh 24`
+- Displays the "REAL USERS" table.
+- Hides the "BOTS" table.
+- Shows total counts for both in the summary.
+- Includes a hint: `(Run with --all to see details for bots and other access)`.
+
+### Run with All
+`./activity_report.sh 24 --all`
+- Displays both the "REAL USERS" and "BOTS / OTHER ACCESS" tables.
 
 ---
 > [!TIP]
-> These changes make the app much more resilient to intermittent Bluetooth disconnections and model-specific initialization timing.
+> You can combine the flag with any time window, for example: `./activity_report.sh 7d --all`.
