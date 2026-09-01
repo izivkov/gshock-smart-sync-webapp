@@ -136,13 +136,13 @@ const HomeTimeCard: React.FC<{ homeTime: string, use12HourClock: boolean }> = ({
 
 const TemperatureCard: React.FC<{ tempShown: { text: string, unit: string } }> = ({ tempShown }) => (
     <PeachCard sx={{ p: 1.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, justifyContent: 'flex-end' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, justifyContent: 'flex-end', pr: 1.5 }}>
             <ThermostatIcon sx={{ fontSize: 14, color: '#8B5E3C' }} />
             <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase' }}>
                 Temp
             </Typography>
         </Box>
-        <Typography sx={{ fontSize: '1.2rem', fontWeight: 700, color: '#2D1A0E', fontFamily: 'monospace', textAlign: 'right' }}>
+        <Typography sx={{ fontSize: '1.2rem', fontWeight: 700, color: '#2D1A0E', fontFamily: 'monospace', textAlign: 'right', pr: 1.5 }}>
             {tempShown.text}{tempShown.unit}
         </Typography>
     </PeachCard>

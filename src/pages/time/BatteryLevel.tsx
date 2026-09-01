@@ -15,12 +15,13 @@ const BatteryLevel: React.FC<BatteryLevelProps> = ({ level }) => {
     const chargeLevel = Math.min(100, Math.max(0, level));
 
     const getBatteryConfig = (level: number) => {
-        if (level >= 80) return { icon: BatteryFullIcon, color: '#4CAF50' };
-        if (level >= 60) return { icon: Battery80Icon, color: '#8BC34A' };
-        if (level >= 40) return { icon: Battery60Icon, color: '#FFC107' };
-        if (level >= 20) return { icon: Battery30Icon, color: '#FF9800' };
-        if (level >= 10) return { icon: Battery20Icon, color: '#FF5722' };
-        return { icon: BatteryAlertIcon, color: '#F44336' };
+        // We use darker shades for text/icon to ensure high contrast against the peach background
+        if (level >= 80) return { icon: BatteryFullIcon, color: '#1B5E20', bgColor: '#E8F5E9' }; // Dark Green
+        if (level >= 60) return { icon: Battery80Icon, color: '#33691E', bgColor: '#F1F8E9' }; // Dark Light Green
+        if (level >= 40) return { icon: Battery60Icon, color: '#E65100', bgColor: '#FFF8E1' }; // Dark Orange/Amber
+        if (level >= 20) return { icon: Battery30Icon, color: '#BF360C', bgColor: '#FFF3E0' }; // Dark Deep Orange
+        if (level >= 10) return { icon: Battery20Icon, color: '#D84315', bgColor: '#FBE9E7' }; // Dark Red-Orange
+        return { icon: BatteryAlertIcon, color: '#B71C1C', bgColor: '#FFEBEE' }; // Dark Red
     };
 
     const config = getBatteryConfig(chargeLevel);
@@ -35,22 +36,25 @@ const BatteryLevel: React.FC<BatteryLevelProps> = ({ level }) => {
                 px: 1.5,
                 py: 0.75,
                 borderRadius: '100px',
-                backgroundColor: `${config.color}12`,
+                backgroundColor: config.bgColor,
+                border: `1px solid ${config.color}25`, // Very subtle border using foreground color
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
             }}
         >
             <IconComponent 
                 sx={{ 
-                    fontSize: 20, 
+                    fontSize: 18,
                     color: config.color,
                     transform: 'rotate(90deg)',
-                }} 
+                }}
             />
             <Typography 
                 sx={{ 
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
+                    fontSize: '0.8125rem',
+                    fontWeight: 900,
                     color: config.color,
                     fontVariantNumeric: 'tabular-nums',
+                    letterSpacing: '0.02em'
                 }}
             >
                 {chargeLevel}%
