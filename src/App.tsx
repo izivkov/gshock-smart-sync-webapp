@@ -151,6 +151,12 @@ export default function App() {
 
   // Centralized connection management
   useEffect(() => {
+    const handleDisconnect = () => {
+      setIsConnected(false);
+      watchInfo.reset();
+      router.push('/');
+    };
+
     const connectionActions: EventAction[] = [
       {
         label: "Connected",
@@ -158,11 +164,7 @@ export default function App() {
       },
       {
         label: "Disconnected",
-        action: () => {
-          setIsConnected(false);
-          watchInfo.reset();
-          router.push('/');
-        }
+        action: handleDisconnect
       },
       {
         label: "WatchInitializationCompleted",
@@ -173,25 +175,31 @@ export default function App() {
           } else if (GShockAPI.isActionButtonPressed() || GShockAPI.isAutoTimeStarted()) {
             await GShockAPI.setTime();
           } else {
-            router.push('/time/Time');
+            // Only redirect if we're not already on a functional page
+            const onLandingPage = router.pathname === '/' || router.pathname === '';
+            if (onLandingPage) {
+              router.push('/time/Time');
+            }
           }
         }
       }
     ];
 
     progressEvents.runEventActions("AppRoot", connectionActions);
+
+    // Initial route protection if started while disconnected
+    const restrictedPaths = ['/time', '/alarms', '/events', '/settings', '/reminders'];
+    if (!connection.isConnected() && restrictedPaths.some(path => router.pathname.startsWith(path))) {
+        handleDisconnect();
+    }
+
     return () => {
       progressEvents.stop("AppRoot");
     };
-  }, [router]); // Re-run if router instance changes
+  }, []); // Run ONLY ONCE on mount
 
-  // Route protection: redirect to home if visiting restricted paths while disconnected
-  useEffect(() => {
-    const restrictedPaths = ['/time', '/alarms', '/events', '/settings', '/reminders'];
-    if (!isConnected && restrictedPaths.some(path => router.pathname.startsWith(path))) {
-      router.push('/');
-    }
-  }, [isConnected, router.pathname, router]);
+  // Cleanup: Remove redundant route protection effect as it's now handled by event listeners
+  // and the initial check above.
 
   return (
     <ConnectionContext.Provider value={{ isConnected, setIsConnected }}>

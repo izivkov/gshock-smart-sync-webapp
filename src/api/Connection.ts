@@ -73,7 +73,23 @@ class Connection {
       watchInfo.setNameAndModel(device.name!);
 
       try {
-        this.service = await server.getPrimaryService(CasioConstants.WATCH_FEATURES_SERVICE_UUID);
+        // Retry logic for service discovery, some watches (GA-B2100) are finicky
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        while (retryCount < maxRetries) {
+          try {
+            this.service = await server.getPrimaryService(CasioConstants.WATCH_FEATURES_SERVICE_UUID);
+            break;
+          } catch (e) {
+            retryCount++;
+            if (retryCount >= maxRetries) throw e;
+            console.warn(`GATT Service discovery failed, retrying (${retryCount}/${maxRetries})...`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+
+        if (!this.service) throw new Error("Could not find Casio service");
 
         const characteristics = await this.service.getCharacteristics();
         for (const char of characteristics) {

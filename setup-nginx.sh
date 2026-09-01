@@ -70,6 +70,11 @@ server {
     server_name gshock.avmedia.org localhost 127.0.0.1;
     root ${SERVER_PATH};
     index index.html;
+
+    # Prevent Nginx from redirecting to internal port or HTTP when using relative paths
+    absolute_redirect off;
+    port_in_redirect off;
+
     access_log /var/log/nginx/access.log realip;
     location / {
         try_files \$uri \$uri/ /index.html;

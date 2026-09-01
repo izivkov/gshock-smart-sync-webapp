@@ -55,7 +55,8 @@ export class StandardProtocol implements WatchProtocol {
 
     extractKey(data: string): number | null {
         try {
-            return Utils.hexToBytes(data)[0];
+            const bytes = Utils.hexToBytes(data);
+            return bytes && bytes.length > 0 ? bytes[0] : null;
         } catch (e) {
             return null;
         }
