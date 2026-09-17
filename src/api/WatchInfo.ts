@@ -21,6 +21,7 @@ export enum WATCH_MODEL {
     EQB = "EQB",
     ECB = "ECB",
     ABL_100 = "ABL_100",
+    F_B100 = "F_B100",
     DW_H5600 = "DW_H5600",
     GMW_BZ5000 = "GMW_BZ5000",
     GW_BX5600 = "GW_BX5600",
@@ -199,6 +200,15 @@ const modelList: ModelInfo[] = [
         hasDateFormat: false,
         weekLanguageSupported: false,
     },
+    {
+        model: WATCH_MODEL.F_B100,
+        hasAutoLight: false, hasReminders: false,
+        hasTemperature: false, hasBatteryLevel: false,
+        worldCities: false, hasHomeTime: false,
+        hasStepCounter: true,
+        hasDateFormat: false,
+        weekLanguageSupported: false,
+    },
     { model: WATCH_MODEL.GA, hasAutoLight: false, hasReminders: true },
     { model: WATCH_MODEL.GB001, hasAutoLight: true, hasReminders: false },
     { model: WATCH_MODEL.MSG, hasAutoLight: false, hasReminders: true },
@@ -215,7 +225,7 @@ const modelList: ModelInfo[] = [
         shortLightDuration: "1.5s", longLightDuration: "5s",
         hasBatteryLevel: false, alwaysConnected: true, hasDateFormat: false,
         weekLanguageSupported: false,
-        hasStepCounter: false,
+        hasStepCounter: true,
     },
     { model: WATCH_MODEL.DW, hasAutoLight: true, hasReminders: false },
     {
@@ -381,7 +391,7 @@ const exactModelMap: Record<string, WATCH_MODEL> = {
     "PRW-B1000": WATCH_MODEL.GENERIC,
     "GMD-B300": WATCH_MODEL.GENERIC,
     "WS-B1000": WATCH_MODEL.GENERIC,
-    "F-B100W": WATCH_MODEL.GENERIC,
+    "F-B100W": WATCH_MODEL.F_B100,
     "OCW-P3000": WATCH_MODEL.GENERIC,
 };
 

@@ -10,7 +10,7 @@ import { progressEvents, EventAction } from '@api/ProgressEvents';
 import { watchInfo } from '@api/WatchInfo';
 import GShockAPI from '@/api/GShockAPI';
 import { ComponentRouter } from '@/utils/componentRouter';
-import { PhoneFinder } from '@pages/home/PhoneFinder';
+import { actionsContainer, RunEnvironment } from './api/actions/ActionsContainer';
 
 let theme = createTheme({
   cssVariables: true,
@@ -170,17 +170,25 @@ export default function App() {
         label: "WatchInitializationCompleted",
         action: async () => {
           if (GShockAPI.isFindPhoneButtonPressed()) {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (isMobile) PhoneFinder.ring();
-          } else if (GShockAPI.isActionButtonPressed() || GShockAPI.isAutoTimeStarted()) {
-            await GShockAPI.setTime();
+            await actionsContainer.runActionFindPhone();
+          } else if (GShockAPI.isActionButtonPressed()) {
+            await actionsContainer.runActionsForActionButton();
+          } else if (GShockAPI.isAutoTimeStarted()) {
+            await actionsContainer.runActionsForAutoTimeSetting();
           } else {
+            await actionsContainer.runActionForConnection();
             // Only redirect if we're not already on a functional page
             const onLandingPage = router.pathname === '/' || router.pathname === '';
             if (onLandingPage) {
               router.push('/time/Time');
             }
           }
+        }
+      },
+      {
+        label: "RunActions",
+        action: async () => {
+          await actionsContainer.runActionsForActionButton();
         }
       }
     ];

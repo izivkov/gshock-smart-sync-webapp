@@ -20,6 +20,7 @@ import { Settings } from "@model/Settings"
 import WatchDataListener from "./WatchDataListener"
 import { connection } from "@api/Connection"
 import { generateMockStepData } from "@model/MockStepData"
+import { actionsContainer, SetTimeAction, SetAlarmsAction, SetSettingsAction, SetTimerAction, SetRemindersAction, ClearStepHistoryAction } from "./actions/ActionsContainer"
 
 const GShockAPI = {
     init: async (): Promise<boolean> => {
@@ -63,7 +64,7 @@ const GShockAPI = {
     },
 
     setTimer: async (timerValue: number): Promise<void> => {
-        await watchInfo.protocol!.setTimer(timerValue);
+        await actionsContainer.getAction(SetTimerAction).run(timerValue);
     },
 
     getBatteryLevel: async (): Promise<number> => {
@@ -75,8 +76,7 @@ const GShockAPI = {
     },
 
     setTime: async (timeZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone): Promise<void> => {
-        await TimeIO.setTimezone(timeZone);
-        await watchInfo.protocol!.setTime();
+        await actionsContainer.getAction(SetTimeAction).run();
     },
 
     getAlarms: async (): Promise<Alarm[]> => {
@@ -84,7 +84,7 @@ const GShockAPI = {
     },
 
     setAlarms: async (alarms: Alarm[]): Promise<void> => {
-        await watchInfo.protocol!.setAlarms(alarms);
+        await actionsContainer.getAction(SetAlarmsAction).run(alarms);
     },
 
     getEventFromWatch: async (eventNumber: number): Promise<any> => {
@@ -104,7 +104,7 @@ const GShockAPI = {
     },
 
     setEvents: async (events: any[]): Promise<void> => {
-        await EventsIO.setEvents(events);
+        await actionsContainer.getAction(SetRemindersAction).run(events);
     },
 
     getBasicSettings: async (): Promise<Settings> => {
@@ -120,14 +120,18 @@ const GShockAPI = {
     },
 
     setSettings: async (settings: Settings): Promise<void> => {
-        await watchInfo.protocol!.setSettings(settings);
+        await actionsContainer.getAction(SetSettingsAction).run(settings);
     },
 
-    getStepCount: async (): Promise<StepCounterData> => {
+    getStepCount: async (peek: boolean = true): Promise<StepCounterData> => {
         if (watchInfo.hasStepCounterMock) {
             return generateMockStepData();
         }
-        return await StepCounterIO.request();
+        return await StepCounterIO.request(peek);
+    },
+
+    clearStepHistory: async (): Promise<void> => {
+        await actionsContainer.getAction(ClearStepHistoryAction).run();
     },
 
     getPressedButton: async (): Promise<string> => {

@@ -1,3 +1,7 @@
-- [x] Update `activity_report.sh` to parse `--all` flag
-- [x] Update `analyze_logs.py` to conditionally display bots
-- [x] Verify default and `--all` behavior
+# Tasks - Align Reminders Logic (Manual Mode)
+
+- [ ] Disable automatic reminder sync in `ActionsContainer.ts`
+- [ ] Enhance `IntentParser.ts` to extract repeat periods
+- [ ] Implement multi-step repeat conversation in `VoiceDispatcher.ts`
+- [ ] Correctly handle weekly `daysOfWeek` in `finalizeReminder`
+- [ ] Verify build and functionality

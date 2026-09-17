@@ -156,11 +156,34 @@ const Time: React.FC = () => {
     const [batteryLevel, setBatteryLevel] = useState<number>(0);
     const [temperature, setTemperature] = useState<number>(0);
     const [stepData, setStepData] = useState<StepCounterData>(StepCounterData.unavailable());
+
+    // Step counter metrics
+    const [stepGoal, setStepGoal] = useState(() => Number(localStorage.getItem('stepGoal')) || 10000);
+    const [weight, setWeight] = useState(() => Number(localStorage.getItem('weight')) || 700); // 100g units
+    const [metrics, setMetrics] = useState({ distanceKm: 0, calories: 0 });
+
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+
+    const calculateMetrics = useCallback((data: StepCounterData, weight100g: number) => {
+        const strideM = 0.76;
+        const steps = data.currentDaySteps ?? 0;
+
+        // Use distanceMeters from watch if available, otherwise estimate
+        const dm = data.distanceMeters;
+        const distanceKm = (dm && dm > 0) ? dm / 1000 : (steps * strideM) / 1000;
+
+        const weightKg = weight100g / 10;
+        const calories = distanceKm * weightKg * 1.036;
+        return { distanceKm, calories };
+    }, []);
+
+    useEffect(() => {
+        setMetrics(calculateMetrics(stepData, weight));
+    }, [stepData, weight, calculateMetrics]);
 
     const refreshWatchData = useCallback(async () => {
         if (!isConnected) return;
@@ -184,7 +207,7 @@ const Time: React.FC = () => {
         } catch (error) {
             console.error("Watch refresh failed:", error);
         }
-    }, [isConnected]);
+    }, [isConnected, isFeatureSupported]);
 
     useEffect(() => {
         refreshWatchData();
@@ -238,6 +261,31 @@ const Time: React.FC = () => {
         }
     };
 
+    const handleClearStepHistory = async () => {
+        try {
+            await GShockAPI.clearStepHistory();
+            const freshData = await GShockAPI.getStepCount(true);
+            setStepData(freshData);
+            setSnackbarMessage('Step history cleared');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+        } catch (e) {
+            setSnackbarMessage('Failed to clear history');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
+    };
+
+    const handleUpdateStepGoal = (goal: number) => {
+        setStepGoal(goal);
+        localStorage.setItem('stepGoal', goal.toString());
+    };
+
+    const handleUpdateWeight = (w: number) => {
+        setWeight(w);
+        localStorage.setItem('weight', w.toString());
+    };
+
     const use12HourClock = useMemo(() => isNorthAmerica12HourClock(), []);
     const fahrenheitTemp = useFahrenheitForTemperature();
     const tempShown = formatTemperatureFromCelsius(temperature, fahrenheitTemp);
@@ -263,30 +311,39 @@ const Time: React.FC = () => {
                     <ScreenTitle title="Time" />
 
                     <Stack spacing={1.5} sx={{ width: '100%' }}>
-                        <WatchNameCard 
+                        <WatchNameCard
                             isConnected={isConnected}
-                            batteryLevel={batteryLevel} 
+                            batteryLevel={batteryLevel}
                         />
-                        
-                        <LocalTimeCard 
-                            timeZone={timeZone} 
-                            onSync={handleSetTime} 
+
+                        <LocalTimeCard
+                            timeZone={timeZone}
+                            onSync={handleSetTime}
                         />
-                        
-                        <TimerCard 
-                            timerValue={timerValue} 
-                            setTimerValue={setTimerValue} 
-                            onSetTimer={handleSetTimer} 
+
+                        <TimerCard
+                            timerValue={timerValue}
+                            setTimerValue={setTimerValue}
+                            onSetTimer={handleSetTimer}
                         />
 
                         <WatchFeature id="time.step_counter">
-                            <StepCounterView stepData={stepData} />
+                            <StepCounterView
+                                stepData={stepData}
+                                stepGoal={stepGoal}
+                                weight={weight}
+                                distanceKm={metrics.distanceKm}
+                                calories={metrics.calories}
+                                onSetStepGoal={handleUpdateStepGoal}
+                                onSetWeight={handleUpdateWeight}
+                                onClearHistory={handleClearStepHistory}
+                            />
                         </WatchFeature>
 
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-                            <HomeTimeCard 
-                                homeTime={homeTime} 
-                                use12HourClock={use12HourClock} 
+                            <HomeTimeCard
+                                homeTime={homeTime}
+                                use12HourClock={use12HourClock}
                             />
 
                             <WatchFeature id="time.temperature">

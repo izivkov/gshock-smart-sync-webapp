@@ -16,6 +16,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import SideNavigation, { SIDEBAR_WIDTH } from './SideNavigation';
 import { ConnectionContext } from '@/App';
 import { WatchFeatureManager } from '@/utils/WatchFeatureManager';
+import { VoiceAssist } from './VoiceAssist';
 import pkg from '../../../package.json';
 
 interface MainLayoutProps {
@@ -82,6 +83,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             >
                 {children}
             </Box>
+
+            {/* Voice Assistant - Only if connected */}
+            {isConnected && <VoiceAssist />}
 
             {/* Mobile Bottom Navigation — only visible on mobile */}
             {!isDesktop && (
