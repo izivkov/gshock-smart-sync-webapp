@@ -172,7 +172,6 @@ const Time: React.FC = () => {
         const strideM = 0.76;
         const steps = data.currentDaySteps ?? 0;
 
-        // Use distanceMeters from watch if available, otherwise estimate
         const dm = data.distanceMeters;
         const distanceKm = (dm && dm > 0) ? dm / 1000 : (steps * strideM) / 1000;
 
@@ -183,7 +182,7 @@ const Time: React.FC = () => {
 
     useEffect(() => {
         setMetrics(calculateMetrics(stepData, weight));
-    }, [stepData, weight, calculateMetrics]);
+    }, [stepData.currentDaySteps, stepData.distanceMeters, weight, calculateMetrics]);
 
     const refreshWatchData = useCallback(async () => {
         if (!isConnected) return;
@@ -207,8 +206,9 @@ const Time: React.FC = () => {
         } catch (error) {
             console.error("Watch refresh failed:", error);
         }
-    }, [isConnected, isFeatureSupported]);
+    }, [isConnected]); // Removed unstable `isFeatureSupported` dependency
 
+    // Only run when connection status changes or component mounts
     useEffect(() => {
         refreshWatchData();
     }, [isConnected, refreshWatchData]);
