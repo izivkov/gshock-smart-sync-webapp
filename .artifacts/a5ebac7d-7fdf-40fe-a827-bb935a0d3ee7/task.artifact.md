@@ -1,0 +1,7 @@
+- [x] Create Voice UI component and speech recognition hook/state logic inside `WatchNameCard` or as a sub-panel in `Time.page.tsx`
+- [x] Implement text parsing rules for timer, alarm, settings, reminder creation wizard, and help commands
+- [x] Add the microphone button to the `WatchNameCard` layout
+- [x] Add the expanding/collapsing Voice UI info/status panel with micro-animations
+- [x] Implement Microphone Hardware detection and Permission status check
+- [x] Add UX/Feedback for "No Microphone Found" and "Permission Denied" states
+- [x] Verify functionality via linter and code inspection
