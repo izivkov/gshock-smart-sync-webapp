@@ -1,25 +1,40 @@
-# Implementation Plan - Filter Bots by Default in Activity Report
+# Voice UI Robustness: Feature Support and Disconnection Handling
 
-Modify the activity report to display only real users by default and add an `--all` flag to include bots and other access.
+Improve the voice subsystem's error handling by adding feature support verification and automatic termination upon watch disconnection.
+
+## User Review Required
+
+> [!IMPORTANT]
+> Voice commands that target unsupported features (e.g., reminders on ABL-100) will now be met with a verbal "Feature not supported" message and will terminate immediately.
+>
+> Ongoing voice interactions (like the reminder wizard) will automatically stop if the watch disconnects during the process.
 
 ## Proposed Changes
 
-### 1. Update `activity_report.sh`
-- Add logic to parse a new `--all` command-line argument.
-- Correctly extract the time window (hours/days) even if `--all` is present.
-- Pass both the time window and the "show all" flag to `analyze_logs.py`.
+### Voice Subsystem (`src/voice`)
 
-### 2. Update `analyze_logs.py`
-- Modify the script to accept a second optional argument for the "show all" flag.
-- Conditionally print the "BOTS / OTHER ACCESS" table based on this flag.
-- Ensure the summary line always shows counts for both, even if the table is hidden.
+#### [MODIFY] [VoiceDispatcher.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/voice/VoiceDispatcher.ts)
+- **Feature Verification**:
+  - In `dispatch()`, before starting the reminder wizard, check `WatchFeatureManager.isFeatureSupported('actions.reminders')`.
+  - In `executeCommand()`, check support for specific settings (e.g., `auto light`, `power saving`) before running the action.
+  - If a feature is not supported, speak "Feature not supported" and set state to `idle`.
+- **Disconnection Handling**:
+  - Add a listener for the "Disconnected" event using `progressEvents`.
+  - When disconnected, call `voiceCommandManager.stopListening()`, set state to `idle`, and speak a short "Disconnected" message (or simply stop silently as per user preference - I'll use a short message for clarity).
+- **Cleanup**:
+  - Ensure all `isProcessing` flags are reset correctly in error paths.
 
 ## Verification Plan
 
-### Automated Tests
-- Run `./activity_report.sh` and verify only "REAL USERS" are shown.
-- Run `./activity_report.sh --all` and verify both tables are shown.
-- Run `./activity_report.sh 48h --all` and verify it handles both the time window and the flag.
-
 ### Manual Verification
-- Check the engagement and location data to ensure consistency.
+1.  **Unsupported Feature**:
+    - Connect a watch that doesn't support reminders (e.g., ABL-100).
+    - Say "Create reminder".
+    - Confirm the app says "Feature not supported" and doesn't ask for the title.
+2.  **Disconnection during Wizard**:
+    - Start the reminder wizard ("Create reminder").
+    - While the app is waiting for the title, manually disconnect the watch.
+    - Confirm the voice interaction stops and the UI returns to idle.
+3.  **Unsupported Settings**:
+    - Try a command for a setting not supported by the model (e.g., "Turn on auto light" on a model that lacks it).
+    - Confirm "Feature not supported" is spoken.

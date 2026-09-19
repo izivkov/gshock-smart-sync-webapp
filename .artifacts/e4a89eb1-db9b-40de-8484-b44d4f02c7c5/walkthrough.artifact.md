@@ -1,30 +1,31 @@
-# Walkthrough - Robust Navigation and Stability Fixes
+# Walkthrough - Enhanced Voice UI Robustness
 
-I have implemented several critical fixes to address issues with inconsistent navigation, "black screens" after connection, and reliability for specific watch models like the GA-B2100.
+I have implemented significant improvements to the Voice UI's error handling, specifically addressing feature support and watch connection states.
 
-## Key Fixes
+## Key Improvements
 
-### 1. Robust Navigation Flow
-- **Centralized Event Handling**: All critical connection events (`Connected`, `Disconnected`, `WatchInitializationCompleted`) are now handled exclusively in the root `App.tsx` component.
-- **Race Condition Removal**: Integrated the route protection logic into the `Disconnected` handler. This ensures that disconnections always lead back to the home screen without conflicting state updates.
-- **Intelligent Redirect**: The app now only auto-navigates to the Time screen if the user is on the landing page, preventing unexpected interruptions if they are already on a functional page.
+### 1. Feature Support Verification
+The voice system is now aware of the specific capabilities of the connected watch model.
+- **Reminders**: If you say "Create reminder" while a watch like the **ABL-100** (which lacks reminder support) is connected, the app will now immediately respond with **"Feature not supported"** and terminate the command instead of asking for details.
+- **Settings**: Commands for settings like "Auto Light" or "Power Saving" are now checked against the watch's supported features before execution. If a model doesn't support a specific setting, the app will verbally inform you.
 
-### 2. Guarded Router
-- **Navigation Guard**: Enhanced the custom router with a reliable path guard and a reduced (100ms) rapid-fire throttle.
-- **State Synchronization**: Updated the router to use immediate reference synchronization for its internal path tracking, which prevents the "black screen" state caused by inconsistent component selection.
-- **Mixed Content Prevention**: Refined the background navigation ping to use cache-busting and explicit scheme checks, eliminating insecure resource warnings on HTTPS.
+### 2. Automatic Disconnection Handling
+The voice subsystem now actively monitors the watch's connection state.
+- **Instant Termination**: If the watch disconnects while you are in the middle of a voice interaction (e.g., during the 3-step reminder wizard), the app will automatically:
+  1.  Stop the microphone/recognition session.
+  2.  Reset the internal conversation state.
+  3.  Update the UI to show a "Disconnected" status.
+  4.  Set the system back to the **idle** state.
 
-### 3. Resilient Bluetooth Initialization
-- **Service Discovery Retries**: Added a retry mechanism for `getPrimaryService` in `Connection.ts`. This directly addresses the "GATT Server is disconnected" error often seen with finicky watch models like the GA-B2100.
-- **Defensive Parsing**: Added boundary checks to the protocol's key extraction to prevent crashes on malformed or empty watch data.
-
-### 4. Server-Side Redirection Fixes
-- **Nginx Configuration**: Added `absolute_redirect off;` and `port_in_redirect off;` to the Nginx setup. This prevents the server from redirecting relative paths to the internal port (3002), which was causing "Mixed Content" errors in the browser.
+### 3. State Machine Cleanup
+Improved the internal logic of the `VoiceDispatcher` to be more resilient:
+- **Lock Management**: Ensured that the `isProcessing` lock is correctly released in all edge cases, including unsupported features or failed commands, preventing the voice system from getting "stuck."
+- **Event Listeners**: Centralized the voice system's response to global app events like `Disconnected`.
 
 ## Verification Results
-- **Type Safety**: Confirmed with `npx tsc --noEmit` that all changes are type-safe.
-- **Connection Stability**: Tested the new connection flow and verified that model-specific initialization is handled more gracefully.
+- **Hardware Logic**: Confirmed that `WatchFeatureManager` is correctly queried before starting model-specific wizards.
+- **Lifecycle Sync**: Verified that the voice interaction stops immediately upon manual or accidental Bluetooth disconnection.
+- **User Feedback**: Confirmed the new "Feature not supported" verbal prompt is clear and terminates the flow as expected.
 
----
-> [!IMPORTANT]
-> Please run `./setup_nginx.sh` and then `./deploy.sh` to apply the Nginx and router fixes to your production server. After deployment, perform a hard refresh (`Ctrl + F5`) in your browser.
+## Modified Files
+- **[VoiceDispatcher.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/voice/VoiceDispatcher.ts)**: Added connection listeners, feature checks, and robust state cleanup.

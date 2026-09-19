@@ -12,17 +12,37 @@ const END_TRANSACTION_CMD = [0x04, DRSP_CATEGORY_EXERCISE, 0x00, 0x00, 0x00];
 let accumulator: number[] = [];
 let expectedLength: number = FALLBACK_EXPECTED_LENGTH;
 let resolver: ((value: StepCounterData) => void) | null = null;
+let lastData: StepCounterData | null = null;
+let isRequesting = false;
 
 const StepCounterIO = {
-    async request(): Promise<StepCounterData> {
+    async request(peek: boolean = true): Promise<StepCounterData> {
         if (!watchInfo.hasStepCounter) {
             console.log("Step counter not supported on watch model: " + watchInfo.model);
             return StepCounterData.unavailable();
         }
-        return this.getStepCount();
+
+        if (isRequesting) {
+            console.log("StepCounterIO: Request already in progress, returning last data or unavailable.");
+            return lastData || StepCounterData.unavailable();
+        }
+
+        // If we are peeking and an app transaction is already active, return cached data
+        if (peek && resolver && lastData) {
+            console.log("StepCounterIO: App transaction already active, returning cached data.");
+            return lastData;
+        }
+
+        isRequesting = true;
+        try {
+            const data = await this.getStepCount(peek);
+            return data;
+        } finally {
+            isRequesting = false;
+        }
     },
 
-    async getStepCount(): Promise<StepCounterData> {
+    async getStepCount(peek: boolean): Promise<StepCounterData> {
         accumulator = [];
         expectedLength = FALLBACK_EXPECTED_LENGTH;
 
@@ -56,17 +76,19 @@ const StepCounterIO = {
             const length = (data[2] & 0xFF) |
                     ((data[3] & 0xFF) << 8) |
                     ((data[4] & 0xFF) << 16);
-            expectedLength = length;
-            console.log(`StepCounterIO: expected length announced = ${length}B`);
+            if (resolver) {
+                expectedLength = length;
+                console.log(`StepCounterIO: expected length announced = ${length}B`);
+            }
         }
     },
 
-    async onReceived(data: string) {
+    async onReceived(data: number[]) {
         if (!resolver) return;
 
         try {
-            const bytes = Utils.hexToBytes(data);
-            accumulator = accumulator.concat(bytes);
+            // Data is already number[] from StandardProtocol/MessageDispatcher
+            accumulator = accumulator.concat(data);
 
             console.debug(`StepCounterIO.onReceived: accumulated=${accumulator.length}B / expected=${expectedLength}B`);
 
@@ -80,6 +102,7 @@ const StepCounterIO = {
             const stepData = StepCounterIOFunctional.parse(accumulator);
             if (stepData) {
                 console.info("Step count parsed", stepData);
+                lastData = stepData;
                 resolver(stepData);
             } else {
                 console.warn("Failed to parse activity record");

@@ -1,5 +1,10 @@
 # Release Notes - G-Shock Smart Sync Webapp
 
+## v2.0.5
+*   **Voice Command Fix**: The "Set language to..." voice command now correctly checks watch capability before executing. Previously it accepted the command on watches without Week Language support (e.g. ABL-100), silently doing nothing instead of telling the user the feature isn't supported.
+*   **Security Patches**: Resolved all remaining npm audit findings (`browserslist`, `fast-uri`, `js-yaml`, `@humanfs/node`, `baseline-browser-mapping`) via non-breaking updates.
+*   **Dependency Hygiene**: Removed the stale `pnpm-lock.yaml`, which hadn't been regenerated since the Next.js-to-Vite migration and was resolving long-outdated, vulnerable transitive dependencies. `npm`/`package-lock.json` is now the single source of truth for dependency resolution, and `npm audit` reports 0 vulnerabilities.
+
 ## v2.0.4
 *   **Robust Navigation**: Centralized connection and disconnection event handling in the root component, ensuring consistent redirects to the Time screen and back to Home.
 *   **Router Stability**: Implemented navigation guards to prevent rapid-fire transitions and resolve "black screen" issues during watch initialization.

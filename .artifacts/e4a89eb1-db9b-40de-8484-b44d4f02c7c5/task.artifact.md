@@ -1,3 +1,5 @@
-- [x] Update `activity_report.sh` to parse `--all` flag
-- [x] Update `analyze_logs.py` to conditionally display bots
-- [x] Verify default and `--all` behavior
+- [x] Add `Disconnected` event listener to `VoiceDispatcher` to stop interactions
+- [x] Add feature support checks for reminders in `VoiceDispatcher.dispatch`
+- [x] Add feature support checks for settings in `VoiceDispatcher.executeCommand`
+- [x] Reset `isProcessing` in all error/unsupported paths
+- [x] Verify unsupported feature message "Feature not supported"
