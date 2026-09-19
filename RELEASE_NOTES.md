@@ -1,5 +1,19 @@
 # Release Notes - G-Shock Smart Sync Webapp
 
+## v2.1.0
+*   **Voice UI Architecture**: Completed a major architectural refactor of the voice subsystem into a dedicated, modular `/src/voice` directory. This aligns the web app with the native Kotlin implementation's orthogonal structure.
+*   **Smart Reminder Wizard**: Implemented a multi-turn conversational flow for reminders (Title -> Date -> Repeat) with state-aware microphone synchronization.
+*   **Performance Optimization**: Introduced a "Smart Write" strategy for reminders, reducing the delay from command to confirmation by over 70% (from ~5.5s to ~1.5s).
+*   **Hardware Awareness**: The voice system now strictly verifies watch capabilities (Reminders, Language, Date/Time formats) and gracefully informs the user if a feature is unsupported.
+*   **New Voice Commands**:
+    *   **Bulk Alarms**: Added "Clear alarms", "Reset alarms" (to 12:00 AM), and "Disable alarms" (preserving time).
+    *   **Settings**: Added "Set light duration to long/short".
+*   **Robustness**:
+    *   Added automatic voice interaction termination upon watch disconnection.
+    *   Implemented "Verbose" mode toggle with a silent 'ding' alternative, persisted in `localStorage`.
+    *   Enhanced the natural language parser with self-correction and filler-word removal logic.
+*   **Stability**: Resolved several circular dependency issues and TypeScript build errors across the project.
+
 ## v2.0.5
 *   **Voice Command Fix**: The "Set language to..." voice command now correctly checks watch capability before executing. Previously it accepted the command on watches without Week Language support (e.g. ABL-100), silently doing nothing instead of telling the user the feature isn't supported.
 *   **Security Patches**: Resolved all remaining npm audit findings (`browserslist`, `fast-uri`, `js-yaml`, `@humanfs/node`, `baseline-browser-mapping`) via non-breaking updates.
