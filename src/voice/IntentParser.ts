@@ -29,6 +29,9 @@ export class IntentParser {
 
     private helpPattern = /help/i;
 
+    private clearAlarmsPattern = /(?:clear|reset)\s*(?:all\s*)?alarms?/i;
+    private disableAlarmsPattern = /(?:disable|turn off|stop)\s*(?:all\s*)?alarms?/i;
+
     private alarmPatterns = [
         /(?:set|wake me up|create)(?: an?)? alarm (?:at|for|to|in) (.*)/i,
         /wake me up (?:at|in) (.*)/i,
@@ -88,6 +91,13 @@ export class IntentParser {
         }
 
         // 3. Alarm / Wake me up
+        if (this.clearAlarmsPattern.test(text)) {
+            return { type: VoiceCommandType.CLEAR_ALL_ALARMS };
+        }
+        if (this.disableAlarmsPattern.test(text)) {
+            return { type: VoiceCommandType.DISABLE_ALL_ALARMS };
+        }
+
         for (const p of this.alarmPatterns) {
             const match = text.match(p);
             if (match) {
@@ -100,13 +110,6 @@ export class IntentParser {
                     };
                 }
             }
-        }
-
-        if (text.includes('disable all alarms') || text.includes('turn off all alarms')) {
-            return { type: VoiceCommandType.DISABLE_ALL_ALARMS };
-        }
-        if (text.includes('clear all alarms')) {
-            return { type: VoiceCommandType.CLEAR_ALL_ALARMS };
         }
 
         // 4. Settings

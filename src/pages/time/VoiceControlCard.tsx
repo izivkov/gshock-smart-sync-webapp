@@ -145,7 +145,15 @@ const VoiceControlCard: React.FC<VoiceControlCardProps> = ({ isConnected }) => {
                                     '“Disable power saving”', '“Create reminder”',
                                     '“Reset settings”'
                                 ].map(cmd => (
-                                    <ListItem key={cmd} disablePadding><ListItemText primary={cmd} primaryTypographyProps={{ fontSize: '0.75rem', color: '#7A5C44' }} /></ListItem>
+                                    <ListItem key={cmd} disablePadding>
+                                        <ListItemText
+                                            primary={
+                                                <Typography sx={{ fontSize: '0.75rem', color: '#7A5C44' }}>
+                                                    {cmd}
+                                                </Typography>
+                                            }
+                                        />
+                                    </ListItem>
                                 ))}
                             </List>
                         </Box>

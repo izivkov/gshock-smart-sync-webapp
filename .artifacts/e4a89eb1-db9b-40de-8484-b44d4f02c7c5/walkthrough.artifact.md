@@ -1,31 +1,30 @@
-# Walkthrough - Enhanced Voice UI Robustness
+# Walkthrough - Bulk Alarm Management Voice Commands
 
-I have implemented significant improvements to the Voice UI's error handling, specifically addressing feature support and watch connection states.
+I have added new voice commands to allow for bulk management of alarms, including clearing, resetting, and disabling all alarms at once.
 
-## Key Improvements
+## New Commands
 
-### 1. Feature Support Verification
-The voice system is now aware of the specific capabilities of the connected watch model.
-- **Reminders**: If you say "Create reminder" while a watch like the **ABL-100** (which lacks reminder support) is connected, the app will now immediately respond with **"Feature not supported"** and terminate the command instead of asking for details.
-- **Settings**: Commands for settings like "Auto Light" or "Power Saving" are now checked against the watch's supported features before execution. If a model doesn't support a specific setting, the app will verbally inform you.
+### 1. "Clear Alarms" / "Reset Alarms"
+- **Behavior**: Disables all alarms on the watch and resets their time to **12:00 AM**.
+- **Voice Patterns**: "Clear alarms", "Clear all alarms", "Reset alarms", "Reset all alarms".
+- **Confirmation**: The app will verbally confirm with "All alarms cleared".
 
-### 2. Automatic Disconnection Handling
-The voice subsystem now actively monitors the watch's connection state.
-- **Instant Termination**: If the watch disconnects while you are in the middle of a voice interaction (e.g., during the 3-step reminder wizard), the app will automatically:
-  1.  Stop the microphone/recognition session.
-  2.  Reset the internal conversation state.
-  3.  Update the UI to show a "Disconnected" status.
-  4.  Set the system back to the **idle** state.
+### 2. "Disable Alarms"
+- **Behavior**: Disables all alarms on the watch but **keeps their current time settings** intact.
+- **Voice Patterns**: "Disable alarms", "Disable all alarms", "Turn off alarms", "Turn off all alarms", "Stop all alarms".
+- **Confirmation**: The app will verbally confirm with "All alarms disabled".
 
-### 3. State Machine Cleanup
-Improved the internal logic of the `VoiceDispatcher` to be more resilient:
-- **Lock Management**: Ensured that the `isProcessing` lock is correctly released in all edge cases, including unsupported features or failed commands, preventing the voice system from getting "stuck."
-- **Event Listeners**: Centralized the voice system's response to global app events like `Disconnected`.
+## Implementation Details
+
+### Natural Language Parsing
+Updated **[IntentParser.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/voice/IntentParser.ts)** with more flexible regex patterns:
+- `clearAlarmsPattern`: Matches "clear" or "reset" followed by optional "all" and "alarms".
+- `disableAlarmsPattern`: Matches "disable", "turn off", or "stop" followed by optional "all" and "alarms".
+
+### Command Dispatching
+Updated **[VoiceDispatcher.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/voice/VoiceDispatcher.ts)** to correctly map these new intents to the high-level actions that communicate with the watch.
 
 ## Verification Results
-- **Hardware Logic**: Confirmed that `WatchFeatureManager` is correctly queried before starting model-specific wizards.
-- **Lifecycle Sync**: Verified that the voice interaction stops immediately upon manual or accidental Bluetooth disconnection.
-- **User Feedback**: Confirmed the new "Feature not supported" verbal prompt is clear and terminates the flow as expected.
-
-## Modified Files
-- **[VoiceDispatcher.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/voice/VoiceDispatcher.ts)**: Added connection listeners, feature checks, and robust state cleanup.
+- **Intent Flexibility**: Verified that "Reset alarms" correctly triggers the full reset (12:00 AM + disabled).
+- **Time Preservation**: Verified that "Disable alarms" correctly toggles the `enabled` state to false without modifying the `hour` or `minute` fields.
+- **Feedback**: Spoken confirmations are concise and accurate.

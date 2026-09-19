@@ -1,40 +1,52 @@
-# Voice UI Robustness: Feature Support and Disconnection Handling
+# Build Fixes and Voice Feature Robustness
 
-Improve the voice subsystem's error handling by adding feature support verification and automatic termination upon watch disconnection.
+Resolve TypeScript build errors and improve voice command feature support checks for specific watch models.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> Voice commands that target unsupported features (e.g., reminders on ABL-100) will now be met with a verbal "Feature not supported" message and will terminate immediately.
->
-> Ongoing voice interactions (like the reminder wizard) will automatically stop if the watch disconnects during the process.
+> - `src/pages/components/VoiceAssist.tsx` will be deleted as it is a legacy component causing build errors.
+> - `Time.page.tsx` will be thoroughly cleaned of all legacy voice logic that was causing build errors.
+> - Voice commands for **Language**, **Date Format**, and **Time Format** will now be validated against watch capabilities (e.g., ABL-100 will now correctly report "Feature not supported" for language settings).
 
 ## Proposed Changes
 
-### Voice Subsystem (`src/voice`)
+### Clean Up & Build Fixes
+
+#### [DELETE] [VoiceAssist.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/components/VoiceAssist.tsx)
+- Remove the legacy component that causes build errors and conflicts with the new `VoiceControlCard`.
+
+#### [MODIFY] [Time.page.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/time/Time.page.tsx)
+- Remove all legacy voice helper functions (`speak`, `handleSelfCorrection`, `stripFillers`, `parseSpokenNumber`, `parseDurationToSeconds`, `parseTime`, `parseSpokenAlarmTime`, `parseSpokenDate`).
+- Remove the `VoiceControlPanel` component and its internal logic.
+- Remove all voice-related state and refs.
+- Fix MUI `ListItemText` typing issue by using a standard configuration if the build environment is strict.
+
+#### [MODIFY] [VoiceControlCard.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/time/VoiceControlCard.tsx)
+- Fix MUI `ListItemText` `primaryTypographyProps` build error.
+
+### Voice Subsystem Logic (`src/voice`)
 
 #### [MODIFY] [VoiceDispatcher.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/voice/VoiceDispatcher.ts)
-- **Feature Verification**:
-  - In `dispatch()`, before starting the reminder wizard, check `WatchFeatureManager.isFeatureSupported('actions.reminders')`.
-  - In `executeCommand()`, check support for specific settings (e.g., `auto light`, `power saving`) before running the action.
-  - If a feature is not supported, speak "Feature not supported" and set state to `idle`.
-- **Disconnection Handling**:
-  - Add a listener for the "Disconnected" event using `progressEvents`.
-  - When disconnected, call `voiceCommandManager.stopListening()`, set state to `idle`, and speak a short "Disconnected" message (or simply stop silently as per user preference - I'll use a short message for clarity).
-- **Cleanup**:
-  - Ensure all `isProcessing` flags are reset correctly in error paths.
+- Add capability checks for:
+  - **Language**: Check `locale.week_language`.
+  - **Date Format**: Check `locale.date_format`.
+  - **Time Format**: Check `locale.time_format`.
+- Ensure all these settings return "Feature not supported" if the watch model lacks the capability.
+- Verify robust cleanup on `Disconnected` event.
 
 ## Verification Plan
 
+### Automated Tests
+- `npm run build` (or `tsc`) to verify all 7 errors are resolved.
+
 ### Manual Verification
-1.  **Unsupported Feature**:
-    - Connect a watch that doesn't support reminders (e.g., ABL-100).
-    - Say "Create reminder".
-    - Confirm the app says "Feature not supported" and doesn't ask for the title.
-2.  **Disconnection during Wizard**:
-    - Start the reminder wizard ("Create reminder").
-    - While the app is waiting for the title, manually disconnect the watch.
-    - Confirm the voice interaction stops and the UI returns to idle.
-3.  **Unsupported Settings**:
-    - Try a command for a setting not supported by the model (e.g., "Turn on auto light" on a model that lacks it).
-    - Confirm "Feature not supported" is spoken.
+1.  **ABL-100 Model**:
+    - Say "Set language to Spanish".
+    - Confirm response is "Feature not supported".
+2.  **Watch Disconnection**:
+    - Start a voice interaction.
+    - Disconnect the watch.
+    - Confirm the interaction stops immediately.
+3.  **UI Cleanliness**:
+    - Verify the "Time" page no longer contains any voice parsing or speech code.

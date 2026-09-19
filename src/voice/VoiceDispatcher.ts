@@ -211,7 +211,10 @@ export class VoiceDispatcher {
                     if (settingName === "auto light") featureId = "light.auto_light";
                     if (settingName === "power saving") featureId = "settings.power_saving";
                     if (settingName === "language") featureId = "locale.week_language";
+                    if (settingName === "date format") featureId = "locale.date_format";
+                    if (settingName === "time format") featureId = "locale.time_format";
                     if (settingName === "light duration") featureId = "light.duration";
+                    if (settingName === "button tone") featureId = "operation_tone.sound";
 
                     if (featureId && !WatchFeatureManager.isFeatureSupported(featureId)) {
                         this.handleUnsupportedFeature();

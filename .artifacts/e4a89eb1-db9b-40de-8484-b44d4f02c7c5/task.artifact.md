@@ -1,5 +1,14 @@
-- [x] Add `Disconnected` event listener to `VoiceDispatcher` to stop interactions
-- [x] Add feature support checks for reminders in `VoiceDispatcher.dispatch`
-- [x] Add feature support checks for settings in `VoiceDispatcher.executeCommand`
-- [x] Reset `isProcessing` in all error/unsupported paths
-- [x] Verify unsupported feature message "Feature not supported"
+- [x] Create `src/voice/VoiceSpeechFeedback.ts` for TTS logic
+- [x] Create `src/voice/VoiceCommandManager.ts` for Speech Recognition logic
+- [x] Update `src/voice/IntentParser.ts` with full fuzzy parsing and self-correction logic
+- [x] Update `src/voice/VoiceDispatcher.ts` to coordinate conversational flow and actions
+- [x] Create `src/voice/VoiceControlCard.tsx` standalone UI component
+- [x] Refactor `src/pages/time/Time.page.tsx` to remove voice logic and integrate `VoiceControlCard`
+- [x] Resolve circular `useEffect` dependency in `Time.page.tsx`
+- [x] Stabilize `useWatchFeatures` and `useWatchName` hooks
+- [x] Add "Verbose" switch and persistence logic
+- [x] Implement Silent 'Ding' and volume improvements
+- [x] Optimize Reminder saving (Smart Write strategy)
+- [x] Fix build errors and improve feature support checks
+- [x] **Add "Clear alarms", "Disable alarms", and "Reset alarms" voice commands**
+- [x] Verify build with `tsc`
