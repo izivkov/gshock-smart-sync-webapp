@@ -314,8 +314,8 @@ const Settings: React.FC = () => {
                                 <OptionToggle
                                     value={settings.lightDuration}
                                     options={[
-                                        { value: '2s', label: shortDuration },
-                                        { value: '4s', label: longDuration },
+                                        { value: shortDuration, label: shortDuration },
+                                        { value: longDuration, label: longDuration },
                                     ]}
                                     onChange={(value) => updateSettings({ lightDuration: value as lightDurationType })}
                                 />

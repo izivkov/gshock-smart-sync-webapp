@@ -8,6 +8,7 @@ import { voiceAudioAlerts } from "./VoiceAudioAlerts";
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { WatchFeatureManager, FeatureId } from "@/utils/WatchFeatureManager";
+import { watchInfo } from "@/api/WatchInfo";
 
 dayjs.extend(customParseFormat);
 
@@ -154,7 +155,7 @@ export class VoiceDispatcher {
         }
 
         if (command.type === VoiceCommandType.HELP) {
-            const helpText = "You can send commands to your watch using natural language. For example, 'Set alarm at 7:30 am' or 'Set alarm 3 hours from now', or even 'Wake me up in 2 hours', or, 'Disable all alarms'. For reminders, you can say 'Set reminder' and the app will interactively ask you about the details. When asked when, you can say something like 'Next Tuesday' or 'A week Monday'. You can also say 'Set timer to 4 minutes and 10 seconds', 'Set auto light', 'Set language to Spanish', 'Set settings to default', and so on. To abort a voice command, just say 'Cancel, abort, or stop'.";
+            const helpText = "You can send commands to your watch using natural language. For example, 'Set alarm at 7:30 am' or 'Set alarm 3 hours from now', or even 'Wake me up in 2 hours', or, 'Disable all alarms'. For reminders, you can say 'Set reminder' and the app will interactively ask you about the details. When asked when, you can say something like 'Next Tuesday' or 'A week Monday'. You can also say 'Set timer to 4 minutes and 10 seconds', 'Set auto light', 'Set language to Spanish', 'Set light duration to long', 'Set settings to default', and so on. To abort a voice command, just say 'Cancel, abort, or stop'.";
             this.updateUI('idle', text, 'Showing help.');
             speechFeedback.speak(helpText, () => {
                 this.listen('listening');
@@ -210,17 +211,29 @@ export class VoiceDispatcher {
                     if (settingName === "auto light") featureId = "light.auto_light";
                     if (settingName === "power saving") featureId = "settings.power_saving";
                     if (settingName === "language") featureId = "locale.week_language";
+                    if (settingName === "light duration") featureId = "light.duration";
 
                     if (featureId && !WatchFeatureManager.isFeatureSupported(featureId)) {
                         this.handleUnsupportedFeature();
                         return;
                     }
 
+                    let settingValue = command.params.value;
+                    let feedbackValue = command.params.value;
+                    if (settingName === "light duration") {
+                        // "short"/"long" map to this watch's actual supported
+                        // duration values (e.g. "2s"/"4s" on most models).
+                        settingValue = settingValue === "long"
+                            ? (watchInfo.longLightDuration || "4s")
+                            : (watchInfo.shortLightDuration || "2s");
+                        feedbackValue = command.params.value;
+                    }
+
                     action = actionsContainer.getAction(SetSettingsAction);
                     action.settingName = settingName;
-                    action.settingValue = command.params.value;
-                    const isBool = command.params.value === "true" || command.params.value === "false";
-                    const valStr = isBool ? (command.params.value === "true" ? "enabled" : "disabled") : `to ${command.params.value}`;
+                    action.settingValue = settingValue;
+                    const isBool = settingValue === "true" || settingValue === "false";
+                    const valStr = isBool ? (settingValue === "true" ? "enabled" : "disabled") : `to ${feedbackValue}`;
                     feedback = `${command.params.name} ${valStr}`;
                     break;
                 case VoiceCommandType.CLEAR_ALL_ALARMS:

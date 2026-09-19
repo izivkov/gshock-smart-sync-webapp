@@ -2,6 +2,7 @@ import CasioIO, { GET_SET_MODE } from "@io/CasioIO";
 import { cachedIO } from "@io/CachedIO";
 import { CasioConstants } from "@api/CasioConstants";
 import { Settings } from "@model/Settings";
+import { watchInfo } from "@api/WatchInfo";
 
 const MASK_24_HOURS        = 0b00000001;
 const MASK_BUTTON_TONE_OFF = 0b00000010;
@@ -25,7 +26,10 @@ export const SettingsIOFunctional = {
         if (!settings.powerSavingMode) arr[1] |= POWER_SAVING_MODE;
         if (settings.DnD === false) arr[1] |= DO_NOT_DISTURB_OFF;
 
-        if (settings.lightDuration === "4s") arr[2] |= LIGHT_DURATION_LONG;
+        // Light duration is a single on-watch bit (short/long); the actual
+        // seconds label differs per model (e.g. "2s"/"4s" vs "1.5s"/"3s"),
+        // so compare against this model's real "long" value, not a literal.
+        if (settings.lightDuration === (watchInfo.longLightDuration || "4s")) arr[2] |= LIGHT_DURATION_LONG;
         if (settings.dateFormat === "DD:MM") arr[4] = 1;
 
         switch (settings.language) {
@@ -56,7 +60,7 @@ export const SettingsIOFunctional = {
             buttonTone:      isExtended ? !!(data[12] & SOUND_ONLY) : !(settingByte & MASK_BUTTON_TONE_OFF),
             autoLight:       !(settingByte & MASK_AUTO_LIGHT_OFF),
             powerSavingMode: (settingByte & POWER_SAVING_MODE) === 0,
-            lightDuration:   (data[2] & LIGHT_DURATION_LONG) ? "4s" : "2s",
+            lightDuration:   (data[2] & LIGHT_DURATION_LONG) ? (watchInfo.longLightDuration || "4s") : (watchInfo.shortLightDuration || "2s"),
             dateFormat:      data[4] === 1 ? "DD:MM" : "MM:DD",
             language:        "English",
             keyVibration:    isExtended ? !!(data[12] & VIBRATION_ONLY) : false,
