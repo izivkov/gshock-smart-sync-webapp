@@ -1,52 +1,38 @@
-# Build Fixes and Voice Feature Robustness
+# Resolve Stale Version Display After Deployment
 
-Resolve TypeScript build errors and improve voice command feature support checks for specific watch models.
+Address the issue where the application continues to show an old version (v2.0.5) even after a successful deployment of v2.1.0. This is typically caused by aggressive caching at the Cloudflare edge, the local Service Worker, or the Nginx server.
 
 ## User Review Required
 
-> [!IMPORTANT]
-> - `src/pages/components/VoiceAssist.tsx` will be deleted as it is a legacy component causing build errors.
-> - `Time.page.tsx` will be thoroughly cleaned of all legacy voice logic that was causing build errors.
-> - Voice commands for **Language**, **Date Format**, and **Time Format** will now be validated against watch capabilities (e.g., ABL-100 will now correctly report "Feature not supported" for language settings).
+> [!WARNING]
+> To see the new version immediately after these changes, you will likely need to **Purge Cache** in your Cloudflare dashboard and perform a **Hard Refresh** (Ctrl+F5 / Cmd+Shift+R) in your browser.
 
 ## Proposed Changes
 
-### Clean Up & Build Fixes
+### Server Configuration
 
-#### [DELETE] [VoiceAssist.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/components/VoiceAssist.tsx)
-- Remove the legacy component that causes build errors and conflicts with the new `VoiceControlCard`.
+#### [MODIFY] [setup-nginx.sh](file:///home/izivkov/projects/gshock-smart-sync-webapp/setup-nginx.sh)
+- Update the Nginx configuration to explicitly disable caching for critical entry files: `index.html` and `sw.js`.
+- This ensures that browsers and proxies always check the server for a new version of the app logic.
+- Assets like JS and CSS in the `assets/` folder remain cacheable as they are hashed by Vite.
 
-#### [MODIFY] [Time.page.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/time/Time.page.tsx)
-- Remove all legacy voice helper functions (`speak`, `handleSelfCorrection`, `stripFillers`, `parseSpokenNumber`, `parseDurationToSeconds`, `parseTime`, `parseSpokenAlarmTime`, `parseSpokenDate`).
-- Remove the `VoiceControlPanel` component and its internal logic.
-- Remove all voice-related state and refs.
-- Fix MUI `ListItemText` typing issue by using a standard configuration if the build environment is strict.
+### Deployment Process
 
-#### [MODIFY] [VoiceControlCard.tsx](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/pages/time/VoiceControlCard.tsx)
-- Fix MUI `ListItemText` `primaryTypographyProps` build error.
+#### [MODIFY] [deploy.sh](file:///home/izivkov/projects/gshock-smart-sync-webapp/deploy.sh)
+- Add a post-deployment reminder to the user to purge the Cloudflare cache.
+- (Optional) Provide a command/snippet if you want to automate this via the Cloudflare API in the future.
 
-### Voice Subsystem Logic (`src/voice`)
+### Application Logic (PWA)
 
-#### [MODIFY] [VoiceDispatcher.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/src/voice/VoiceDispatcher.ts)
-- Add capability checks for:
-  - **Language**: Check `locale.week_language`.
-  - **Date Format**: Check `locale.date_format`.
-  - **Time Format**: Check `locale.time_format`.
-- Ensure all these settings return "Feature not supported" if the watch model lacks the capability.
-- Verify robust cleanup on `Disconnected` event.
+#### [MODIFY] [vite.config.ts](file:///home/izivkov/projects/gshock-smart-sync-webapp/vite.config.ts)
+- Switch `registerType` from `autoUpdate` to `prompt`.
+- While `autoUpdate` is convenient, `prompt` (combined with a UI notification) is often more reliable for ensuring users are actually running the latest code, as it forces a clean reload.
+- *Wait*: Let's stick with `autoUpdate` for now but fix the server headers first, as that is the most likely culprit for "not seeing the update at all".
 
 ## Verification Plan
 
-### Automated Tests
-- `npm run build` (or `tsc`) to verify all 7 errors are resolved.
-
 ### Manual Verification
-1.  **ABL-100 Model**:
-    - Say "Set language to Spanish".
-    - Confirm response is "Feature not supported".
-2.  **Watch Disconnection**:
-    - Start a voice interaction.
-    - Disconnect the watch.
-    - Confirm the interaction stops immediately.
-3.  **UI Cleanliness**:
-    - Verify the "Time" page no longer contains any voice parsing or speech code.
+1.  Run `./setup_nginx.sh` to apply new headers on the server.
+2.  Purge the cache in the Cloudflare dashboard.
+3.  Open `https://gshock.avmedia.org` and check the version in the bottom-right corner.
+4.  Verify headers via `curl -I https://gshock.avmedia.org` to ensure `Cache-Control: no-cache` is present for the root document.

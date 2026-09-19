@@ -223,12 +223,21 @@ export class VoiceDispatcher {
 
                     let settingValue = command.params.value;
                     let feedbackValue = command.params.value;
-                    if (settingName === "light duration") {
+
+                    if (settingName === "time format") {
+                        settingValue = settingValue.includes("24") ? "24h" : "12h";
+                        feedbackValue = settingValue === "24h" ? "24 hours" : "12 hours";
+                    } else if (settingName === "date format") {
+                        settingValue = settingValue.includes("day") && settingValue.indexOf("day") < settingValue.indexOf("month")
+                            ? "DD:MM"
+                            : "MM:DD";
+                        feedbackValue = settingValue === "DD:MM" ? "Day Month" : "Month Day";
+                    } else if (settingName === "light duration") {
                         // "short"/"long" map to this watch's actual supported
                         // duration values (e.g. "2s"/"4s" on most models).
                         settingValue = settingValue === "long"
-                            ? (watchInfo.longLightDuration || "4s")
-                            : (watchInfo.shortLightDuration || "2s");
+                            ? (watchInfo.longLightDuration || "3s")
+                            : (watchInfo.shortLightDuration || "1.5s");
                         feedbackValue = command.params.value;
                     }
 

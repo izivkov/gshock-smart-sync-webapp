@@ -43,8 +43,10 @@ export class IntentParser {
     ];
 
     private languagePattern = /(?:set|change)?\s*(?:the\s*)?language\s*(?:to)?\s*(english|spanish|french|german|italian|russian)/i;
+    private timeFormatPattern = /(?:set|change)?\s*(?:the\s*)?time format\s*(?:to)?\s*(12|24)(?:\s*hours?|h)?/i;
+    private dateFormatPattern = /(?:set|change)?\s*(?:the\s*)?date format\s*(?:to)?\s*(month\s*day|day\s*month|month-day|day-month)/i;
     private buttonTonePattern = /(turn (on|off)|enable|disable|change|set)\s*(?:the\s*)?(button sound|button tone|sound)\s*(?:to)?\s*(on|off)?/i;
-    private lightDurationPattern = /light\s*duration/i;
+    private lightDurationPattern = /(?:set|change)?\s*(?:the\s*)?light\s*duration\s*(?:to)?\s*(long|short)/i;
     private settingsDefaultPattern = /(?:set|change|reset)?\s*(?:the\s*)?settings(?:\s*(?:to)?\s*defaults?)?/i;
 
     private fillerRegex = /\b(um|uh|mm|ah|er|like|so|well)\b/gi;
@@ -123,6 +125,16 @@ export class IntentParser {
             return { type: VoiceCommandType.SET_SETTING, params: { name: "language", value: lang } };
         }
 
+        const timeFmtMatch = text.match(this.timeFormatPattern);
+        if (timeFmtMatch) {
+            return { type: VoiceCommandType.SET_SETTING, params: { name: "time format", value: timeFmtMatch[1] } };
+        }
+
+        const dateFmtMatch = text.match(this.dateFormatPattern);
+        if (dateFmtMatch) {
+            return { type: VoiceCommandType.SET_SETTING, params: { name: "date format", value: dateFmtMatch[1] } };
+        }
+
         const btnToneMatch = text.match(this.buttonTonePattern);
         if (btnToneMatch) {
             const action = btnToneMatch[1].toLowerCase();
@@ -131,14 +143,9 @@ export class IntentParser {
             return { type: VoiceCommandType.SET_SETTING, params: { name: "button tone", value: enabled.toString() } };
         }
 
-        if (this.lightDurationPattern.test(text)) {
-            const isLong = /long/i.test(text);
-            const isShort = /short/i.test(text);
-            // Matched "light duration" explicitly: never fall through to the
-            // generic auto-light toggle below, even if short/long wasn't given.
-            return isLong || isShort
-                ? { type: VoiceCommandType.SET_SETTING, params: { name: "light duration", value: isLong ? "long" : "short" } }
-                : null;
+        const lightDurMatch = text.match(this.lightDurationPattern);
+        if (lightDurMatch) {
+            return { type: VoiceCommandType.SET_SETTING, params: { name: "light duration", value: lightDurMatch[1] } };
         }
 
         if (/auto light|light/i.test(text)) {
