@@ -18,6 +18,7 @@ import ScreenTitle from '../components/ScreenTitle';
 import PeachCard from '../components/PeachCard';
 import { WatchFeature, useWatchFeatures } from '../components/WatchFeature';
 import { WatchFeatureManager } from '@/utils/WatchFeatureManager';
+import VoiceControlCard from './VoiceControlCard';
 import {
     formatHomeTimeForDisplay,
     formatTemperatureFromCelsius,
@@ -52,7 +53,9 @@ const WatchNameCard: React.FC<{ isConnected: boolean, batteryLevel: number }> = 
                         </Box>
                     </Box>
                 </Box>
-                <BatteryLevel level={batteryLevel} />
+                <WatchFeature id="time.battery">
+                    <BatteryLevel level={batteryLevel} />
+                </WatchFeature>
             </Box>
         </PeachCard>
     );
@@ -71,8 +74,10 @@ const useWatchName = () => {
         return () => progressEvents.stop('WatchNameHook');
     }, []);
 
+    const getWatchName = useCallback(() => WatchFeatureManager.getWatchName(), []);
+
     return {
-        getWatchName: () => WatchFeatureManager.getWatchName(),
+        getWatchName,
     };
 };
 
@@ -193,25 +198,44 @@ const Time: React.FC = () => {
                 minutes: Math.floor((timerSeconds % 3600) / 60),
                 seconds: timerSeconds % 60
             });
-            const ht = await GShockAPI.getHomeTime();
-            setHomeTime(ht);
-            const temp = await GShockAPI.getWatchTemperature();
-            setTemperature(temp);
-            const level = await GShockAPI.getBatteryLevel();
-            setBatteryLevel(level);
-            if (isFeatureSupported('time.step_counter')) {
+
+            if (WatchFeatureManager.isFeatureSupported('time.home_time')) {
+                const ht = await GShockAPI.getHomeTime();
+                setHomeTime(ht);
+            }
+
+            if (WatchFeatureManager.isFeatureSupported('time.temperature')) {
+                const temp = await GShockAPI.getWatchTemperature();
+                setTemperature(temp);
+            }
+
+            if (WatchFeatureManager.isFeatureSupported('time.battery')) {
+                const level = await GShockAPI.getBatteryLevel();
+                setBatteryLevel(level);
+            }
+
+            if (WatchFeatureManager.isFeatureSupported('time.step_counter')) {
                 const steps = await GShockAPI.getStepCount();
                 setStepData(steps);
             }
         } catch (error) {
             console.error("Watch refresh failed:", error);
         }
-    }, [isConnected]); // Removed unstable `isFeatureSupported` dependency
+    }, [isConnected]); // Removed isFeatureSupported dependency, using WatchFeatureManager directly
 
-    // Only run when connection status changes or component mounts
     useEffect(() => {
-        refreshWatchData();
+        if (isConnected) {
+            refreshWatchData();
+        }
     }, [isConnected, refreshWatchData]);
+
+    useEffect(() => {
+        const actions = [
+            { label: 'NeedToUpdateUI', action: refreshWatchData },
+        ];
+        progressEvents.runEventActions('TimePageRefresh', actions);
+        return () => progressEvents.stop('TimePageRefresh');
+    }, [refreshWatchData]);
 
     useEffect(() => {
         let interval: NodeJS.Timeout | null = null;
@@ -233,13 +257,10 @@ const Time: React.FC = () => {
     const handleSetTime = async () => {
         try {
             await GShockAPI.setTime();
-            setTimeout(async () => {
-                const updatedHomeTime = await GShockAPI.getHomeTime();
-                setHomeTime(updatedHomeTime);
-            }, 500);
             setSnackbarMessage('Time synced');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
+            progressEvents.onNext('NeedToUpdateUI');
         } catch (error) {
             setSnackbarMessage('Sync failed');
             setSnackbarSeverity('error');
@@ -254,6 +275,7 @@ const Time: React.FC = () => {
             setSnackbarMessage('Timer set');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
+            progressEvents.onNext('NeedToUpdateUI');
         } catch (error) {
             setSnackbarMessage('Timer failed');
             setSnackbarSeverity('error');
@@ -316,6 +338,8 @@ const Time: React.FC = () => {
                             batteryLevel={batteryLevel}
                         />
 
+                        <VoiceControlCard isConnected={isConnected} />
+
                         <LocalTimeCard
                             timeZone={timeZone}
                             onSync={handleSetTime}
@@ -340,11 +364,17 @@ const Time: React.FC = () => {
                             />
                         </WatchFeature>
 
-                        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-                            <HomeTimeCard
-                                homeTime={homeTime}
-                                use12HourClock={use12HourClock}
-                            />
+                        <Box sx={{
+                            display: WatchFeatureManager.isFeatureSupported('time.home_time') || WatchFeatureManager.isFeatureSupported('time.temperature') ? 'grid' : 'none',
+                            gridTemplateColumns: WatchFeatureManager.isFeatureSupported('time.home_time') && WatchFeatureManager.isFeatureSupported('time.temperature') ? '1fr 1fr' : '1fr',
+                            gap: 1.5
+                        }}>
+                            <WatchFeature id="time.home_time">
+                                <HomeTimeCard
+                                    homeTime={homeTime}
+                                    use12HourClock={use12HourClock}
+                                />
+                            </WatchFeature>
 
                             <WatchFeature id="time.temperature">
                                 <TemperatureCard tempShown={tempShown} />

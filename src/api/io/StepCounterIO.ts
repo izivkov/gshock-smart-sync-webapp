@@ -13,6 +13,7 @@ let accumulator: number[] = [];
 let expectedLength: number = FALLBACK_EXPECTED_LENGTH;
 let resolver: ((value: StepCounterData) => void) | null = null;
 let lastData: StepCounterData | null = null;
+let isRequesting = false;
 
 const StepCounterIO = {
     async request(peek: boolean = true): Promise<StepCounterData> {
@@ -21,13 +22,24 @@ const StepCounterIO = {
             return StepCounterData.unavailable();
         }
 
+        if (isRequesting) {
+            console.log("StepCounterIO: Request already in progress, returning last data or unavailable.");
+            return lastData || StepCounterData.unavailable();
+        }
+
         // If we are peeking and an app transaction is already active, return cached data
         if (peek && resolver && lastData) {
             console.log("StepCounterIO: App transaction already active, returning cached data.");
             return lastData;
         }
 
-        return this.getStepCount(peek);
+        isRequesting = true;
+        try {
+            const data = await this.getStepCount(peek);
+            return data;
+        } finally {
+            isRequesting = false;
+        }
     },
 
     async getStepCount(peek: boolean): Promise<StepCounterData> {
@@ -71,12 +83,12 @@ const StepCounterIO = {
         }
     },
 
-    async onReceived(data: string) {
+    async onReceived(data: number[]) {
         if (!resolver) return;
 
         try {
-            const bytes = Utils.hexToBytes(data);
-            accumulator = accumulator.concat(bytes);
+            // Data is already number[] from StandardProtocol/MessageDispatcher
+            accumulator = accumulator.concat(data);
 
             console.debug(`StepCounterIO.onReceived: accumulated=${accumulator.length}B / expected=${expectedLength}B`);
 
@@ -85,12 +97,6 @@ const StepCounterIO = {
             }
 
             // Full payload assembled
-            // We don't always end transaction if we want to allow the watch to keep sending?
-            // Kotlin ends it if NOT peeking.
-            // For now, let's follow Kotlin.
-
-            // Note: peek mode is not fully implemented in the request flow yet,
-            // but we'll end the transaction here to be safe and match the basic flow.
             await CasioIO.writeCmd(GET_SET_MODE.DATA_REQUEST, END_TRANSACTION_CMD);
 
             const stepData = StepCounterIOFunctional.parse(accumulator);

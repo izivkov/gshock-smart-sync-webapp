@@ -18,10 +18,13 @@ export const useWatchFeatures = () => {
         return () => progressEvents.stop('WatchFeatureHook');
     }, []);
 
-    return {
-        isFeatureSupported: (id: FeatureId | CardId) => WatchFeatureManager.isFeatureSupported(id),
-        isCardSupported: (id: CardId) => WatchFeatureManager.isCardSupported(id),
-    };
+    const isFeatureSupported = React.useCallback((id: FeatureId | CardId) => WatchFeatureManager.isFeatureSupported(id), [refresh]);
+    const isCardSupported = React.useCallback((id: CardId) => WatchFeatureManager.isCardSupported(id), [refresh]);
+
+    return React.useMemo(() => ({
+        isFeatureSupported,
+        isCardSupported,
+    }), [isFeatureSupported, isCardSupported]);
 };
 
 interface WatchFeatureProps {

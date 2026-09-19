@@ -107,6 +107,10 @@ const GShockAPI = {
         await actionsContainer.getAction(SetRemindersAction).run(events);
     },
 
+    setEvent: async (index: number, event: any): Promise<void> => {
+        await EventsIO.setEvent(index, event);
+    },
+
     getBasicSettings: async (): Promise<Settings> => {
         return await watchInfo.protocol!.getBasicSettings();
     },

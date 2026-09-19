@@ -51,6 +51,11 @@ const EventsIO = {
         await this.sendToWatchSet(JSON.stringify({ value: events }));
     },
 
+    async setEvent(index: number, event: Event): Promise<void> {
+        cachedIO.delete((index + 1).toString());
+        await this.writeSingleEventToWatch(index, event);
+    },
+
     onReceived(data: number[]): any {
         const decoded: any = ReminderDecoder.reminderTimeToJson(data.slice(2))
         decoded["title"] = accumulatedValueHolder.title
@@ -66,35 +71,38 @@ const EventsIO = {
         accumulatedValueHolder.title = decoded["title"] as string
     },
 
+    async writeSingleEventToWatch(index: number, reminderJson: any): Promise<void> {
+        const title = reminderJson.title || '';
+
+        const reminderTime = [
+            CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TIME,
+            index + 1,
+            ...ReminderEncoder.reminderTimeFromJson(reminderJson),
+        ];
+
+        const encodedTitle = Utils.toByteArray(title, 18);
+
+        console.log(`EventsIO: Writing title for reminder ${index + 1}: ${title}`);
+        await CasioIO.writeCmd(GET_SET_MODE.SET, [
+            CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TITLE,
+            index + 1,
+            ...Array.from(encodedTitle),
+        ]);
+
+        await new Promise(resolve => setTimeout(resolve, 150));
+
+        console.log(`EventsIO: Writing time for reminder ${index + 1}`);
+        await CasioIO.writeCmd(GET_SET_MODE.SET, reminderTime);
+
+        await new Promise(resolve => setTimeout(resolve, 150));
+    },
+
     async sendToWatchSet(message: string): Promise<void> {
         const remindersJsonArr = JSON.parse(message).value;
         console.log("EventsIO: Sending reminders to watch...", remindersJsonArr);
 
         for (let index = 0; index < remindersJsonArr.length; index++) {
-            const reminderJson = remindersJsonArr[index];
-            const title = reminderJson.title || '';
-
-            const reminderTime = [
-                CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TIME,
-                index + 1,
-                ...ReminderEncoder.reminderTimeFromJson(reminderJson),
-            ];
-
-            const encodedTitle = Utils.toByteArray(title, 18);
-
-            console.log(`EventsIO: Writing title for reminder ${index + 1}: ${title}`);
-            await CasioIO.writeCmd(GET_SET_MODE.SET, [
-                CasioConstants.CHARACTERISTICS.CASIO_REMINDER_TITLE,
-                index + 1,
-                ...Array.from(encodedTitle),
-            ]);
-
-            await new Promise(resolve => setTimeout(resolve, 150));
-
-            console.log(`EventsIO: Writing time for reminder ${index + 1}`);
-            await CasioIO.writeCmd(GET_SET_MODE.SET, reminderTime);
-
-            await new Promise(resolve => setTimeout(resolve, 150));
+            await this.writeSingleEventToWatch(index, remindersJsonArr[index]);
         }
 
         console.log("EventsIO: Done sending reminders");
