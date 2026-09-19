@@ -209,6 +209,7 @@ export class VoiceDispatcher {
                     let featureId: FeatureId | null = null;
                     if (settingName === "auto light") featureId = "light.auto_light";
                     if (settingName === "power saving") featureId = "settings.power_saving";
+                    if (settingName === "language") featureId = "locale.week_language";
 
                     if (featureId && !WatchFeatureManager.isFeatureSupported(featureId)) {
                         this.handleUnsupportedFeature();
