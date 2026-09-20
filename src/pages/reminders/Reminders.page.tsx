@@ -42,7 +42,7 @@ const Reminders: React.FC = () => {
 
     const sendToWatch = async () => {
         try {
-            await GShockAPI.setEvents(reminders);
+            await actionsContainer.getAction(SetRemindersAction).run(reminders);
             setSnackbarMessage('Events sent to watch');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);

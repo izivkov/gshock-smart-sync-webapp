@@ -215,7 +215,7 @@ const Settings: React.FC = () => {
 
     const onSave = async () => {
         try {
-            await GShockAPI.setSettings(settings);
+await actionsContainer.getAction(SetSettingsAction).run(settings);
             setSnackbarMessage('Settings sent to watch');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);

@@ -44,7 +44,7 @@ const Alarms: React.FC = () => {
 
     const sendToWatch = async () => {
         try {
-            await GShockAPI.setAlarms(alarms);
+            await actionsContainer.getAction(SetAlarmsAction).run(alarms);
             setSnackbarMessage('Alarms sent to watch');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
@@ -69,7 +69,7 @@ const Alarms: React.FC = () => {
         newAlarms.forEach(a => a.hasHourlyChime = checked); // Ensure consistent update
         setAlarms([...newAlarms]);
         try {
-            await GShockAPI.setAlarms(newAlarms);
+            await actionsContainer.getAction(SetAlarmsAction).run(newAlarms);
         } catch (error) {
             console.error("Failed to update signal status", error);
         }

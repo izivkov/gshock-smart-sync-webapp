@@ -11,6 +11,7 @@ import StepCounterView from './StepCounterView';
 import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
+import { actionsContainer, SetTimeAction, SetTimerAction, ClearStepHistoryAction } from '@/actions/ActionsContainer';
 import { StepCounterData } from '@model/StepCounterData';
 import { ConnectionContext } from '@/App';
 import { progressEvents } from '@/api/ProgressEvents';
@@ -257,7 +258,7 @@ const Time: React.FC = () => {
 
     const handleSetTime = async () => {
         try {
-            await GShockAPI.setTime();
+            await actionsContainer.getAction(SetTimeAction).run();
             setSnackbarMessage('Time synced');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
@@ -272,7 +273,7 @@ const Time: React.FC = () => {
     const handleSetTimer = async () => {
         try {
             const timeInSeconds = timerValue.hours * 3600 + timerValue.minutes * 60 + timerValue.seconds;
-            await GShockAPI.setTimer(timeInSeconds);
+            await actionsContainer.getAction(SetTimerAction).run(timeInSeconds);
             setSnackbarMessage('Timer set');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
@@ -286,7 +287,7 @@ const Time: React.FC = () => {
 
     const handleClearStepHistory = async () => {
         try {
-            await GShockAPI.clearStepHistory();
+            await actionsContainer.getAction(ClearStepHistoryAction).run();
             const freshData = await GShockAPI.getStepCount(true);
             setStepData(freshData);
             setSnackbarMessage('Step history cleared');
