@@ -146,6 +146,27 @@ const GShockAPI = {
         const button = ButtonPressedIO.get();
         return button === CasioIO.WATCH_BUTTON.NO_BUTTON;
     },
+
+    // ---- Write operations (public API) ----
+    async setAlarms(alarms: Alarm[]): Promise<void> {
+        return await watchInfo.protocol!.setAlarms(alarms);
+    },
+
+    async setReminders(reminders: any[]): Promise<void> {
+        // Uses EventsIO directly; internal protocol does not expose a setter
+        return await EventsIO.setEvents(reminders);
+    },
+
+    async setSettings(settings: Settings): Promise<void> {
+        return await watchInfo.protocol!.setSettings(settings);
+    },
+
+    async setTimer(timerValue: number): Promise<void> {
+        return await watchInfo.protocol!.setTimer(timerValue);
+    },
+    async setTimezone(timeZone?: string): Promise<void> {
+        return await TimeIO.setTimezone(timeZone);
+    }
 };
 
 export default GShockAPI;

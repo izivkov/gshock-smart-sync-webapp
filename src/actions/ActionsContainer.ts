@@ -5,11 +5,7 @@ import { Settings } from "@model/Settings";
 import { PhoneFinder } from "@pages/home/PhoneFinder";
 import { watchInfo } from "@api/WatchInfo";
 import TimeIO from "@io/TimeIO";
-import AlarmsIO from "@io/AlarmsIO";
-import SettingsIO from "@io/SettingsIO";
-import TimeAdjustmentIO from "@io/TimeAdjustmentIO";
-import TimerIO from "@io/TimerIO";
-import EventsIO from "@io/EventsIO";
+
 
 export { Action, RunEnvironment, RunMode };
 
@@ -21,7 +17,7 @@ export class SetTimeAction extends Action {
     async run() {
         console.log("Running SetTimeAction");
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        await TimeIO.setTimezone(timeZone);
+        await GShockAPI.setTimezone(timeZone);
         await watchInfo.protocol!.setTime();
     }
 
@@ -40,7 +36,7 @@ export class SetRemindersAction extends Action {
     async run(payload?: any[]) {
         console.log("Running SetRemindersAction");
         const reminders = payload || await GShockAPI.getEventsFromWatch();
-        await EventsIO.setEvents(reminders);
+        await GShockAPI.setReminders(reminders);
     }
 
     shouldRun(runEnvironment: RunEnvironment): boolean {
@@ -61,7 +57,7 @@ export class SetAlarmsAction extends Action {
     async run(payload?: Alarm[]) {
         console.log("Running SetAlarmsAction");
         if (payload) {
-            await AlarmsIO.set(payload);
+            await GShockAPI.setAlarms(payload);
         } else {
             // Voice command path: upsert one alarm
             const alarms = await GShockAPI.getAlarms();
@@ -81,7 +77,7 @@ export class SetAlarmsAction extends Action {
                     enabled: true,
                 };
             }
-            await AlarmsIO.set(alarmList);
+            await GShockAPI.setAlarms(alarmList);
         }
     }
 
@@ -100,7 +96,7 @@ export class ClearAllAlarmsAction extends Action {
         console.log("Running ClearAllAlarmsAction");
         const alarms = await GShockAPI.getAlarms();
         const updatedAlarms = alarms.map(a => ({ ...a, enabled: false, hour: 0, minute: 0 }));
-        await AlarmsIO.set(updatedAlarms);
+        await GShockAPI.setAlarms(updatedAlarms);
     }
 
     shouldRun(runEnvironment: RunEnvironment): boolean {
@@ -117,7 +113,7 @@ export class DisableAllAlarmsAction extends Action {
         console.log("Running DisableAllAlarmsAction");
         const alarms = await GShockAPI.getAlarms();
         const updatedAlarms = alarms.map(a => ({ ...a, enabled: false }));
-        await AlarmsIO.set(updatedAlarms);
+        await GShockAPI.setAlarms(updatedAlarms);
     }
 
     shouldRun(runEnvironment: RunEnvironment): boolean {
@@ -136,8 +132,7 @@ export class SetSettingsAction extends Action {
     async run(payload?: Settings) {
         console.log("Running SetSettingsAction");
         if (payload) {
-            await SettingsIO.set(payload);
-            await TimeAdjustmentIO.set(payload);
+            await GShockAPI.setSettings(payload);
         } else {
             // Voice command path: update one field
             const current = await GShockAPI.getSettings();
@@ -158,8 +153,7 @@ export class SetSettingsAction extends Action {
                     toSend.keyVibration = isTrue;
                     break;
             }
-            await SettingsIO.set(toSend);
-            await TimeAdjustmentIO.set(toSend);
+            await GShockAPI.setSettings(toSend);
         }
     }
 
@@ -187,8 +181,7 @@ export class SetSettingsToDefaultAction extends Action {
             language: "English",
             timeAdjustment: true,
         };
-        await SettingsIO.set(settings);
-await TimeAdjustmentIO.set(settings);
+        await GShockAPI.setSettings(settings);
     }
 
     shouldRun(runEnvironment: RunEnvironment): boolean {
@@ -206,7 +199,7 @@ export class SetTimerAction extends Action {
     async run(payload?: number) {
         console.log("Running SetTimerAction");
         const val = payload !== undefined ? payload : this.timerValueS;
-        await TimerIO.set(val);
+        await GShockAPI.setTimer(val);
     }
 
     shouldRun(runEnvironment: RunEnvironment): boolean {
