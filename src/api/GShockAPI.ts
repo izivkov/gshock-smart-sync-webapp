@@ -63,9 +63,7 @@ const GShockAPI = {
         return await watchInfo.protocol!.getTimer();
     },
 
-    setTimer: async (timerValue: number): Promise<void> => {
-        await actionsContainer.getAction(SetTimerAction).run(timerValue);
-    },
+
 
     getBatteryLevel: async (): Promise<number> => {
         return await watchInfo.protocol!.getBatteryLevel();
@@ -75,17 +73,13 @@ const GShockAPI = {
         return await watchInfo.protocol!.getWatchTemperature();
     },
 
-    setTime: async (timeZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone): Promise<void> => {
-        await actionsContainer.getAction(SetTimeAction).run();
-    },
+
 
     getAlarms: async (): Promise<Alarm[]> => {
         return await watchInfo.protocol!.getAlarms();
     },
 
-    setAlarms: async (alarms: Alarm[]): Promise<void> => {
-        await actionsContainer.getAction(SetAlarmsAction).run(alarms);
-    },
+
 
     getEventFromWatch: async (eventNumber: number): Promise<any> => {
         return await EventsIO.request(eventNumber);
@@ -103,9 +97,7 @@ const GShockAPI = {
         return events;
     },
 
-    setEvents: async (events: any[]): Promise<void> => {
-        await actionsContainer.getAction(SetRemindersAction).run(events);
-    },
+
 
     setEvent: async (index: number, event: any): Promise<void> => {
         await EventsIO.setEvent(index, event);
@@ -123,19 +115,11 @@ const GShockAPI = {
         return await watchInfo.protocol!.getSettings();
     },
 
-    setSettings: async (settings: Settings): Promise<void> => {
-        await actionsContainer.getAction(SetSettingsAction).run(settings);
-    },
-
     getStepCount: async (peek: boolean = true): Promise<StepCounterData> => {
         if (watchInfo.hasStepCounterMock) {
             return generateMockStepData();
         }
         return await StepCounterIO.request(peek);
-    },
-
-    clearStepHistory: async (): Promise<void> => {
-        await actionsContainer.getAction(ClearStepHistoryAction).run();
     },
 
     getPressedButton: async (): Promise<string> => {
