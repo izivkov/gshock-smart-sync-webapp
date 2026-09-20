@@ -187,7 +187,8 @@ export class SetSettingsToDefaultAction extends Action {
             language: "English",
             timeAdjustment: true,
         };
-        await GShockAPI.setSettings(settings);
+        await SettingsIO.set(settings);
+await TimeAdjustmentIO.set(settings);
     }
 
     shouldRun(runEnvironment: RunEnvironment): boolean {

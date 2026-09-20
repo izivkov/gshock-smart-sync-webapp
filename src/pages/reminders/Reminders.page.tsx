@@ -5,6 +5,7 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import ReminderCard from './ReminderCard';
 import GShockAPI from '@/api/GShockAPI';
+import { actionsContainer, SetRemindersAction } from '@/actions/ActionsContainer';
 import ScreenTitle from '../components/ScreenTitle';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
 
