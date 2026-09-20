@@ -10,7 +10,7 @@ import { progressEvents, EventAction } from '@api/ProgressEvents';
 import { watchInfo } from '@api/WatchInfo';
 import GShockAPI from '@/api/GShockAPI';
 import { ComponentRouter } from '@/utils/componentRouter';
-import { actionsContainer, RunEnvironment } from './api/actions/ActionsContainer';
+import { actionsContainer, RunEnvironment } from './actions/ActionsContainer';
 
 let theme = createTheme({
   cssVariables: true,

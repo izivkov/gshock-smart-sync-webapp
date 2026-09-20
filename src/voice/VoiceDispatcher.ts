@@ -1,5 +1,5 @@
 import { IntentParser, VoiceCommandType, VoiceCommand } from "./IntentParser";
-import { actionsContainer, SetAlarmsAction, SetTimerAction, SetSettingsAction, ClearAllAlarmsAction, DisableAllAlarmsAction, SetSettingsToDefaultAction } from "@api/actions/ActionsContainer";
+import { actionsContainer, SetAlarmsAction, SetTimerAction, SetSettingsAction, ClearAllAlarmsAction, DisableAllAlarmsAction, SetSettingsToDefaultAction } from "@/actions/ActionsContainer";
 import { progressEvents } from "@api/ProgressEvents";
 import GShockAPI from "@api/GShockAPI";
 import { speechFeedback } from "./VoiceSpeechFeedback";

@@ -1,7 +1,7 @@
 import { progressEvents } from "@api/ProgressEvents";
 import { watchInfo } from "@/api/WatchInfo";
 import Utils from "@utils/Utils";
-import { actionsContainer, RunEnvironment } from "../actions/ActionsContainer";
+import { actionsContainer, RunEnvironment } from "../../actions/ActionsContainer";
 
 export const RunActionsIOFunctional = {
     isRunActionsTrigger(data: string | number[]): boolean {

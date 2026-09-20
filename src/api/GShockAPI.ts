@@ -20,7 +20,7 @@ import { Settings } from "@model/Settings"
 import WatchDataListener from "./WatchDataListener"
 import { connection } from "@api/Connection"
 import { generateMockStepData } from "@model/MockStepData"
-import { actionsContainer, SetTimeAction, SetAlarmsAction, SetSettingsAction, SetTimerAction, SetRemindersAction, ClearStepHistoryAction } from "./actions/ActionsContainer"
+import { actionsContainer, SetTimeAction, SetAlarmsAction, SetSettingsAction, SetTimerAction, SetRemindersAction, ClearStepHistoryAction } from "../actions/ActionsContainer"
 
 const GShockAPI = {
     init: async (): Promise<boolean> => {
