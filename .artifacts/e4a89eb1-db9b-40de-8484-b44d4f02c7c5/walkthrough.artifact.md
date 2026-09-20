@@ -28,3 +28,22 @@ Updated **[VoiceDispatcher.ts](file:///home/izivkov/projects/gshock-smart-sync-w
 - **Intent Flexibility**: Verified that "Reset alarms" correctly triggers the full reset (12:00 AM + disabled).
 - **Time Preservation**: Verified that "Disable alarms" correctly toggles the `enabled` state to false without modifying the `hour` or `minute` fields.
 - **Feedback**: Spoken confirmations are concise and accurate.
+
+## Improved Settings Parsing
+
+I have enhanced the natural language processing for watch settings to be more flexible and robust.
+
+### 1. Enhanced "Time Format" Support
+- **Supported Phrases**: "Set time format to 24", "Time format to 24 hours", "24h", "12 hours", etc.
+- **Logic**: Intelligently extracts "12" or "24" and maps them to the watch's internal "12h"/"24h" formats.
+
+### 2. Enhanced "Date Format" Support
+- **Supported Phrases**: "Set date format to month day", "Date format to day month", etc.
+- **Logic**: Detects the order of "day" and "month" and maps them to "MM:DD" or "DD:MM".
+
+### 3. Flexible Command Prefixes
+- All settings commands now optionally accept "Set" or "Change" at the beginning (e.g., "Set light duration to long", "Change language to English").
+
+### 4. Robust Light Duration
+- Improved "Light duration" parsing to support "short" and "long" values, mapping them to the specific durations supported by the connected watch model.
+
