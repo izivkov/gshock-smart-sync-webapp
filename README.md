@@ -4,6 +4,8 @@
 
 G-Shock Smart Sync Webapp is a lightweight, privacy-focused web tool that lets you set the time, manage alarms, and configure reminders on your watch using only your browser. It provides a clean, modern alternative to official mobile apps, working seamlessly on any device that supports Web Bluetooth.
 
+**iPhone: [beacio](https://beacio.com), a free Safari extension.** It adds Web Bluetooth to Safari, so you open this app in Safari and pair your G-Shock the same way as in Chrome. [App Store](https://apps.apple.com/app/id6761301368) (iOS 18 or later).
+
 ---
 
 ### 🧪 [Live Demo](https://gshock.avmedia.org)
@@ -28,10 +30,11 @@ You can also [host the app on your own hardware](#-self-hosting--development).
 
 ### 1. Check Browser Compatibility
 To use this application, your browser must support **[Web Bluetooth](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API)**.
+- **iPhone:** [beacio](https://beacio.com) Safari extension ([App Store](https://apps.apple.com/app/id6761301368)).
 - **Desktop:** Chrome, Edge, or Opera (Windows, macOS, Linux).
 - **Android:** Chrome.
-- **iOS/iPhone:** Use **Bluefy** or **WebBLE** from the App Store.
-- *Note: Safari and Firefox do not currently support Bluetooth syncing.*
+- **Other iOS options:** Bluefy or WebBLE.
+- *Firefox, and Safari on Mac, do not support Bluetooth syncing.*
 
 ### 2. Quick Setup
 1. **Enable Bluetooth**: Ensure Bluetooth and Location Services (on Android/Windows) are ON.
