@@ -122,7 +122,7 @@ const modelList: ModelInfo[] = [
     },
     {
         model: WATCH_MODEL.DW_B5600,
-        worldCitiesCount: 6, dstCount: 3,
+        worldCitiesCount: 2, dstCount: 1,
         hasAutoLight: false, hasReminders: true,
         shortLightDuration: "2s", longLightDuration: "4s",
         batteryLevelLowerLimit: 9, batteryLevelUpperLimit: 19,
