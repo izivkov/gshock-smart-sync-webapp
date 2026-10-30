@@ -42,7 +42,7 @@ const ConnectButton: React.FC = () => {
                 <Typography variant="h6" gutterBottom>1. Supported Browsers</Typography>
                 <Typography variant="body2" gutterBottom>
                     <strong>Desktop:</strong> Google Chrome, Microsoft Edge, and Opera (Windows, macOS, Linux).<br />
-                    <strong>Mobile:</strong> Chrome for Android; <strong>Bluefy</strong> or <strong>WebBLE</strong> for iOS/iPadOS.<br />
+                    <strong>Mobile:</strong> Chrome for Android; <strong>Bluefy</strong> or <strong>WebBLE</strong> of <strong>Beacio Safari extension</strong> for iOS/iPadOS.<br />
                     <strong>Unsupported:</strong> Safari and Firefox.
                 </Typography>
 
