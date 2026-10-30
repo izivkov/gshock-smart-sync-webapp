@@ -38,6 +38,7 @@ To use this application, your browser must support **[Web Bluetooth](https://dev
 ## iPhone
 
 - **iOS/iPhone:** Use **Bluefy** ([App Store](https://apps.apple.com/app/id1492822055)) or **WebBLE** ([App Store](https://apps.apple.com/app/id1193531073)) from the App Store, or the [Beacio](https://beacio.com) Safari extension ([App Store](https://apps.apple.com/app/id6761301368)).
+- For the full list of browsers and setup steps, see [WEB_BLE_BROWSERS.md](WEB_BLE_BROWSERS.md).
 
 - *Note: Safari and Firefox do not currently support Bluetooth syncing.* .
 - **Desktop:** Chrome, Edge, or Opera (Windows, macOS, Linux).
@@ -101,6 +102,7 @@ We provide scripts for automated deployment to a remote server (e.g., Raspberry 
 - **[QUICK-START.md](./QUICK-START.md)** - Step-by-step setup guide.
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - In-depth technical reference.
 - **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** - Quick 3-step overview.
+- **[WEB_BLE_BROWSERS.md](./WEB_BLE_BROWSERS.md)** - Web Bluetooth browsers for iPhone, iPad, and other platforms, with App Store links and pairing steps.
 
 ---
 
@@ -111,4 +113,3 @@ The application supports 19+ G-Shock models, including:
 - **DW series** (Digital)
 - **GMW series** (Module)
 - And many more with intelligent capability detection.
-
