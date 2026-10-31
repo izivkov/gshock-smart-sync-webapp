@@ -169,6 +169,12 @@ export default function App() {
       {
         label: "WatchInitializationCompleted",
         action: async () => {
+          const watchModel = watchInfo.shortName || watchInfo.name;
+          if (watchModel && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            const now = Date.now();
+            fetch(`/time/Time?watch=${encodeURIComponent(watchModel)}&_t=${now}`, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
+          }
+
           if (GShockAPI.isFindPhoneButtonPressed()) {
             await actionsContainer.runActionFindPhone();
           } else if (GShockAPI.isActionButtonPressed()) {

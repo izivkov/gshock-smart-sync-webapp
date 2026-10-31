@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
+import { watchInfo } from '@api/WatchInfo';
 
 interface Router {
   pathname: string;
@@ -31,8 +32,10 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // We use a relative path to avoid Mixed Content errors.
     // Only fetch if on a non-local environment to avoid confusion during dev.
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        const watchModel = watchInfo.shortName || watchInfo.name;
+        const watchParam = watchModel ? `&watch=${encodeURIComponent(watchModel)}` : '';
         // Use a cache-busting query param to ensure it hits the server
-        fetch(`${path}${path.includes('?') ? '&' : '?'}_t=${now}`, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
+        fetch(`${path}${path.includes('?') ? '&' : '?'}_t=${now}${watchParam}`, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
     }
   }, []); // Stable push function
 
