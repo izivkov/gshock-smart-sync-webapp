@@ -47,7 +47,7 @@ SERVERCLEANUP
 
 # Step 2: Setup Nginx on server
 echo -e "${YELLOW}[2/3] Configuring Nginx on server...${NC}"
-ssh "${SERVER_USER}@${SERVER_HOST}" 'bash -s' << SERVERSETUP
+ssh "${SERVER_USER}@${SERVER_HOST}" 'bash -s' <<'SERVERSETUP'
     set -e
     SERVER_PATH="/home/ivo/gshock-smart-sync"
     APP_PORT="3002"
@@ -63,27 +63,42 @@ log_format realip '\$http_cf_connecting_ip - \$remote_user [\$time_local] '
                   '"\$http_referer" "\$http_user_agent" '
                   'fwd="\$http_x_forwarded_for"';
 LOGCONF
+SERVERSETUP
 
-    sudo tee /etc/nginx/sites-available/gshock-webapp > /dev/null << NGINX_CONF
+cat > /tmp/gshock-webapp-nginx.conf <<EOF
 server {
     listen ${APP_PORT};
     server_name gshock.avmedia.org localhost 127.0.0.1;
     root ${SERVER_PATH};
     index index.html;
 
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
     # Prevent Nginx from redirecting to internal port or HTTP when using relative paths
     absolute_redirect off;
     port_in_redirect off;
 
     access_log /var/log/nginx/access.log realip;
+
+    location /assets/ {
+        try_files \$uri =404;
+        expires 1y;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
     location / {
         try_files \$uri \$uri/ /index.html;
     }
 }
-NGINX_CONF
+EOF
 
+scp /tmp/gshock-webapp-nginx.conf "${SERVER_USER}@${SERVER_HOST}:/tmp/gshock-webapp-nginx.conf"
+ssh "${SERVER_USER}@${SERVER_HOST}" "bash -s" <<'SERVERSETUP2'
+    set -e
+    sudo install -m 644 /tmp/gshock-webapp-nginx.conf /etc/nginx/sites-available/gshock-webapp
     sudo chmod 755 /home/ivo
-    sudo chmod -R 755 ${SERVER_PATH}
+    sudo chmod -R 755 /home/ivo/gshock-smart-sync
     sudo ln -sf /etc/nginx/sites-available/gshock-webapp /etc/nginx/sites-enabled/
 
     echo "  → Testing and Restarting Nginx..."
@@ -91,8 +106,8 @@ NGINX_CONF
     sudo systemctl restart nginx
     sudo systemctl enable nginx > /dev/null 2>&1
 
-    echo "  ✓ Nginx is \$(sudo systemctl is-active nginx)"
-SERVERSETUP
+    echo "  ✓ Nginx is $(sudo systemctl is-active nginx)"
+SERVERSETUP2
 
 # Step 3: Verify
 echo -e "${YELLOW}[3/3] Verifying Nginx is serving...${NC}"
