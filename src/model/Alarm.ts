@@ -3,16 +3,20 @@ class Alarm {
     minute: number;
     enabled: boolean;
     hasHourlyChime: boolean;
+    oneTime?: boolean;
+    name?: string | null;
 
-    constructor(hour: number, minute: number, enabled: boolean, hasHourlyChime: boolean = false) {
+    constructor(hour: number, minute: number, enabled: boolean, hasHourlyChime: boolean = false, oneTime: boolean = false, name?: string | null) {
         this.hour = hour;
         this.minute = minute;
         this.enabled = enabled;
         this.hasHourlyChime = hasHourlyChime;
+        this.oneTime = oneTime;
+        this.name = name ?? null;
     }
 
     toString(): string {
-        return `Alarm(hour=${this.hour}, minute=${this.minute}, enabled=${this.enabled}, hasHourlyChime=${this.hasHourlyChime})`;
+        return `Alarm(hour=${this.hour}, minute=${this.minute}, enabled=${this.enabled}, hasHourlyChime=${this.hasHourlyChime}, oneTime=${this.oneTime ?? false}, name=${this.name ?? 'null'})`;
     }
 
     static clear(): void {

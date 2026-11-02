@@ -17,6 +17,7 @@ export type FeatureId =
     | "actions.find_phone"
     | "actions.reminders"
     | "time.step_counter"
+    | "time.exercise_profile"
     | "alarms.chime"
     | "time_adjustment.supported"
     | "time_adjustment.always_connected";
@@ -49,6 +50,7 @@ const featureMap: Record<FeatureId, () => boolean> = {
     "actions.find_phone": () => watchInfo.findButtonUserDefined,
     "actions.reminders": () => watchInfo.hasReminders,
     "time.step_counter": () => watchInfo.hasStepCounter || watchInfo.hasStepCounterMock,
+    "time.exercise_profile": () => watchInfo.hasExerciseProfile,
     "alarms.chime": () => watchInfo.chimeInSettings,
     "time_adjustment.supported": () => watchInfo.hasTimeAdjustment,
     "time_adjustment.always_connected": () => watchInfo.alwaysConnected,

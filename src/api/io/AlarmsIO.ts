@@ -7,6 +7,7 @@ import Utils from "@utils/Utils";
 
 const HOURLY_CHIME_MASK = 0b10000000;
 const ENABLED_MASK = 0b01000000;
+const ONE_TIME_MASK = 0b00100000;
 const ALARM_CONSTANT_VALUE = 0x40;
 
 export const AlarmsIOFunctional = {
@@ -34,11 +35,13 @@ export const AlarmsIOFunctional = {
     createAlarm(intArray: number[]): Alarm {
         const enabled = (intArray[0] & ENABLED_MASK) !== 0;
         const hasHourlyChime = (intArray[0] & HOURLY_CHIME_MASK) !== 0;
+        const oneTime = (intArray[0] & ONE_TIME_MASK) !== 0;
         return new Alarm(
             intArray[2],
             intArray[3],
             enabled,
-            hasHourlyChime
+            hasHourlyChime,
+            oneTime
         );
     },
 
@@ -47,7 +50,9 @@ export const AlarmsIOFunctional = {
             alarmJson.hour,
             alarmJson.minute,
             alarmJson.enabled,
-            alarmJson.hasHourlyChime
+            alarmJson.hasHourlyChime,
+            alarmJson.oneTime,
+            alarmJson.name ?? null
         );
 
         return this.createFirstAlarm(alarm);
@@ -57,6 +62,7 @@ export const AlarmsIOFunctional = {
         let flag = 0;
         if (alarm.enabled) flag |= ENABLED_MASK;
         if (alarm.hasHourlyChime) flag |= HOURLY_CHIME_MASK;
+        if (alarm.oneTime) flag |= ONE_TIME_MASK;
 
         return [
             CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_ALM,
@@ -76,7 +82,9 @@ export const AlarmsIOFunctional = {
             alarmJson.hour,
             alarmJson.minute,
             alarmJson.enabled,
-            alarmJson.hasHourlyChime
+            alarmJson.hasHourlyChime,
+            alarmJson.oneTime,
+            alarmJson.name ?? null
         ));
 
         return this.createSecondaryAlarm(alarms);
@@ -89,6 +97,7 @@ export const AlarmsIOFunctional = {
             let flag = 0;
             if (alarm.enabled) flag |= ENABLED_MASK;
             if (alarm.hasHourlyChime) flag |= HOURLY_CHIME_MASK;
+            if (alarm.oneTime) flag |= ONE_TIME_MASK;
 
             allAlarms = allAlarms.concat([
                 flag,

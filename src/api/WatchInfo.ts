@@ -21,6 +21,7 @@ export enum WATCH_MODEL {
     EQB = "EQB",
     ECB = "ECB",
     ABL_100 = "ABL_100",
+    BSA_B100 = "BSA_B100",
     F_B100 = "F_B100",
     DW_H5600 = "DW_H5600",
     GMW_BZ5000 = "GMW_BZ5000",
@@ -62,6 +63,7 @@ export interface ModelInfo {
     hasHomeTime?: boolean;
     hasMultipleFonts?: boolean;
     hasStepCounter?: boolean;
+    hasExerciseProfile?: boolean;
     hasStepCounterMock?: boolean;
     hasNewTimeFormat?: boolean;
     hasTimeAdjustment?: boolean;
@@ -100,6 +102,7 @@ const DEFAULT_MODEL_INFO: Required<ModelInfo> = {
     hasHomeTime: true,
     hasMultipleFonts: false,
     hasStepCounter: false,
+    hasExerciseProfile: false,
     hasStepCounterMock: false,
     hasNewTimeFormat: false,
     hasTimeAdjustment: true,
@@ -197,6 +200,17 @@ const modelList: ModelInfo[] = [
         hasTemperature: false, hasBatteryLevel: false,
         worldCities: false, hasHomeTime: false,
         hasStepCounter: true,
+        hasExerciseProfile: true,
+        hasDateFormat: false,
+        weekLanguageSupported: false,
+    },
+    {
+        model: WATCH_MODEL.BSA_B100,
+        hasAutoLight: false, hasReminders: false,
+        hasTemperature: false, hasBatteryLevel: false,
+        worldCities: false, hasHomeTime: false,
+        hasStepCounter: true,
+        hasExerciseProfile: true,
         hasDateFormat: false,
         weekLanguageSupported: false,
     },
@@ -206,6 +220,7 @@ const modelList: ModelInfo[] = [
         hasTemperature: false, hasBatteryLevel: false,
         worldCities: false, hasHomeTime: false,
         hasStepCounter: true,
+        hasExerciseProfile: true,
         hasDateFormat: false,
         weekLanguageSupported: false,
     },
@@ -350,6 +365,7 @@ const exactModelMap: Record<string, WATCH_MODEL> = {
     "ECB-2200": WATCH_MODEL.ECB,
     "ECB-S10": WATCH_MODEL.ECB,
     "GW-BX5600": WATCH_MODEL.GW_BX5600,
+    "BSA-B100": WATCH_MODEL.BSA_B100,
     "MTG-B1000": WATCH_MODEL.MTG_B1000,
     "STB-1000": WATCH_MODEL.GENERIC,
     "SHB-100": WATCH_MODEL.GENERIC,
@@ -372,7 +388,6 @@ const exactModelMap: Record<string, WATCH_MODEL> = {
     "GMC-B2100": WATCH_MODEL.GA,
     "OCW-SG1000": WATCH_MODEL.GENERIC,
     "MTG-B4000": WATCH_MODEL.GENERIC,
-    "BSA-B100": WATCH_MODEL.GENERIC,
     "GMA-B800": WATCH_MODEL.GENERIC,
     "GR-B100": WATCH_MODEL.GENERIC,
     "GG-B100": WATCH_MODEL.GENERIC,
@@ -432,6 +447,7 @@ class WatchInfo {
     get hasHomeTime() { return this.state.hasHomeTime; }
     get hasMultipleFonts() { return this.state.hasMultipleFonts; }
     get hasStepCounter() { return this.state.hasStepCounter; }
+    get hasExerciseProfile() { return this.state.hasExerciseProfile; }
     get hasStepCounterMock() { return this.state.hasStepCounterMock; }
     get hasNewTimeFormat() { return this.state.hasNewTimeFormat; }
     get hasTimeAdjustment() { return this.state.hasTimeAdjustment; }

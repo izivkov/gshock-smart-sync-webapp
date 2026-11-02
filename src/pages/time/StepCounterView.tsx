@@ -1,48 +1,84 @@
-import React, { useState } from 'react';
-import { Box, Typography, MenuItem, Select, useTheme, Slider, Link, alpha } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import {
+    Box,
+    Typography,
+    MenuItem,
+    Select,
+    useTheme,
+    Slider,
+    Link,
+    alpha,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+} from '@mui/material';
 import PeachCard from '../components/PeachCard';
 import { StepCounterData } from '@model/StepCounterData';
-import ValueSelectionDialog from '../components/ValueSelectionDialog';
+import { ExerciseProfile, normalizeExerciseProfile } from '@model/ExerciseProfile';
 
 export enum StepDataOption {
-    TODAY = "Today",
-    HOURLY = "Hourly",
-    DAILY = "Daily"
+    TODAY = 'Today',
+    HOURLY = 'Hourly',
+    DAILY = 'Daily',
 }
 
 interface StepCounterViewProps {
     stepData: StepCounterData;
-    stepGoal: number;
-    weight: number; // in 100g units
+    profile: ExerciseProfile;
     distanceKm: number;
     calories: number;
-    onSetStepGoal: (goal: number) => void;
-    onSetWeight: (weight: number) => void;
+    onUpdateProfile: (profile: ExerciseProfile) => void;
     onClearHistory: () => void;
 }
 
+/** Slider ranges in the profile's own units. */
+const HEIGHT_RANGE = {
+    metric: { min: 80, max: 220 },
+    imperial: { min: 30, max: 90 },
+} as const;
+
+const WEIGHT_RANGE = {
+    metric: { min: 20, max: 180 },
+    imperial: { min: 40, max: 400 },
+} as const;
+
 const StepCounterView: React.FC<StepCounterViewProps> = ({
     stepData,
-    stepGoal,
-    weight,
+    profile,
     distanceKm,
     calories,
-    onSetStepGoal,
-    onSetWeight,
-    onClearHistory
+    onUpdateProfile,
+    onClearHistory,
 }) => {
     const [selectedOption, setSelectedOption] = useState<StepDataOption>(StepDataOption.TODAY);
-    const [showWeightDialog, setShowWeightDialog] = useState(false);
+    const [showProfileDialog, setShowProfileDialog] = useState(false);
+    const [draftProfile, setDraftProfile] = useState<ExerciseProfile>(profile);
     const theme = useTheme();
     const primaryColor = theme.palette.primary.main;
     const surfaceVariantColor = alpha(primaryColor, 0.12);
     const textColor = theme.palette.text.primary;
+    const secondaryTextColor = theme.palette.text.secondary;
 
-    const displayWeight = Math.round(weight / 10);
+    useEffect(() => {
+        setDraftProfile(profile);
+    }, [profile]);
+
+    const units = profile.units;
+    const weightUnit = units === 'imperial' ? 'lb' : 'kg';
+    const heightUnit = units === 'imperial' ? 'in' : 'cm';
+    const displayWeight = Math.round(profile.weight);
+    const displayHeight = Math.round(profile.height);
+
+    const openProfileDialog = () => {
+        setDraftProfile(profile);
+        setShowProfileDialog(true);
+    };
 
     const renderToday = () => {
         const currentSteps = stepData.currentDaySteps ?? 0;
-        const progress = Math.min(currentSteps / (stepGoal || 1), 1);
+        const progress = Math.min(currentSteps / (profile.stepGoal || 1), 1);
 
         const strokeWidth = 12;
         const radius = 60;
@@ -53,31 +89,34 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
             <Box sx={{ display: 'flex', alignItems: 'center', py: 2 }}>
                 <Box sx={{ width: '40%', pr: 2 }}>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C' }}>
-                        Goal: {stepGoal.toLocaleString()}
+                        Goal: {profile.stepGoal.toLocaleString()}
                     </Typography>
                     <Slider
-                        value={stepGoal}
+                        value={profile.stepGoal}
                         min={1000}
-                        max={12000}
+                        max={30000}
                         step={100}
                         onChange={(_, newValue) => {
-                            let val = newValue as number;
-                            if (val > 9800 && val < 10200) val = 10000;
-                            onSetStepGoal(val);
+                            onUpdateProfile({ ...profile, stepGoal: Number(newValue) });
                         }}
                         sx={{ mt: 1, py: 1 }}
                     />
-                    <Box sx={{ mt: 1 }}>
-                        <Typography variant="caption" sx={{ color: '#7A5C44', display: 'block' }}>
-                            Weight
-                        </Typography>
+                    <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                         <Link
                             component="button"
                             variant="body2"
-                            onClick={() => setShowWeightDialog(true)}
-                            sx={{ fontWeight: 700, color: primaryColor, textDecoration: 'none' }}
+                            onClick={openProfileDialog}
+                            sx={{ fontWeight: 700, color: primaryColor, textDecoration: 'none', textAlign: 'left' }}
                         >
-                            {displayWeight} kg
+                            Profile: {displayWeight} {weightUnit}
+                        </Link>
+                        <Link
+                            component="button"
+                            variant="body2"
+                            onClick={openProfileDialog}
+                            sx={{ fontWeight: 700, color: primaryColor, textDecoration: 'none', textAlign: 'left' }}
+                        >
+                            Height: {displayHeight} {heightUnit}
                         </Link>
                     </Box>
                 </Box>
@@ -110,7 +149,7 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
                             right: 0,
                             display: 'flex',
                             flexDirection: 'column',
-                            alignItems: 'center'
+                            alignItems: 'center',
                         }}>
                             <Typography sx={{ fontSize: '1.4rem', fontWeight: 800, color: textColor, lineHeight: 1 }}>
                                 {currentSteps.toLocaleString()}
@@ -128,6 +167,25 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
                             {Math.round(calories)} kcal
                         </Typography>
                     </Box>
+                    <Box sx={{ width: '100%', mt: 1.5 }}>
+                        <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={openProfileDialog}
+                            sx={{
+                                minWidth: 0,
+                                px: 1,
+                                py: 0.25,
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
+                                color: primaryColor,
+                                borderColor: alpha(primaryColor, 0.45),
+                                textTransform: 'none',
+                            }}
+                        >
+                            Profile
+                        </Button>
+                    </Box>
                 </Box>
             </Box>
         );
@@ -135,9 +193,9 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
 
     const renderHourly = () => {
         const rawHourly = stepData.hourlySteps.filter((s): s is number => s !== null);
-        const hourly = rawHourly.slice(-10); // Show last 10 as in Kotlin
+        const hourly = rawHourly.slice(-10);
 
-        if (hourly.length === 0 || hourly.every(s => s === 0)) {
+        if (hourly.length === 0 || hourly.every((s) => s === 0)) {
             return (
                 <Box sx={{ height: 110, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Typography variant="body2" color="text.secondary">No history</Typography>
@@ -146,7 +204,6 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
         }
 
         const maxSteps = Math.max(...hourly, 1);
-        const chartWidth = 200;
         const chartHeight = 60;
         const barWidth = 14;
         const spacing = 4;
@@ -177,10 +234,10 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
                                     rx={2}
                                     fill={primaryColor}
                                 />
-                                <text x={x + barWidth/2} y={y - 4} fontSize="7" textAnchor="middle" fill={textColor} fontWeight="700">
-                                    {steps > 999 ? (steps/1000).toFixed(1) + 'k' : steps}
+                                <text x={x + barWidth / 2} y={y - 4} fontSize="7" textAnchor="middle" fill={textColor} fontWeight="700">
+                                    {steps > 999 ? `${(steps / 1000).toFixed(1)}k` : steps}
                                 </text>
-                                <text x={x + barWidth/2} y={92} fontSize="7" textAnchor="middle" fill="text.secondary" fontWeight="500">
+                                <text x={x + barWidth / 2} y={92} fontSize="7" textAnchor="middle" fill={secondaryTextColor} fontWeight="500">
                                     {labels[i]}
                                 </text>
                             </g>
@@ -201,7 +258,7 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
         const spacing = 8;
         const chartHeight = 60;
 
-        const dayLabels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+        const dayLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
         const now = new Date();
         const labels = daily.map((_, i) => {
             const d = new Date(now.getTime());
@@ -226,10 +283,10 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
                                     rx={2}
                                     fill={primaryColor}
                                 />
-                                <text x={x + barWidth/2} y={y - 4} fontSize="8" textAnchor="middle" fill={textColor} fontWeight="700">
-                                    {steps > 999 ? (steps/1000).toFixed(1) + 'k' : steps}
+                                <text x={x + barWidth / 2} y={y - 4} fontSize="8" textAnchor="middle" fill={textColor} fontWeight="700">
+                                    {steps > 999 ? `${(steps / 1000).toFixed(1)}k` : steps}
                                 </text>
-                                <text x={x + barWidth/2} y={92} fontSize="8" textAnchor="middle" fill="text.secondary" fontWeight="500">
+                                <text x={x + barWidth / 2} y={92} fontSize="8" textAnchor="middle" fill={secondaryTextColor} fontWeight="500">
                                     {labels[i]}
                                 </text>
                             </g>
@@ -247,14 +304,6 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
                     <Typography sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>
                         Activity
                     </Typography>
-                    <Link
-                        component="button"
-                        variant="caption"
-                        onClick={onClearHistory}
-                        sx={{ color: primaryColor, textDecoration: 'none', fontWeight: 600 }}
-                    >
-                        Clear
-                    </Link>
                 </Box>
                 <Select
                     value={selectedOption}
@@ -266,10 +315,10 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
                         fontSize: '0.8125rem',
                         fontWeight: 700,
                         color: '#2D1A0E',
-                        '& .MuiSelect-select': { py: 0, pr: '20px !important' }
+                        '& .MuiSelect-select': { py: 0, pr: '20px !important' },
                     }}
                 >
-                    {Object.values(StepDataOption).map(option => (
+                    {Object.values(StepDataOption).map((option) => (
                         <MenuItem key={option} value={option} sx={{ fontSize: '0.8125rem', fontWeight: 500 }}>
                             {option}
                         </MenuItem>
@@ -283,19 +332,68 @@ const StepCounterView: React.FC<StepCounterViewProps> = ({
                 {selectedOption === StepDataOption.DAILY && renderDaily()}
             </Box>
 
-            <ValueSelectionDialog
-                open={showWeightDialog}
-                title="Your Weight"
-                label="Weight"
-                initialValue={displayWeight}
-                range={[30, 250]}
-                unit=" kg"
-                onClose={() => setShowWeightDialog(false)}
-                onConfirm={(val) => {
-                    onSetWeight(val * 10);
-                    setShowWeightDialog(false);
-                }}
-            />
+            <Dialog open={showProfileDialog} onClose={() => setShowProfileDialog(false)} fullWidth maxWidth="xs">
+                <DialogTitle>Exercise Profile</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ py: 1 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                            Units: {units === 'metric' ? 'Metric' : 'Imperial'}
+                        </Typography>
+
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                            Step Goal: {draftProfile.stepGoal.toLocaleString()}
+                        </Typography>
+                        <Slider
+                            value={draftProfile.stepGoal}
+                            min={1000}
+                            max={30000}
+                            step={100}
+                            onChange={(_, value) => setDraftProfile((current) => ({ ...current, stepGoal: Number(value) }))}
+                            sx={{ mb: 2 }}
+                        />
+
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                            Height: {Math.round(draftProfile.height)} {heightUnit}
+                        </Typography>
+                        <Slider
+                            value={Math.round(draftProfile.height)}
+                            min={HEIGHT_RANGE[units].min}
+                            max={HEIGHT_RANGE[units].max}
+                            step={1}
+                            onChange={(_, value) => {
+                                setDraftProfile((current) => ({ ...current, height: Number(value) }));
+                            }}
+                            sx={{ mb: 2 }}
+                        />
+
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                            Weight: {Math.round(draftProfile.weight)} {weightUnit}
+                        </Typography>
+                        <Slider
+                            value={Math.round(draftProfile.weight)}
+                            min={WEIGHT_RANGE[units].min}
+                            max={WEIGHT_RANGE[units].max}
+                            step={1}
+                            onChange={(_, value) => {
+                                setDraftProfile((current) => ({ ...current, weight: Number(value) }));
+                            }}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowProfileDialog(false)}>Cancel</Button>
+                    <Button
+                        onClick={() => {
+                            onUpdateProfile(normalizeExerciseProfile(draftProfile));
+                            setShowProfileDialog(false);
+                        }}
+                        variant="contained"
+                        color="primary"
+                    >
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </PeachCard>
     );
 };

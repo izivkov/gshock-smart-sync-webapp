@@ -13,8 +13,10 @@ import { cachedIO } from "@io/CachedIO";
 import { progressEvents } from "@api/ProgressEvents"
 import AppInfoIO from "@io/AppInfoIO"
 import StepCounterIO from "@io/StepCounterIO"
+import ExerciseIO from "@io/ExerciseIO"
 import { watchInfo } from "./WatchInfo"
 import { StepCounterData } from "@model/StepCounterData"
+import { ExerciseProfile, defaultExerciseProfile } from "@model/ExerciseProfile"
 import Alarm from "@model/Alarm"
 import { Settings } from "@model/Settings"
 import WatchDataListener from "./WatchDataListener"
@@ -121,6 +123,13 @@ const GShockAPI = {
         return await StepCounterIO.request(peek);
     },
 
+    getExerciseProfile: async (): Promise<ExerciseProfile> => {
+        if (!watchInfo.hasExerciseProfile) {
+            return defaultExerciseProfile();
+        }
+        return await ExerciseIO.request();
+    },
+
     getPressedButton: async (): Promise<string> => {
         const value = await ButtonPressedIO.request();
         ButtonPressedIO.put(value);
@@ -164,6 +173,14 @@ const GShockAPI = {
     async setTimer(timerValue: number): Promise<void> {
         return await watchInfo.protocol!.setTimer(timerValue);
     },
+
+    async setExerciseProfile(profile: ExerciseProfile): Promise<void> {
+        if (!watchInfo.hasExerciseProfile) {
+            return;
+        }
+        return await ExerciseIO.set(profile);
+    },
+
     async setTimezone(timeZone?: string): Promise<void> {
         return await TimeIO.setTimezone(timeZone);
     }

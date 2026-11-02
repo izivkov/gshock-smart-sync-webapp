@@ -15,6 +15,7 @@ import { actionsContainer, SetTimeAction, SetTimerAction, ClearStepHistoryAction
 import { StepCounterData } from '@model/StepCounterData';
 import { ConnectionContext } from '@/App';
 import { progressEvents } from '@/api/ProgressEvents';
+import { defaultExerciseProfile, ExerciseProfile, normalizeExerciseProfile } from '@model/ExerciseProfile';
 import ScreenTitle from '../components/ScreenTitle';
 import PeachCard from '../components/PeachCard';
 import { WatchFeature, useWatchFeatures } from '../components/WatchFeature';
@@ -164,9 +165,27 @@ const Time: React.FC = () => {
     const [temperature, setTemperature] = useState<number>(0);
     const [stepData, setStepData] = useState<StepCounterData>(StepCounterData.unavailable());
 
-    // Step counter metrics
-    const [stepGoal, setStepGoal] = useState(() => Number(localStorage.getItem('stepGoal')) || 10000);
-    const [weight, setWeight] = useState(() => Number(localStorage.getItem('weight')) || 700); // 100g units
+    const [exerciseProfile, setExerciseProfile] = useState<ExerciseProfile>(() => {
+        try {
+            const rawValue = localStorage.getItem('exerciseProfile');
+            if (rawValue) {
+                return normalizeExerciseProfile(JSON.parse(rawValue));
+            }
+
+            const fallback = defaultExerciseProfile();
+            const legacyStepGoal = Number(localStorage.getItem('stepGoal'));
+            const legacyWeight = Number(localStorage.getItem('weight'));
+
+            return normalizeExerciseProfile({
+                ...fallback,
+                stepGoal: Number.isFinite(legacyStepGoal) && legacyStepGoal > 0 ? legacyStepGoal : fallback.stepGoal,
+                weight: Number.isFinite(legacyWeight) && legacyWeight > 0 ? legacyWeight / 10 : fallback.weight,
+            });
+        } catch (error) {
+            console.warn('Exercise profile load failed, using default profile', error);
+            return defaultExerciseProfile();
+        }
+    });
     const [metrics, setMetrics] = useState({ distanceKm: 0, calories: 0 });
 
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -175,21 +194,20 @@ const Time: React.FC = () => {
 
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
 
-    const calculateMetrics = useCallback((data: StepCounterData, weight100g: number) => {
-        const strideM = 0.76;
+    const calculateMetrics = useCallback((data: StepCounterData, profile: ExerciseProfile) => {
         const steps = data.currentDaySteps ?? 0;
+        const rawDistanceMeters = data.distanceMeters ?? data.totalDistanceMeters ?? null;
+        const distanceKm = rawDistanceMeters != null && rawDistanceMeters > 0
+            ? rawDistanceMeters / 1000
+            : (steps * 0.76) / 1000;
 
-        const dm = data.distanceMeters;
-        const distanceKm = (dm && dm > 0) ? dm / 1000 : (steps * strideM) / 1000;
-
-        const weightKg = weight100g / 10;
-        const calories = distanceKm * weightKg * 1.036;
+        const calories = distanceKm * (profile.weight * 1.036);
         return { distanceKm, calories };
     }, []);
 
     useEffect(() => {
-        setMetrics(calculateMetrics(stepData, weight));
-    }, [stepData.currentDaySteps, stepData.distanceMeters, weight, calculateMetrics]);
+        setMetrics(calculateMetrics(stepData, exerciseProfile));
+    }, [stepData.currentDaySteps, stepData.distanceMeters, exerciseProfile, calculateMetrics]);
 
     const refreshWatchData = useCallback(async () => {
         if (!isConnected) return;
@@ -214,6 +232,11 @@ const Time: React.FC = () => {
             if (WatchFeatureManager.isFeatureSupported('time.battery')) {
                 const level = await GShockAPI.getBatteryLevel();
                 setBatteryLevel(level);
+            }
+
+            if (WatchFeatureManager.isFeatureSupported('time.exercise_profile')) {
+                const profile = await GShockAPI.getExerciseProfile();
+                setExerciseProfile(normalizeExerciseProfile(profile));
             }
 
             if (WatchFeatureManager.isFeatureSupported('time.step_counter')) {
@@ -249,7 +272,7 @@ const Time: React.FC = () => {
                 } catch (e) {
                     console.error("Step polling failed", e);
                 }
-            }, 3000);
+            }, 5 * 60 * 1000);
         }
         return () => {
             if (interval) clearInterval(interval);
@@ -300,15 +323,19 @@ const Time: React.FC = () => {
         }
     };
 
-    const handleUpdateStepGoal = (goal: number) => {
-        setStepGoal(goal);
-        localStorage.setItem('stepGoal', goal.toString());
-    };
+    const handleUpdateProfile = useCallback(async (profile: ExerciseProfile) => {
+        const normalized = normalizeExerciseProfile(profile);
+        setExerciseProfile(normalized);
+        localStorage.setItem('exerciseProfile', JSON.stringify(normalized));
+        localStorage.setItem('stepGoal', normalized.stepGoal.toString());
+        localStorage.setItem('weight', (normalized.weight * 10).toString());
 
-    const handleUpdateWeight = (w: number) => {
-        setWeight(w);
-        localStorage.setItem('weight', w.toString());
-    };
+        try {
+            await GShockAPI.setExerciseProfile(normalized);
+        } catch (error) {
+            console.warn('Exercise profile sync failed', error);
+        }
+    }, []);
 
     const use12HourClock = useMemo(() => isNorthAmerica12HourClock(), []);
     const fahrenheitTemp = useFahrenheitForTemperature();
@@ -356,12 +383,10 @@ const Time: React.FC = () => {
                         <WatchFeature id="time.step_counter">
                             <StepCounterView
                                 stepData={stepData}
-                                stepGoal={stepGoal}
-                                weight={weight}
+                                profile={exerciseProfile}
                                 distanceKm={metrics.distanceKm}
                                 calories={metrics.calories}
-                                onSetStepGoal={handleUpdateStepGoal}
-                                onSetWeight={handleUpdateWeight}
+                                onUpdateProfile={handleUpdateProfile}
                                 onClearHistory={handleClearStepHistory}
                             />
                         </WatchFeature>
