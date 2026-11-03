@@ -23,6 +23,7 @@ import UnknownIO from "@io/UnknownIO";
 import HomeTimeIO from "@io/HomeTimeIO";
 import HomeTimeIOFunctional from "@io/HomeTimeIOFunctional";
 import TimeIO from "@io/TimeIO";
+import ExerciseIO from "@io/ExerciseIO";
 import Utils from "@utils/Utils";
 
 export class StandardProtocol implements WatchProtocol {
@@ -42,6 +43,7 @@ export class StandardProtocol implements WatchProtocol {
             [CasioConstants.CHARACTERISTICS.CASIO_BLE_FEATURES]: (data) => ButtonPressedIO.onReceived(data as any),
             [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_BASIC]: (data) => SettingsIO.onReceived(data as any),
             [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_BLE]: (data) => TimeAdjustmentIO.onReceived(data as any),
+            [CasioConstants.CHARACTERISTICS.CASIO_SETTING_FOR_EXERCISE]: (data) => ExerciseIO.onReceived(data as any),
             [CasioConstants.CHARACTERISTICS.CASIO_ACTIVITY_RECORD]: (data) => StepCounterIO.onReceived(data as any),
             [CasioConstants.CHARACTERISTICS.ERROR]: (data) => ErrorIO.onReceived(data as any),
             [CasioConstants.CHARACTERISTICS.FIND_PHONE]: (data) => RunActionsIO.onReceived(data as any),

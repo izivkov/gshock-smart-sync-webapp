@@ -14,6 +14,7 @@ import ButtonPressedIO from "@io/ButtonPressedIO";
 import ErrorIO from "@io/ErrorIO";
 import UnknownIO from "@io/UnknownIO";
 import AppInfoIO from "@io/AppInfoIO";
+import ExerciseIO from "@io/ExerciseIO";
 import { watchInfo } from "./WatchInfo";
 import Utils from "@utils/Utils";
 import StepCounterIO from "@io/StepCounterIO";
@@ -26,6 +27,8 @@ class MessageDispatcher {
             "SET_REMINDERS": (msg) => EventsIO.sendToWatchSet(msg),
             "GET_SETTINGS": (msg) => SettingsIO.sendToWatch(msg),
             "SET_SETTINGS": (msg) => SettingsIO.sendToWatchSet(msg),
+            "GET_EXERCISE_PROFILE": (msg) => ExerciseIO.sendToWatch(msg),
+            "SET_EXERCISE_PROFILE": (msg) => ExerciseIO.sendToWatchSet(msg),
             "GET_TIME_ADJUSTMENT": (msg) => TimeAdjustmentIO.sendToWatch(msg),
             "SET_TIME_ADJUSTMENT": (msg) => TimeAdjustmentIO.sendToWatchSet(msg),
             "GET_TIMER": (msg) => TimerIO.sendToWatch(msg),

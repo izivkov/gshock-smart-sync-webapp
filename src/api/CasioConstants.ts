@@ -26,6 +26,7 @@ export const CasioConstants = {
         CASIO_SETTING_FOR_ALM: 0x15,
         CASIO_SETTING_FOR_ALM2: 0x16,
         CASIO_SETTING_FOR_BASIC: 0x13,
+        CASIO_SETTING_FOR_EXERCISE: 0x2d,
         CASIO_WORLD_CITIES: 0x1f,
         CASIO_REMINDER_TITLE: 0x30,
         CASIO_REMINDER_TIME: 0x31,
