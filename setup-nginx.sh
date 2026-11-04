@@ -97,6 +97,10 @@ scp /tmp/gshock-webapp-nginx.conf "${SERVER_USER}@${SERVER_HOST}:/tmp/gshock-web
 ssh "${SERVER_USER}@${SERVER_HOST}" "bash -s" <<'SERVERSETUP2'
     set -e
     sudo install -m 644 /tmp/gshock-webapp-nginx.conf /etc/nginx/sites-available/gshock-webapp
+    if grep -Eq '\$\{APP_PORT\}|\$\{SERVER_PATH\}|\$\{APP_PATH\}' /etc/nginx/sites-available/gshock-webapp; then
+        echo "ERROR: Nginx config still contains unresolved template variables. Refusing to reload nginx."
+        exit 1
+    fi
     sudo chmod 755 /home/ivo
     sudo chmod -R 755 /home/ivo/gshock-smart-sync
     sudo ln -sf /etc/nginx/sites-available/gshock-webapp /etc/nginx/sites-enabled/

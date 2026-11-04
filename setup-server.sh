@@ -64,6 +64,11 @@ server {
 }
 EOF
 
+if grep -Eq '\$\{APP_PORT\}|\$\{APP_PATH\}|\$\{SERVER_PATH\}' /etc/nginx/sites-available/gshock-webapp; then
+    echo "ERROR: Nginx config still contains unresolved template variables. Refusing to start nginx."
+    exit 1
+fi
+
 echo "Setting permissions so Nginx can read the files..."
 sudo chmod 755 /home/ivo
 sudo chmod -R 755 ${APP_PATH}
