@@ -9,10 +9,10 @@
 set -e
 
 # Configuration
-SERVER_USER="ivo"
-SERVER_HOST="192.168.1.100"
-SERVER_PATH="/home/ivo/gshock-smart-sync"
-APP_PORT="3002"
+SERVER_USER="${SERVER_USER:-ivo}"
+SERVER_HOST="${SERVER_HOST:-192.168.1.100}"
+SERVER_PATH="${SERVER_PATH:-/home/${SERVER_USER}/gshock-smart-sync}"
+APP_PORT="${APP_PORT:-3002}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -30,8 +30,7 @@ echo ""
 
 # Step 1: Clean up any old installations on server
 echo -e "${YELLOW}[1/3] Cleaning up old installation on server...${NC}"
-ssh "${SERVER_USER}@${SERVER_HOST}" 'bash -s' << 'SERVERCLEANUP'
-    SERVER_PATH="/home/ivo/gshock-smart-sync"
+ssh "${SERVER_USER}@${SERVER_HOST}" "SERVER_PATH='${SERVER_PATH}'; bash -s" <<'SERVERCLEANUP'
     echo "  → Stopping any legacy services..."
     sudo systemctl stop gshock-webapp.service 2>/dev/null || true
     sudo systemctl disable gshock-webapp.service 2>/dev/null || true
@@ -47,10 +46,8 @@ SERVERCLEANUP
 
 # Step 2: Setup Nginx on server
 echo -e "${YELLOW}[2/3] Configuring Nginx on server...${NC}"
-ssh "${SERVER_USER}@${SERVER_HOST}" 'bash -s' <<'SERVERSETUP'
+ssh "${SERVER_USER}@${SERVER_HOST}" "SERVER_PATH='${SERVER_PATH}'; APP_PORT='${APP_PORT}'; bash -s" <<'SERVERSETUP'
     set -e
-    SERVER_PATH="/home/ivo/gshock-smart-sync"
-    APP_PORT="3002"
 
     echo "  → Installing/Updating Nginx..."
     sudo apt-get update -qq
@@ -94,15 +91,15 @@ server {
 EOF
 
 scp /tmp/gshock-webapp-nginx.conf "${SERVER_USER}@${SERVER_HOST}:/tmp/gshock-webapp-nginx.conf"
-ssh "${SERVER_USER}@${SERVER_HOST}" "bash -s" <<'SERVERSETUP2'
+ssh "${SERVER_USER}@${SERVER_HOST}" "SERVER_PATH='${SERVER_PATH}'; APP_PORT='${APP_PORT}'; bash -s" <<'SERVERSETUP2'
     set -e
     sudo install -m 644 /tmp/gshock-webapp-nginx.conf /etc/nginx/sites-available/gshock-webapp
     if grep -Eq '\$\{APP_PORT\}|\$\{SERVER_PATH\}|\$\{APP_PATH\}' /etc/nginx/sites-available/gshock-webapp; then
         echo "ERROR: Nginx config still contains unresolved template variables. Refusing to reload nginx."
         exit 1
     fi
-    sudo chmod 755 /home/ivo
-    sudo chmod -R 755 /home/ivo/gshock-smart-sync
+    sudo chmod 755 "$(dirname "${SERVER_PATH}")"
+    sudo chmod -R 755 "${SERVER_PATH}"
     sudo ln -sf /etc/nginx/sites-available/gshock-webapp /etc/nginx/sites-enabled/
 
     echo "  → Testing and Restarting Nginx..."

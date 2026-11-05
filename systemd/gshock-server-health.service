@@ -1,0 +1,18 @@
+[Unit]
+Description=GShock Smart Sync health monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=MAIL_TO=you@example.com
+Environment=MAIL_FROM=root@localhost
+Environment=APP_URL=http://127.0.0.1:3002/
+Environment=LOG_FILE=/var/log/nginx/access.log
+Environment=CHECK_TIMEOUT=10
+Environment=STALE_SECONDS=600
+Environment=SERVICE_NAME=nginx
+ExecStart=/usr/local/bin/gshock-server-health.sh
+
+[Install]
+WantedBy=multi-user.target

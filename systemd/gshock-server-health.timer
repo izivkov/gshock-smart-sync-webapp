@@ -1,0 +1,11 @@
+[Unit]
+Description=Run GShock health monitor every 5 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Unit=gshock-server-health.service
+
+[Install]
+WantedBy=timers.target

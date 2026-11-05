@@ -6,8 +6,10 @@
 
 set -e
 
-APP_PATH="/home/ivo/gshock-smart-sync"
-APP_PORT="3002"
+APP_PATH="${APP_PATH:-/home/$(id -un)/gshock-smart-sync}"
+APP_PORT="${APP_PORT:-3002}"
+
+mkdir -p "${APP_PATH}"
 
 echo "=========================================="
 echo "G-Shock Smart Sync Webapp - Server Setup"
@@ -70,8 +72,9 @@ if grep -Eq '\$\{APP_PORT\}|\$\{APP_PATH\}|\$\{SERVER_PATH\}' /etc/nginx/sites-a
 fi
 
 echo "Setting permissions so Nginx can read the files..."
-sudo chmod 755 /home/ivo
-sudo chmod -R 755 ${APP_PATH}
+APP_HOME="$(dirname "${APP_PATH}")"
+sudo chmod 755 "${APP_HOME}"
+sudo chmod -R 755 "${APP_PATH}"
 
 echo "  ✓ Nginx configuration created"
 
