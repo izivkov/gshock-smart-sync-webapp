@@ -7,18 +7,15 @@ import ThermostatIcon from '@mui/icons-material/Thermostat';
 import SendIcon from '@mui/icons-material/Send';
 import BluetoothConnectedIcon from '@mui/icons-material/BluetoothConnected';
 import TimerInput from './TimerInput';
-import StepCounterView from './StepCounterView';
 import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
-import { actionsContainer, SetTimeAction, SetTimerAction, ClearStepHistoryAction } from '@/actions/ActionsContainer';
-import { StepCounterData } from '@model/StepCounterData';
+import { actionsContainer, SetTimeAction, SetTimerAction } from '@/actions/ActionsContainer';
 import { ConnectionContext } from '@/App';
 import { progressEvents } from '@/api/ProgressEvents';
-import { defaultExerciseProfile, ExerciseProfile, normalizeExerciseProfile } from '@model/ExerciseProfile';
 import ScreenTitle from '../components/ScreenTitle';
 import PeachCard from '../components/PeachCard';
-import { WatchFeature, useWatchFeatures } from '../components/WatchFeature';
+import { WatchFeature } from '../components/WatchFeature';
 import { WatchFeatureManager } from '@/utils/WatchFeatureManager';
 import VoiceControlCard from './VoiceControlCard';
 
@@ -158,56 +155,16 @@ const TemperatureCard: React.FC<{ tempShown: { text: string, unit: string } }> =
 
 const Time: React.FC = () => {
     const { isConnected } = useContext(ConnectionContext);
-    const { isFeatureSupported } = useWatchFeatures();
     const [timerValue, setTimerValue] = useState({ hours: 0, minutes: 0, seconds: 0 });
     const [homeTime, setHomeTime] = useState<string>("");
     const [batteryLevel, setBatteryLevel] = useState<number>(0);
     const [temperature, setTemperature] = useState<number>(0);
-    const [stepData, setStepData] = useState<StepCounterData>(StepCounterData.unavailable());
-
-    const [exerciseProfile, setExerciseProfile] = useState<ExerciseProfile>(() => {
-        try {
-            const rawValue = localStorage.getItem('exerciseProfile');
-            if (rawValue) {
-                return normalizeExerciseProfile(JSON.parse(rawValue));
-            }
-
-            const fallback = defaultExerciseProfile();
-            const legacyStepGoal = Number(localStorage.getItem('stepGoal'));
-            const legacyWeight = Number(localStorage.getItem('weight'));
-
-            return normalizeExerciseProfile({
-                ...fallback,
-                stepGoal: Number.isFinite(legacyStepGoal) && legacyStepGoal > 0 ? legacyStepGoal : fallback.stepGoal,
-                weight: Number.isFinite(legacyWeight) && legacyWeight > 0 ? legacyWeight / 10 : fallback.weight,
-            });
-        } catch (error) {
-            console.warn('Exercise profile load failed, using default profile', error);
-            return defaultExerciseProfile();
-        }
-    });
-    const [metrics, setMetrics] = useState({ distanceKm: 0, calories: 0 });
 
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
-
-    const calculateMetrics = useCallback((data: StepCounterData, profile: ExerciseProfile) => {
-        const steps = data.currentDaySteps ?? 0;
-        const rawDistanceMeters = data.distanceMeters ?? data.totalDistanceMeters ?? null;
-        const distanceKm = rawDistanceMeters != null && rawDistanceMeters > 0
-            ? rawDistanceMeters / 1000
-            : (steps * 0.76) / 1000;
-
-        const calories = distanceKm * (profile.weight * 1.036);
-        return { distanceKm, calories };
-    }, []);
-
-    useEffect(() => {
-        setMetrics(calculateMetrics(stepData, exerciseProfile));
-    }, [stepData.currentDaySteps, stepData.distanceMeters, exerciseProfile, calculateMetrics]);
 
     const refreshWatchData = useCallback(async () => {
         if (!isConnected) return;
@@ -233,16 +190,6 @@ const Time: React.FC = () => {
                 const level = await GShockAPI.getBatteryLevel();
                 setBatteryLevel(level);
             }
-
-            if (WatchFeatureManager.isFeatureSupported('time.exercise_profile')) {
-                const profile = await GShockAPI.getExerciseProfile();
-                setExerciseProfile(normalizeExerciseProfile(profile));
-            }
-
-            if (WatchFeatureManager.isFeatureSupported('time.step_counter')) {
-                const steps = await GShockAPI.getStepCount();
-                setStepData(steps);
-            }
         } catch (error) {
             console.error("Watch refresh failed:", error);
         }
@@ -261,23 +208,6 @@ const Time: React.FC = () => {
         progressEvents.runEventActions('TimePageRefresh', actions);
         return () => progressEvents.stop('TimePageRefresh');
     }, [refreshWatchData]);
-
-    useEffect(() => {
-        let interval: NodeJS.Timeout | null = null;
-        if (isConnected && isFeatureSupported('time.step_counter')) {
-            interval = setInterval(async () => {
-                try {
-                    const data = await GShockAPI.getStepCount();
-                    setStepData(data);
-                } catch (e) {
-                    console.error("Step polling failed", e);
-                }
-            }, 5 * 60 * 1000);
-        }
-        return () => {
-            if (interval) clearInterval(interval);
-        };
-    }, [isConnected, isFeatureSupported]);
 
     const handleSetTime = async () => {
         try {
@@ -307,35 +237,6 @@ const Time: React.FC = () => {
             setSnackbarOpen(true);
         }
     };
-
-    const handleClearStepHistory = async () => {
-        try {
-            await actionsContainer.getAction(ClearStepHistoryAction).run();
-            const freshData = await GShockAPI.getStepCount(true);
-            setStepData(freshData);
-            setSnackbarMessage('Step history cleared');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
-        } catch (e) {
-            setSnackbarMessage('Failed to clear history');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
-        }
-    };
-
-    const handleUpdateProfile = useCallback(async (profile: ExerciseProfile) => {
-        const normalized = normalizeExerciseProfile(profile);
-        setExerciseProfile(normalized);
-        localStorage.setItem('exerciseProfile', JSON.stringify(normalized));
-        localStorage.setItem('stepGoal', normalized.stepGoal.toString());
-        localStorage.setItem('weight', (normalized.weight * 10).toString());
-
-        try {
-            await GShockAPI.setExerciseProfile(normalized);
-        } catch (error) {
-            console.warn('Exercise profile sync failed', error);
-        }
-    }, []);
 
     const use12HourClock = useMemo(() => isNorthAmerica12HourClock(), []);
     const fahrenheitTemp = useFahrenheitForTemperature();
@@ -379,17 +280,6 @@ const Time: React.FC = () => {
                             setTimerValue={setTimerValue}
                             onSetTimer={handleSetTimer}
                         />
-
-                        <WatchFeature id="time.step_counter">
-                            <StepCounterView
-                                stepData={stepData}
-                                profile={exerciseProfile}
-                                distanceKm={metrics.distanceKm}
-                                calories={metrics.calories}
-                                onUpdateProfile={handleUpdateProfile}
-                                onClearHistory={handleClearStepHistory}
-                            />
-                        </WatchFeature>
 
                         <Box sx={{
                             display: WatchFeatureManager.isFeatureSupported('time.home_time') || WatchFeatureManager.isFeatureSupported('time.temperature') ? 'grid' : 'none',

@@ -7,6 +7,7 @@ import { registerComponents } from '@/utils/componentRouter'
 // Import all page components lazily
 const HomePage = lazy(() => import('@pages/index.page'))
 const TimePage = lazy(() => import('@pages/time/Time.page'))
+const HealthPage = lazy(() => import('@pages/health/Health.page'))
 const AlarmsPage = lazy(() => import('@pages/alarms/Alarms.page'))
 const RemindersPage = lazy(() => import('@pages/reminders/Reminders.page'))
 const SettingsPage = lazy(() => import('@pages/settings/Settings.page'))
@@ -16,6 +17,8 @@ registerComponents({
   '/': HomePage,
   '/time': TimePage,
   '/time/Time': TimePage,
+  '/health': HealthPage,
+  '/health/Health': HealthPage,
   '/alarms': AlarmsPage,
   '/alarms/Alarms': AlarmsPage,
   '/reminders': RemindersPage,

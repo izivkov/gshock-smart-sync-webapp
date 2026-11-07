@@ -1,88 +1,44 @@
-export type ExerciseUnits = 'metric' | 'imperial';
+export const CM_PER_INCH = 2.54;
+export const KG_PER_POUND = 0.45359237;
 
 /**
- * height and weight are stored exactly as the user entered them:
- * cm and kg when units === 'metric', inches and lb when units === 'imperial'.
+ * Metric is the source of truth, matching the watch: height in whole cm, weight in whole kg.
+ * Imperial getters and converter functions mirror org.avmedia.gshockapi.model.ExerciseProfile in GShockAPI.
  */
 export interface ExerciseProfile {
   stepGoal: number;
-  height: number;
-  weight: number;
-  units: ExerciseUnits;
-  locale: string;
+  height: number; // cm
+  weight: number; // kg
 }
 
-/** Metric values sent to or read from the watch. */
-export interface WatchMetrics {
-  heightCm: number;
-  weightKg: number;
-}
-
-const IMPERIAL_REGIONS = new Set(['US', 'CA']);
-const CM_PER_INCH = 2.54;
-const KG_PER_LB = 0.45359237;
-
-const DEFAULT_STEP_GOAL = 10000;
-
-/** Starting values per unit system (170 cm / 70 kg expressed in display units). */
-const DEFAULT_BODY: Record<ExerciseUnits, { height: number; weight: number }> = {
-  metric: { height: 170, weight: 70 },
-  imperial: { height: 67, weight: 154 },
+export const isImperialLocale = (localeStr?: string): boolean => {
+  const loc = localeStr || (typeof window !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().locale : 'en-US');
+  const country = loc.split('-').pop()?.toUpperCase() ?? '';
+  return ['US', 'CA', 'LR', 'MM'].includes(country);
 };
 
-const systemLocale = (): string => Intl.DateTimeFormat().resolvedOptions().locale;
+export const defaultExerciseProfile = (): ExerciseProfile => ({
+  stepGoal: 10000,
+  height: 170, // cm
+  weight: 70,  // kg
+});
 
-const toNumber = (value: unknown, fallback: number): number => {
-  if (value === undefined || value === null || value === '') return fallback;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
-};
+export const getHeightInches = (heightCm: number): number => heightCm / CM_PER_INCH;
 
-export const detectExerciseUnits = (locale: string = systemLocale()): ExerciseUnits => {
-  const region = locale.split('-').pop()?.toUpperCase() ?? '';
-  return IMPERIAL_REGIONS.has(region) ? 'imperial' : 'metric';
-};
+export const getWeightPounds = (weightKg: number): number => weightKg / KG_PER_POUND;
 
-export const normalizeExerciseProfile = (profile: Partial<ExerciseProfile> = {}): ExerciseProfile => {
-  const locale = profile.locale || systemLocale();
-  const units = profile.units ?? detectExerciseUnits(locale);
-  const defaults = DEFAULT_BODY[units];
+export const withHeightInches = (profile: ExerciseProfile, inches: number): ExerciseProfile => ({
+  ...profile,
+  height: Math.round(inches * CM_PER_INCH),
+});
 
-  return {
-    stepGoal: toNumber(profile.stepGoal, DEFAULT_STEP_GOAL),
-    height: toNumber(profile.height, defaults.height),
-    weight: toNumber(profile.weight, defaults.weight),
-    units,
-    locale,
-  };
-};
+export const withWeightPounds = (profile: ExerciseProfile, pounds: number): ExerciseProfile => ({
+  ...profile,
+  weight: Math.round(pounds * KG_PER_POUND),
+});
 
-export const defaultExerciseProfile = (): ExerciseProfile => normalizeExerciseProfile({});
-
-/** Converts the profile's entered height/weight to metric for the watch. */
-export const toWatchMetrics = (profile: ExerciseProfile): WatchMetrics =>
-  profile.units === 'imperial'
-    ? {
-        heightCm: profile.height * CM_PER_INCH,
-        weightKg: profile.weight * KG_PER_LB,
-      }
-    : {
-        heightCm: profile.height,
-        weightKg: profile.weight,
-      };
-
-/** Converts metric values read from the watch into the display units of the given system. */
-export const fromWatchMetrics = (
-  metrics: WatchMetrics,
-  units: ExerciseUnits,
-): Pick<ExerciseProfile, 'height' | 'weight'> =>
-  units === 'imperial'
-    ? {
-        height: metrics.heightCm / CM_PER_INCH,
-        weight: metrics.weightKg / KG_PER_LB,
-      }
-    : {
-        height: metrics.heightCm,
-        weight: metrics.weightKg,
-      };
-      
+export const normalizeExerciseProfile = (profile?: Partial<ExerciseProfile>): ExerciseProfile => ({
+  stepGoal: profile?.stepGoal ?? 10000,
+  height: profile?.height ?? 170,
+  weight: profile?.weight ?? 70,
+});

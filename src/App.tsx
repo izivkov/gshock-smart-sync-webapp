@@ -202,7 +202,7 @@ export default function App() {
     progressEvents.runEventActions("AppRoot", connectionActions);
 
     // Initial route protection if started while disconnected
-    const restrictedPaths = ['/time', '/alarms', '/events', '/settings', '/reminders'];
+    const restrictedPaths = ['/time', '/health', '/alarms', '/events', '/settings', '/reminders'];
     if (!connection.isConnected() && restrictedPaths.some(path => router.pathname.startsWith(path))) {
         handleDisconnect();
     }

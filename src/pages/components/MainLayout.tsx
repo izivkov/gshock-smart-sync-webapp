@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext, useEffect, useState } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { useRouter } from '@/utils/router';
 import {
     Box,
@@ -10,6 +10,7 @@ import {
     useTheme,
 } from '@mui/material';
 import TimeIcon from '@mui/icons-material/AccessTime';
+import HealthIcon from '@mui/icons-material/FavoriteBorder';
 import AlarmsIcon from '@mui/icons-material/Alarm';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -24,6 +25,7 @@ interface MainLayoutProps {
 
 const NAV_ITEMS = [
     { label: 'Time', icon: <TimeIcon />, path: '/time/Time' },
+    { label: 'Health', icon: <HealthIcon />, path: '/health/Health' },
     { label: 'Alarms', icon: <AlarmsIcon />, path: '/alarms/Alarms' },
     { label: 'Events', icon: <CalendarIcon />, path: '/reminders/Reminders' },
     { label: 'Settings', icon: <SettingsIcon />, path: '/settings/Settings' },
@@ -35,10 +37,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
     const { isConnected } = useContext(ConnectionContext);
     const visibleItems = React.useMemo(() => {
-        if (isConnected && !WatchFeatureManager.isFeatureSupported('actions.reminders')) {
-            return NAV_ITEMS.filter(item => item.label !== 'Events');
+        let items = NAV_ITEMS;
+        if (isConnected) {
+            if (!WatchFeatureManager.isFeatureSupported('actions.reminders')) {
+                items = items.filter(item => item.label !== 'Events');
+            }
+            if (!WatchFeatureManager.isFeatureSupported('time.step_counter') && !WatchFeatureManager.isFeatureSupported('time.exercise_profile')) {
+                items = items.filter(item => item.label !== 'Health');
+            }
         }
-        return NAV_ITEMS;
+        return items;
     }, [isConnected]);
 
     const handleNavigation = (path: string) => {
