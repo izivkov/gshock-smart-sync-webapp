@@ -265,14 +265,19 @@ const modelList: ModelInfo[] = [
         hasTemperature: false, hasBatteryLevel: false,
         alwaysConnected: true, findButtonUserDefined: true, hasPowerSavingMode: false,
     },
-    { model: WATCH_MODEL.GENERIC, hasStepCounterMock: true },
+    { model: WATCH_MODEL.GENERIC, hasStepCounterMock: false },
 ];
 
 const exactModelMap: Record<string, WATCH_MODEL> = {
     "GPR-B1000": WATCH_MODEL.GPR,
     "GMW-B5000": WATCH_MODEL.GMW,
     "GW-B5000": WATCH_MODEL.GW,
-    "GW-B5600": WATCH_MODEL.GW,
+    
+    
+    // "GW-B5600": WATCH_MODEL.GW,
+    "GW-B5600": WATCH_MODEL.GENERIC,
+
+
     "MRG-B5000": WATCH_MODEL.GW,
     "GBD-800": WATCH_MODEL.GBD_800,
     "GMD-B800": WATCH_MODEL.GBD_800,
