@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import {
   Box, List, ListItem, ListItemIcon, ListItemText,
   Divider, Paper, useTheme, Dialog, DialogTitle,
-  DialogContent, DialogActions, Button, alpha
+  DialogContent, DialogActions, Button, IconButton, Tooltip, alpha
 } from '@mui/material';
 import BluetoothIcon from '@mui/icons-material/Bluetooth';
 import WatchIcon from '@mui/icons-material/Watch';
@@ -20,6 +20,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UnsupportedIcon from '@mui/icons-material/Error';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SecurityIcon from '@mui/icons-material/Security';
+import CoffeeIcon from '@mui/icons-material/Coffee';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 // Import local images directly based on project structure
 import dw_b5600 from '../../images/dw-b5600.webp';
@@ -84,6 +86,19 @@ const OS_LABELS: Record<OSType, string> = {
   unknown: 'your platform',
 };
 
+// ─── Sponsor links ───────────────────────────────────────────────────────────
+
+interface SponsorLink {
+  label: string;
+  url: string;
+  icon: React.ReactNode;
+}
+
+const SPONSOR_LINKS: SponsorLink[] = [
+  { label: 'Support on Ko-fi', url: 'https://ko-fi.com/ivozivkov', icon: <CoffeeIcon sx={{ fontSize: 18 }} /> },
+  { label: 'Donate via PayPal', url: 'https://paypal.me/izivkov', icon: <FavoriteBorderIcon sx={{ fontSize: 18 }} /> },
+];
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 function Home() {
@@ -121,7 +136,50 @@ function Home() {
       position: 'relative'
     }}>
 
-      {/* 1. SCROLLABLE CONTENT */}
+      {/* 0. SPONSOR LINKS - More prominent yet compact top-right container */}
+      <Box sx={{
+        position: 'absolute',
+        top: 8,
+        right: { xs: 8, sm: 16 },
+        zIndex: 5,
+        display: 'flex',
+        gap: 0.5,
+        p: 0.5,
+        borderRadius: '100px',
+        bgcolor: alpha(theme.palette.background.paper, 0.8),
+        backdropFilter: 'blur(8px)',
+        border: `1px solid ${alpha(theme.palette.divider, 0.6)}`,
+        boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.04)}`
+      }}>
+        {SPONSOR_LINKS.map((link) => (
+          <Tooltip key={link.label} title={link.label} arrow>
+            <IconButton
+              component="a"
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={link.label}
+              size="small"
+              sx={{
+                color: 'text.secondary',
+                opacity: 0.8,
+                p: 0.75,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  opacity: 1,
+                  color: 'primary.main',
+                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  transform: 'scale(1.05)'
+                }
+              }}
+            >
+              {link.icon}
+            </IconButton>
+          </Tooltip>
+        ))}
+      </Box>
+
+      {/* SCROLLABLE CONTENT */}
       <Box sx={{
         flex: 1,
         overflowY: 'auto',
@@ -210,9 +268,9 @@ function Home() {
               }
             }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, md: 2 } }}>
-                <Box sx={{ 
-                  p: 0.75, 
-                  borderRadius: 1.5, 
+                <Box sx={{
+                  p: 0.75,
+                  borderRadius: 1.5,
                   bgcolor: alpha(isBluetoothSupported ? theme.palette.success.main : theme.palette.error.main, 0.1),
                   mr: 1,
                   display: 'flex'
@@ -372,27 +430,29 @@ function Home() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 3, md: 3 }, maxWidth: 500, mx: 'auto', lineHeight: 1.6, fontSize: { xs: '0.9rem', md: '0.875rem' } }}>
                 Your privacy is built-in. This application runs <strong>locally</strong> in your browser. Data never leaves your device.
               </Typography>
-              <Button
-                variant="outlined"
-                color="success"
-                size="medium"
-                startIcon={<GitHubIcon sx={{ fontSize: { xs: 16, md: 18 } }} />}
-                href="https://github.com/izivkov/gshock-smart-sync-webapp"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  borderRadius: '100px',
-                  textTransform: 'none',
-                  fontWeight: 800,
-                  px: { xs: 2, md: 4 },
-                  py: 0.5,
-                  fontSize: { xs: '0.6rem', md: '0.875rem' },
-                  borderWidth: 1,
-                  '&:hover': { borderWidth: 1 }
-                }}
-              >
-                Source Code
-              </Button>
+              <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap', mb: 1 }}>
+                <Button
+                  variant="outlined"
+                  color="success"
+                  size="medium"
+                  startIcon={<GitHubIcon sx={{ fontSize: { xs: 16, md: 18 } }} />}
+                  href="https://github.com/izivkov/gshock-smart-sync-webapp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    borderRadius: '100px',
+                    textTransform: 'none',
+                    fontWeight: 800,
+                    px: { xs: 2, md: 3 },
+                    py: 0.5,
+                    fontSize: { xs: '0.75rem', md: '0.875rem' },
+                    borderWidth: 1,
+                    '&:hover': { borderWidth: 1 }
+                  }}
+                >
+                  Source Code
+                </Button>
+              </Box>
             </Box>
           </Paper>
         </Box>
@@ -453,7 +513,7 @@ function Home() {
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {suggestions.map((s) => (
-                <Box key={s.name} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
+                <Box key={s.name} sx={{ display: 'flex', justifyContent: 'space-linejoin', alignItems: 'center', gap: 1 }}>
                   <Box>
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>{s.name}</Typography>
                     <Typography variant="caption" color="text.secondary">{s.note}</Typography>
