@@ -100,7 +100,7 @@ const Health: React.FC = () => {
                         <Button
                             variant="contained"
                             onClick={() => setShowProfileDialog(true)}
-                            fullWidth disabled={isPending}
+                            fullWidth disabled={!sessionManager.getPendingComponents().includes(ComponentId.HEALTH_PROFILE)}
                             sx={{
                                 borderRadius: 100,
                                 py: 1.5,
