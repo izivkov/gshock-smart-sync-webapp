@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import { RouterProvider } from '@/utils/router'
 import { registerComponents } from '@/utils/componentRouter'
+import { setupSessionEventBridge } from '@/session/SessionEventBridge'
+import { setupSessionActionRunner } from '@/session/SessionActionRunner'
 
 // Import all page components lazily
 const HomePage = lazy(() => import('@pages/index.page'))
@@ -11,6 +13,10 @@ const HealthPage = lazy(() => import('@pages/health/Health.page'))
 const AlarmsPage = lazy(() => import('@pages/alarms/Alarms.page'))
 const RemindersPage = lazy(() => import('@pages/reminders/Reminders.page'))
 const SettingsPage = lazy(() => import('@pages/settings/Settings.page'))
+
+// Session wiring, once at startup (the equivalent of GShockApplication.onCreate)
+setupSessionEventBridge()
+setupSessionActionRunner()
 
 // Register all routes
 registerComponents({

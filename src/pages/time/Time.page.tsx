@@ -12,6 +12,7 @@ import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
 import { ComponentId } from '@/session/types';
 import { useSessionComponent } from '@/session/useSessionComponent';
+import { useSessionState } from '@/session/useSessionState';
 import { actionsContainer, SetTimeAction, SetTimerAction } from '@/actions/ActionsContainer';
 import { ConnectionContext } from '@/App';
 import { progressEvents } from '@/api/ProgressEvents';
@@ -64,19 +65,9 @@ const WatchNameCard: React.FC<{ isConnected: boolean, batteryLevel: number }> = 
 };
 
 const useWatchName = () => {
-    const [refresh, setRefresh] = useState(0);
+    const { watch } = useSessionState();
 
-    useEffect(() => {
-        const actions = [
-            { label: 'DeviceName', action: () => setRefresh(prev => prev + 1) },
-            { label: 'Disconnect', action: () => setRefresh(prev => prev + 1) },
-        ];
-
-        progressEvents.runEventActions('WatchNameHook', actions);
-        return () => progressEvents.stop('WatchNameHook');
-    }, []);
-
-    const getWatchName = useCallback(() => WatchFeatureManager.getWatchName(), []);
+    const getWatchName = useCallback(() => WatchFeatureManager.getWatchName(), [watch.name]);
 
     return {
         getWatchName,

@@ -1,6 +1,7 @@
 import { IntentParser, VoiceCommandType, VoiceCommand } from "./IntentParser";
 import { actionsContainer, SetAlarmsAction, SetTimerAction, SetSettingsAction, ClearAllAlarmsAction, DisableAllAlarmsAction, SetSettingsToDefaultAction } from "@/actions/ActionsContainer";
 import { progressEvents } from "@api/ProgressEvents";
+import { sessionManager } from "@/session/SessionManager";
 import GShockAPI from "@api/GShockAPI";
 import { speechFeedback } from "./VoiceSpeechFeedback";
 import { voiceCommandManager } from "./VoiceCommandManager";
@@ -28,19 +29,14 @@ export class VoiceDispatcher {
     }
 
     private initEventListeners() {
-        progressEvents.runEventActions('VoiceDispatcher', [
-            {
-                label: 'Disconnected',
-                action: () => {
-                    if (voiceCommandManager.isSupported()) {
-                        voiceCommandManager.stopListening();
-                    }
-                    this.currentReminder = null;
-                    this.isProcessing = false;
-                    this.updateUI('idle', '', 'Disconnected');
-                }
+        sessionManager.onSessionClosed(() => {
+            if (voiceCommandManager.isSupported()) {
+                voiceCommandManager.stopListening();
             }
-        ]);
+            this.currentReminder = null;
+            this.isProcessing = false;
+            this.updateUI('idle', '', 'Disconnected');
+        });
     }
 
     public setOnStateChange(callback: (state: VoiceState, transcript: string, feedback: string) => void) {

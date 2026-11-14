@@ -1,5 +1,6 @@
-import { useCallback, useRef, useSyncExternalStore } from 'react';
+import { useCallback, useRef } from 'react';
 import { sessionManager } from './SessionManager';
+import { useSessionState } from './useSessionState';
 import { ComponentId } from './types';
 
 type Update<T> = T | ((prev: T) => T);
@@ -15,18 +16,18 @@ type Update<T> = T | ((prev: T) => T);
  * `equals` (optional) overrides the default deep comparison between edited value and baseline.
  */
 export function useSessionComponent<T>(id: ComponentId, initial: T, equals?: (a: T, b: T) => boolean) {
-  useSyncExternalStore(sessionManager.subscribe, sessionManager.getVersion);
+  useSessionState(); // re-render on every session change
 
   const initialRef = useRef(initial);
   const equalsRef = useRef(equals);
   equalsRef.current = equals;
-  const session = sessionManager.getCurrentSession();
+  const session = sessionManager.activeSession;
   const loaded = session?.isLoaded(id) ?? false;
   const value = loaded ? (session!.get<T>(id) as T) : initialRef.current;
   const dirty = session?.isDirty(id) ?? false;
 
   const edit = useCallback((next: Update<T>) => {
-    const s = sessionManager.getCurrentSession();
+    const s = sessionManager.activeSession;
     if (!s) return;
     const prev = s.get<T>(id);
     if (prev === undefined) return;
@@ -34,11 +35,11 @@ export function useSessionComponent<T>(id: ComponentId, initial: T, equals?: (a:
   }, [id]);
 
   const load = useCallback((fromWatch: T) => {
-    sessionManager.getCurrentSession()?.load(id, fromWatch, equalsRef.current);
+    sessionManager.activeSession?.load(id, fromWatch, equalsRef.current);
   }, [id]);
 
   const commit = useCallback((saved: T) => {
-    sessionManager.getCurrentSession()?.commit(id, saved, equalsRef.current);
+    sessionManager.activeSession?.commit(id, saved, equalsRef.current);
   }, [id]);
 
   return { value, loaded, dirty, edit, load, commit };

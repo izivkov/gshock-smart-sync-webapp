@@ -1,22 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { WatchFeatureManager, FeatureId, CardId } from '@/utils/WatchFeatureManager';
-import { progressEvents } from '@/api/ProgressEvents';
+import { useSessionState } from '@/session/useSessionState';
 import { Box, Card, Typography, alpha } from '@mui/material';
 import { PEACH_BORDER, PEACH_SHADOW, PEACH_SURFACE } from '../theme/peachCardStyles';
 
 export const useWatchFeatures = () => {
-    const [refresh, setRefresh] = useState(0);
-
-    useEffect(() => {
-        const actions = [
-            { label: 'DeviceName', action: () => setRefresh(prev => prev + 1) },
-            { label: 'ConnectionSetupComplete', action: () => setRefresh(prev => prev + 1) },
-            { label: 'Disconnect', action: () => setRefresh(prev => prev + 1) },
-        ];
-
-        progressEvents.runEventActions('WatchFeatureHook', actions);
-        return () => progressEvents.stop('WatchFeatureHook');
-    }, []);
+    // Feature support depends on the connected model: re-evaluate whenever the session reports a change.
+    const { watch, isSetupComplete, phase } = useSessionState();
+    const refresh = `${watch.name}|${watch.model}|${isSetupComplete}|${phase.kind}`;
 
     const isFeatureSupported = React.useCallback((id: FeatureId | CardId) => WatchFeatureManager.isFeatureSupported(id), [refresh]);
     const isCardSupported = React.useCallback((id: CardId) => WatchFeatureManager.isCardSupported(id), [refresh]);

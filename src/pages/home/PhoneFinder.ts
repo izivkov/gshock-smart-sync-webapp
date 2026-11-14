@@ -1,4 +1,4 @@
-import { progressEvents, EventAction } from "@api/ProgressEvents";
+import { sessionManager } from "@/session/SessionManager";
 
 export class PhoneFinder {
     private static audioContext: AudioContext | null = null;
@@ -7,6 +7,7 @@ export class PhoneFinder {
     private static motionTimeout: any = null;
     private static intervalId: any = null;
     private static isPlaying = false;
+    private static unregisterCloseHook: (() => void) | null = null;
 
     static ring() {
         if (PhoneFinder.isPlaying) return;
@@ -46,10 +47,8 @@ export class PhoneFinder {
         }, 30000);
 
         // Stop on disconnect
-        const actions: EventAction[] = [
-            { label: "Disconnected", action: PhoneFinder.stopRing }
-        ];
-        progressEvents.runEventActions("PhoneFinder", actions);
+        PhoneFinder.unregisterCloseHook =
+            sessionManager.activeSession?.registerCloseHook(PhoneFinder.stopRing) ?? null;
     }
 
     private static handleMotion = (event: DeviceMotionEvent) => {
@@ -88,6 +87,7 @@ export class PhoneFinder {
         }
 
         window.removeEventListener('devicemotion', PhoneFinder.handleMotion);
-        progressEvents.stop("PhoneFinder");
+        PhoneFinder.unregisterCloseHook?.();
+        PhoneFinder.unregisterCloseHook = null;
     }
 }

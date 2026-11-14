@@ -1,19 +1,13 @@
 import AppButton from "@components/AppButton";
 import { connection } from "@api/Connection";
 import React from "react";
-import { sessionManager } from "@/session/SessionManager";
+import GShockAPI from "@/api/GShockAPI";
+import { useSessionState } from "@/session/useSessionState";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Box } from "@mui/material";
 
 const ConnectButton: React.FC = () => {
-    const [connecting, setConnecting] = React.useState(false);
+    const connecting = useSessionState().phase.kind === 'Connecting';
     const [dialogOpen, setDialogOpen] = React.useState(false);
-
-    React.useEffect(() => {
-        const interval = setInterval(() => {
-            setConnecting(connection.connecting);
-        }, 500);
-        return () => clearInterval(interval);
-    }, []);
 
     async function connect() {
         if (!navigator.bluetooth) {
@@ -24,7 +18,11 @@ const ConnectButton: React.FC = () => {
         }
 
         try {
-            await sessionManager.createSession();
+            // The session follows from the connection events (see SessionEventBridge).
+            await connection.start();
+            if (connection.isConnected()) {
+                await GShockAPI.init();
+            }
         } catch (e) {
             console.error("Failed to connect to watch:", e);
         }

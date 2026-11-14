@@ -23,6 +23,10 @@ class Connection {
   }
 
   start = async (): Promise<void> => {
+    // Already connected or connecting: nothing to start, and no event, so a live session is left alone.
+    if (this.isConnected() || this.connecting) return;
+
+    progressEvents.onNext("ConnectionStarted");
     try {
       const device = await navigator.bluetooth.requestDevice({
         filters: [
@@ -41,6 +45,7 @@ class Connection {
       await this.initDevice(device);
     } catch (error) {
       console.error('Bluetooth error:', error);
+      progressEvents.onNext("ConnectionFailed");
     }
   };
 
@@ -67,10 +72,11 @@ class Connection {
         this.server = null;
         this.service = null;
         this.characteristicCache.clear();
-        progressEvents.onNext("Disconnected");
+        progressEvents.onNext("Disconnect", device);
       });
 
       watchInfo.setNameAndModel(device.name!);
+      watchInfo.setAddress(device.id);
 
       try {
         // Retry logic for service discovery, some watches (GA-B2100) are finicky
@@ -106,21 +112,24 @@ class Connection {
         }
 
         console.log(`Connected to ${device.name}`);
-        progressEvents.onNext("Connected");
+        progressEvents.onNext("ConnectionSetupComplete", device);
       } catch (e) {
+        // The link is unusable without the Casio service: release it and report the failure
+        // (start() emits "ConnectionFailed"), rather than reporting a connection.
         console.error("Failed to get services/characteristics", e);
-        progressEvents.onNext("Connected");
+        this.disconnect();
+        throw e;
       }
     } finally {
       this.connecting = false;
     }
   };
 
-  stop = (): void => {
-    if (this.device && this.device.gatt) {
+  /** Releases the BLE link. No-op when it is already down. "Disconnect" is emitted by the GATT listener. */
+  disconnect = (): void => {
+    if (this.device?.gatt?.connected) {
       this.device.gatt.disconnect();
     }
-    progressEvents.onNext("Disconnected");
   };
 
   write = async (handleOrUuid: string, value: any): Promise<void> => {

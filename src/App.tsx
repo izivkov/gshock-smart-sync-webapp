@@ -4,14 +4,11 @@ import { ThemeProvider as MUIThemeProvider, createTheme, responsiveFontSizes } f
 import CssBaseline from '@mui/material/CssBaseline';
 import MainLayout from '@components/MainLayout';
 import { useRouter } from '@/utils/router';
-import { useEffect, useState, createContext, Suspense } from 'react';
-import { connection } from '@api/Connection';
-import { progressEvents, EventAction } from '@api/ProgressEvents';
-import { watchInfo } from '@api/WatchInfo';
-import GShockAPI from '@/api/GShockAPI';
+import { useEffect, createContext, Suspense } from 'react';
 import { sessionManager } from '@/session/SessionManager';
+import { useSessionState } from '@/session/useSessionState';
+import { EntryReason } from '@/session/types';
 import { ComponentRouter } from '@/utils/componentRouter';
-import { actionsContainer, RunEnvironment } from './actions/ActionsContainer';
 
 let theme = createTheme({
   cssVariables: true,
@@ -140,85 +137,40 @@ let theme = createTheme({
 
 theme = responsiveFontSizes(theme);
 
-// Create a context for connection status
+// Create a context for connection status. Derived from the session: connected from the moment the
+// BLE link is set up until the session closes.
 export const ConnectionContext = createContext({
   isConnected: false,
-  setIsConnected: (status: boolean) => { },
 });
+
+const restrictedPaths = ['/time', '/health', '/alarms', '/events', '/settings', '/reminders'];
 
 export default function App() {
   const router = useRouter();
-  const [isConnected, setIsConnected] = useState(false);
+  const { phase, isSetupComplete } = useSessionState();
+  const isConnected = isSetupComplete && phase.kind !== 'Closed';
 
-  // Centralized connection management
+  // Screens follow the session. Connection actions are run by SessionActionRunner, not here.
   useEffect(() => {
-    const handleDisconnect = () => {
-      sessionManager.closeCurrentSession('Disconnected');
-      setIsConnected(false);
-      watchInfo.reset();
-      router.push('/');
-    };
-
-    const connectionActions: EventAction[] = [
-      {
-        label: "Connected",
-        action: () => setIsConnected(true)
-      },
-      {
-        label: "Disconnected",
-        action: handleDisconnect
-      },
-      {
-        label: "WatchInitializationCompleted",
-        action: async () => {
-          const watchModel = watchInfo.shortName || watchInfo.name;
-          if (watchModel && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            const now = Date.now();
-            fetch(`/time/Time?watch=${encodeURIComponent(watchModel)}&_t=${now}`, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
-          }
-
-          if (GShockAPI.isFindPhoneButtonPressed()) {
-            await actionsContainer.runActionFindPhone();
-          } else if (GShockAPI.isActionButtonPressed()) {
-            await actionsContainer.runActionsForActionButton();
-          } else if (GShockAPI.isAutoTimeStarted()) {
-            await actionsContainer.runActionsForAutoTimeSetting();
-          } else {
-            await actionsContainer.runActionForConnection();
-            // Only redirect if we're not already on a functional page
-            const onLandingPage = router.pathname === '/' || router.pathname === '';
-            if (onLandingPage) {
-              router.push('/time/Time');
-            }
-          }
-        }
-      },
-      {
-        label: "RunActions",
-        action: async () => {
-          await actionsContainer.runActionsForActionButton();
-        }
+    if (phase.kind === 'Ready' && phase.entryReason === EntryReason.NORMAL) {
+      // Only redirect if we're not already on a functional page
+      if (router.pathname === '/' || router.pathname === '') {
+        router.push('/time/Time');
       }
-    ];
-
-    progressEvents.runEventActions("AppRoot", connectionActions);
-
-    // Initial route protection if started while disconnected
-    const restrictedPaths = ['/time', '/health', '/alarms', '/events', '/settings', '/reminders'];
-    if (!connection.isConnected() && restrictedPaths.some(path => router.pathname.startsWith(path))) {
-        handleDisconnect();
+    } else if (phase.kind === 'Closed') {
+      router.push('/');
     }
+  }, [phase]);
 
-    return () => {
-      progressEvents.stop("AppRoot");
-    };
-  }, []); // Run ONLY ONCE on mount
-
-  // Cleanup: Remove redundant route protection effect as it's now handled by event listeners
-  // and the initial check above.
+  // Route protection if started while disconnected
+  useEffect(() => {
+    if (!sessionManager.isReady && restrictedPaths.some(path => router.pathname.startsWith(path))) {
+      router.push('/');
+    }
+  }, []);
 
   return (
-    <ConnectionContext.Provider value={{ isConnected, setIsConnected }}>
+    <ConnectionContext.Provider value={{ isConnected }}>
       <MUIThemeProvider theme={theme}>
         <CssBaseline />
         <MainLayout>
