@@ -254,6 +254,7 @@ class ActionsContainer {
             new SetSettingsAction(),
             new SetSettingsToDefaultAction(),
             new SetTimerAction(),
+            new SetExerciseProfileAction(),
             new ClearStepHistoryAction(),
             new FindPhoneAction(),
         ];
