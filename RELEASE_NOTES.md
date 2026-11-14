@@ -1,5 +1,22 @@
 # Release Notes - G-Shock Smart Sync Webapp
 
+## Unreleased - Session Architecture
+*   **Sessions (aligned with the Android app)**: Each watch connection is now a `Session` managed by a singleton `SessionManager`, as in CasioGShockSmartSync. A session is the single source of truth for the connection phase (Connecting, Ready, Closed), the watch name/model/address, and which screens have unsaved changes. A single `SessionEventBridge` is the only subscriber to connection events; components no longer subscribe to them. See `SESSIONS.md` for the full architecture, with diagrams.
+*   **Connection Events Match the Kotlin Library**: `Connection` now emits `ConnectionStarted`, `ConnectionSetupComplete`, `ConnectionFailed` and `Disconnect`, replacing `Connected`/`Disconnected`. A failed service or characteristic discovery now releases the link and reports `ConnectionFailed` instead of reporting a connection, and pressing *Pair Watch* while already connected no longer disturbs the live session.
+*   **Connection Actions Run Once per Session**: A new `SessionActionRunner` (the equivalent of Android's `ActionRunner`) runs the actions for the button that started the connection (normal, action button, Auto-Time, Find Phone) exactly once when the session becomes Ready, and again whenever the watch requests them. The connection button is read once and fixed for the session.
+*   **Send Buttons Enable Only When Something Changed**:
+    *   *Send to Watch* on Alarms, Reminders and Settings, *Set Timer* on Time, and *Save* in the Health profile dialog stay disabled until the screen differs from the watch.
+    *   Changing a value and changing it back disables the button again. Sending, or re-reading from the watch, also disables it.
+    *   Reminders are compared by what is actually written to the watch, so reverting an edit is recognised.
+    *   *Set Time* stays enabled (its value keeps changing) but is disabled while the time is being sent.
+*   **Unsaved Changes Survive Screen Switches**: Edits are held by the session instead of per-screen state, so switching screens no longer loses them. They are dropped only when the watch disconnects.
+*   **Cleanup on Disconnect**: When a session closes, unsaved edits, cached watch data and watch info are cleared automatically. Phone Finder stops ringing and the voice assistant stops listening through the session, instead of listening for connection events themselves.
+*   **ABL-100 Set Time Fix**: Setting the time on the ABL-100W no longer fails with a watch error (`FF 81 1F`). The app was sending the world-cities register, which this model doesn't implement, because the world-cities capability was read from the wrong flag. `WatchInfo` now has a single `hasWorldCities` flag, as in the Kotlin API, and models without world cities but with a home time (GBD, EQB) write the home time instead.
+*   **Exercise Profile Save Fix**: Saving the exercise profile failed with "Action SetExerciseProfileAction not found" because the action was never registered; it now is.
+*   **Alarms**: The Signal (hourly chime) switch no longer writes to the watch immediately; it is sent with the other changes. Editing an alarm now keeps its existing name and one-time flag.
+*   **Fewer Pop-ups**: Success snackbars for completed actions were removed; errors are still reported.
+*   **Build Fixes**: Removed accidental `repl` and `constants` imports that stopped `tsc` from compiling, added a missing `GShockAPI` import on the Health page, and removed the duplicate `src/api/session` directory.
+
 ## v2.1.0
 *   **Voice UI Architecture**: Completed a major architectural refactor of the voice subsystem into a dedicated, modular `/src/voice` directory. This aligns the web app with the native Kotlin implementation's orthogonal structure.
 *   **Smart Reminder Wizard**: Implemented a multi-turn conversational flow for reminders (Title -> Date -> Repeat) with state-aware microphone synchronization.
