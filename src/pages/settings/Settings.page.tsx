@@ -35,6 +35,10 @@ import type { dateFormatType, languageType, lightDurationType, timeFormatType } 
 import { watchInfo } from '@/api/WatchInfo';
 import { actionsContainer, SetSettingsAction } from '@/actions/ActionsContainer';
 import { ConnectionContext } from '@/App';
+import { sessionManager } from '@/session/SessionManager';
+import { ComponentId } from '@/session/types';
+import { ChangeTracker } from '@/utils/ChangeTracker';
+import CircularProgress from '@mui/material/CircularProgress';
 import { WatchFeatureManager } from '@/utils/WatchFeatureManager';
 import ScreenTitle from '../components/ScreenTitle';
 import { WatchAppCard, WatchFeature, useWatchFeatures } from '../components/WatchFeature';
@@ -156,6 +160,12 @@ const ModernSwitch: React.FC<ModernSwitchProps> = ({ checked, onChange }) => (
 
 const Settings: React.FC = () => {
     const theme = useTheme();
+const [session, setSession] = useState<any>(sessionManager.getCurrentSession());
+const settingsTracker = new ChangeTracker<SettingsData>(ComponentId.SETTINGS);
+const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.SETTINGS) ?? false;
+
+
+
     const initialized = useRef(false);
     const { isConnected } = useContext(ConnectionContext);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -197,9 +207,12 @@ const Settings: React.FC = () => {
     }, []);
 
     const updateSettings = (partial: Partial<SettingsData>) => {
-        setSettings(prev => ({ ...prev, ...partial }));
+        setSettings(prev => {
+            const merged = { ...prev, ...partial };
+            settingsTracker.update(merged);
+            return merged;
+        });
     };
-
     const applySmartDefaults = async () => {
         try {
             const patch = await getSmartDefaultsForSettings(settings);
@@ -217,6 +230,8 @@ const Settings: React.FC = () => {
     const onSave = async () => {
         try {
 await actionsContainer.getAction(SetSettingsAction).run(settings);
+            // Reset pending flag after successful save
+            settingsTracker.setBaseline(settings);
             setSnackbarMessage('Settings sent to watch');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
@@ -408,10 +423,7 @@ await actionsContainer.getAction(SetSettingsAction).run(settings);
                         Auto Fill
                     </Button>
                     <Button
-                        variant="contained"
-                        onClick={onSave}
-                        startIcon={<SendIcon />}
-                        fullWidth
+                        disabled={!sessionManager.getPendingComponents().includes(ComponentId.SETTINGS)}
                         sx={{
                             bgcolor: '#8B5E3C',
                             borderRadius: 100,

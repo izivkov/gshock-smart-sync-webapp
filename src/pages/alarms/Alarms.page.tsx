@@ -5,8 +5,10 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import AlarmCard from './AlarmCard';
 import AppSwitch from '@components/AppSwitch';
-import GShockAPI from '@/api/GShockAPI';
-import { actionsContainer, SetAlarmsAction } from '@/actions/ActionsContainer';
+import GShockAPI from '@/api/GShockAPI'; // only for initial read
+import { sessionManager } from '@/session/SessionManager';
+import { ComponentId } from '@/session/types';
+import { ChangeTracker } from '@/utils/ChangeTracker';
 import ScreenTitle from '../components/ScreenTitle';
 
 const BOTTOM_NAV_HEIGHT = '80px';
@@ -26,30 +28,46 @@ const Alarms: React.FC = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+    // Session handling and ChangeTracker
+    const [session, setSession] = useState<any>(null);
+    const tracker = new ChangeTracker<any[]>(ComponentId.ALARMS);
 
     useEffect(() => {
+        const cur = sessionManager.getCurrentSession();
+        setSession(cur);
         (async () => {
             if (!initialized.current) {
                 initialized.current = true;
                 try {
                     const newAlarms = await GShockAPI.getAlarms();
-                    setAlarms(Array.isArray(newAlarms) ? newAlarms.slice(0, 5) : []);
+                    const limited = Array.isArray(newAlarms) ? newAlarms.slice(0, 5) : [];
+                    setAlarms(limited);
+                    tracker.setBaseline(limited);
                 } catch (e) {
-                    console.error("Failed to fetch alarms", e);
+                    console.error('Failed to fetch alarms', e);
                 }
             }
-        })()
+        })();
     }, []);
 
     const sendToPhone = async () => { /* placeholder */ }
 
     const sendToWatch = async () => {
+        if (!session) {
+            setSnackbarMessage('No active session');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            return;
+        }
         try {
-            await actionsContainer.getAction(SetAlarmsAction).run(alarms);
+            await session.setAlarms(alarms);
+            // after successful write, clear pending flag
+            tracker.setBaseline(alarms);
             setSnackbarMessage('Alarms sent to watch');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
         } catch (error) {
+            console.error('Failed to send alarms', error);
             setSnackbarMessage('Failed to send alarms');
             setSnackbarSeverity('error');
             setSnackbarOpen(true);
@@ -63,16 +81,21 @@ const Alarms: React.FC = () => {
         const newAlarms = [...alarms];
         newAlarms[alarmnumber - 1] = alarm;
         setAlarms(newAlarms);
+        tracker.update(newAlarms);
     }
 
     const onSignalChange = async (checked: boolean) => {
-        const newAlarms = [...alarms];
-        newAlarms.forEach(a => a.hasHourlyChime = checked); // Ensure consistent update
-        setAlarms([...newAlarms]);
-        try {
-            await actionsContainer.getAction(SetAlarmsAction).run(newAlarms);
-        } catch (error) {
-            console.error("Failed to update signal status", error);
+        const newAlarms = alarms.map(a => ({ ...a, hasHourlyChime: checked }));
+        setAlarms(newAlarms);
+        tracker.update(newAlarms);
+        // Optionally sync immediately
+        if (session) {
+            try {
+                await session.setAlarms(newAlarms);
+                tracker.setBaseline(newAlarms);
+            } catch (e) {
+                console.error('Failed to update signal status', e);
+            }
         }
     }
 
@@ -142,6 +165,7 @@ const Alarms: React.FC = () => {
                         fullWidth
                         onClick={sendToWatch}
                         startIcon={<SendIcon />}
+                        disabled={!sessionManager.getPendingComponents().includes(ComponentId.ALARMS)}
                         sx={{ borderRadius: 100, py: 1.2, fontWeight: 600, textTransform: 'none', boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
                     >
                         Send to Watch

@@ -136,47 +136,54 @@ function Home() {
       position: 'relative'
     }}>
 
-      {/* 0. SPONSOR LINKS - More prominent yet compact top-right container */}
+      {/* 0. SPONSOR LINKS - Top-right container */}
       <Box sx={{
         position: 'absolute',
         top: 8,
         right: { xs: 8, sm: 16 },
         zIndex: 5,
         display: 'flex',
-        gap: 0.5,
-        p: 0.5,
-        borderRadius: '100px',
-        bgcolor: alpha(theme.palette.background.paper, 0.8),
-        backdropFilter: 'blur(8px)',
-        border: `1px solid ${alpha(theme.palette.divider, 0.6)}`,
-        boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.04)}`
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: 0.25,
       }}>
-        {SPONSOR_LINKS.map((link) => (
-          <Tooltip key={link.label} title={link.label} arrow>
-            <IconButton
-              component="a"
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={link.label}
-              size="small"
-              sx={{
-                color: 'text.secondary',
-                opacity: 0.8,
-                p: 0.75,
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  opacity: 1,
-                  color: 'primary.main',
-                  bgcolor: alpha(theme.palette.primary.main, 0.08),
-                  transform: 'scale(1.05)'
-                }
-              }}
-            >
-              {link.icon}
-            </IconButton>
-          </Tooltip>
-        ))}
+        <Box sx={{
+          display: 'flex',
+          gap: 0.5,
+          p: 0.5,
+          borderRadius: '100px',
+          bgcolor: alpha(theme.palette.background.paper, 0.85),
+          backdropFilter: 'blur(8px)',
+          border: `1px solid ${alpha(theme.palette.divider, 0.6)}`,
+          boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.04)}`
+        }}>
+          {SPONSOR_LINKS.map((link) => (
+            <Tooltip key={link.label} title={link.label} arrow>
+              <IconButton
+                component="a"
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.label}
+                size="small"
+                sx={{
+                  color: 'text.secondary',
+                  opacity: 0.8,
+                  p: 0.75,
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    opacity: 1,
+                    color: 'primary.main',
+                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                    transform: 'scale(1.05)'
+                  }
+                }}
+              >
+                {link.icon}
+              </IconButton>
+            </Tooltip>
+          ))}
+        </Box>
       </Box>
 
       {/* SCROLLABLE CONTENT */}
@@ -430,29 +437,27 @@ function Home() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 3, md: 3 }, maxWidth: 500, mx: 'auto', lineHeight: 1.6, fontSize: { xs: '0.9rem', md: '0.875rem' } }}>
                 Your privacy is built-in. This application runs <strong>locally</strong> in your browser. Data never leaves your device.
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap', mb: 1 }}>
-                <Button
-                  variant="outlined"
-                  color="success"
-                  size="medium"
-                  startIcon={<GitHubIcon sx={{ fontSize: { xs: 16, md: 18 } }} />}
-                  href="https://github.com/izivkov/gshock-smart-sync-webapp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{
-                    borderRadius: '100px',
-                    textTransform: 'none',
-                    fontWeight: 800,
-                    px: { xs: 2, md: 3 },
-                    py: 0.5,
-                    fontSize: { xs: '0.75rem', md: '0.875rem' },
-                    borderWidth: 1,
-                    '&:hover': { borderWidth: 1 }
-                  }}
-                >
-                  Source Code
-                </Button>
-              </Box>
+              <Button
+                variant="outlined"
+                color="success"
+                size="medium"
+                startIcon={<GitHubIcon sx={{ fontSize: { xs: 16, md: 18 } }} />}
+                href="https://github.com/izivkov/gshock-smart-sync-webapp"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  borderRadius: '100px',
+                  textTransform: 'none',
+                  fontWeight: 800,
+                  px: { xs: 2, md: 4 },
+                  py: 0.5,
+                  fontSize: { xs: '0.75rem', md: '0.875rem' },
+                  borderWidth: 1,
+                  '&:hover': { borderWidth: 1 }
+                }}
+              >
+                Source Code
+              </Button>
             </Box>
           </Paper>
         </Box>

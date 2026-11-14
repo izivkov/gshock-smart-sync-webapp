@@ -10,6 +10,10 @@ import TimerInput from './TimerInput';
 import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
+// Session handling imports
+import { sessionManager } from '@/session/SessionManager';
+import { ComponentId } from '@/session/types';
+import { ChangeTracker } from '@/utils/ChangeTracker';
 import { actionsContainer, SetTimeAction, SetTimerAction } from '@/actions/ActionsContainer';
 import { ConnectionContext } from '@/App';
 import { progressEvents } from '@/api/ProgressEvents';
@@ -163,6 +167,9 @@ const Time: React.FC = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+    // Session handling and ChangeTracker
+    const [session, setSession] = useState<any>(null);
+    const timerTracker = new ChangeTracker<number>(ComponentId.TIMER);
 
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
 

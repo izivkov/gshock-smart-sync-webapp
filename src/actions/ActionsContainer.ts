@@ -5,7 +5,7 @@ import { Settings } from "@model/Settings";
 import { PhoneFinder } from "@pages/home/PhoneFinder";
 import { watchInfo } from "@api/WatchInfo";
 import TimeIO from "@io/TimeIO";
-
+import { SetExerciseProfileAction } from "./SetExerciseProfileAction";
 
 export { Action, RunEnvironment, RunMode };
 
@@ -207,6 +207,7 @@ export class SetTimerAction extends Action {
                runEnvironment === RunEnvironment.DIRECT_INVOCATION;
     }
 }
+
 
 export class ClearStepHistoryAction extends Action {
     constructor() {

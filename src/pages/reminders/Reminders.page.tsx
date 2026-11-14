@@ -8,6 +8,10 @@ import GShockAPI from '@/api/GShockAPI';
 import { actionsContainer, SetRemindersAction } from '@/actions/ActionsContainer';
 import ScreenTitle from '../components/ScreenTitle';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
+// Session handling imports
+import { sessionManager } from '@/session/SessionManager';
+import { ComponentId } from '@/session/types';
+import { ChangeTracker } from '@/utils/ChangeTracker';
 
 const BOTTOM_NAV_HEIGHT = '80px';
 
@@ -29,14 +33,22 @@ const Reminders: React.FC = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+    // Session handling and ChangeTracker
+    const [session, setSession] = useState<any>(null);
+    const tracker = new ChangeTracker<any[]>(ComponentId.EVENTS);
+    const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.EVENTS) ?? false;
 
     useEffect(() => {
+        const cur = sessionManager.getCurrentSession();
+        setSession(cur);
         (async () => {
             try {
                 const newReminders = await GShockAPI.getEventsFromWatch();
-                setReminders(newReminders.slice(0, 5));
+                const limited = newReminders.slice(0, 5);
+                setReminders(limited);
+                tracker.setBaseline(limited);
             } catch (error) {
-                console.error("Failed to fetch events:", error);
+                console.error('Failed to fetch events:', error);
             }
         })();
     }, []);
@@ -44,12 +56,15 @@ const Reminders: React.FC = () => {
     const sendToWatch = async () => {
         try {
             await actionsContainer.getAction(SetRemindersAction).run(reminders);
+            tracker.setBaseline(reminders);
             setSnackbarMessage('Events sent to watch');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
 
             const newReminders = await GShockAPI.getEventsFromWatch();
-            setReminders(newReminders.slice(0, 5));
+            const limited = newReminders.slice(0,5);
+            setReminders(limited);
+            tracker.setBaseline(limited);
         } catch (error) {
             setSnackbarMessage('Failed to send events');
             setSnackbarSeverity('error');
@@ -57,11 +72,14 @@ const Reminders: React.FC = () => {
         }
     }
 
+
     const onChange = (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => {
         const newReminders = [...reminders];
         newReminders[number - 1] = reminder;
         setReminders(newReminders);
+        tracker.update(newReminders);
     }
+
 
     return (
         <Box sx={{
@@ -117,6 +135,7 @@ const Reminders: React.FC = () => {
                         variant="contained"
                         fullWidth
                         onClick={sendToWatch}
+                        disabled={!sessionManager.getPendingComponents().includes(ComponentId.EVENTS)}
                         startIcon={<SendIcon />}
                         sx={{ borderRadius: 100, py: 1.2, fontWeight: 600, textTransform: 'none', boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
                     >
