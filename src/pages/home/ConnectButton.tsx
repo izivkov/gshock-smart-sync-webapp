@@ -1,7 +1,7 @@
 import AppButton from "@components/AppButton";
 import { connection } from "@api/Connection";
 import React from "react";
-import GShockAPI from "@/api/GShockAPI";
+import { sessionManager } from "@/session/SessionManager";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Box } from "@mui/material";
 
 const ConnectButton: React.FC = () => {
@@ -23,8 +23,11 @@ const ConnectButton: React.FC = () => {
             return;
         }
 
-        await connection.start();
-        await GShockAPI.init();
+        try {
+            await sessionManager.createSession();
+        } catch (e) {
+            console.error("Failed to connect to watch:", e);
+        }
     }
 
     const handleCloseDialog = () => {

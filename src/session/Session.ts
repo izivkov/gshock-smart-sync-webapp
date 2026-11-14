@@ -1,78 +1,59 @@
-// Session class wrapping GShockAPI and exposing write methods
-import GShockAPI from '@/api/GShockAPI';
-import { SessionState, ComponentId } from '@/session/types';
+import { ChangeTracker } from './ChangeTracker';
+import { ComponentId, EntryReason, SessionPhase } from './types';
 
 /**
- * Represents a single BLE connection session. It forwards all write operations to the underlying GShockAPI instance.
- * UI components obtain a Session from SessionManager and call these methods.
+ * One BLE connection. Holds, per screen, the value being edited and its baseline, so unsaved
+ * changes survive switching screens and are dropped only when the session closes (disconnect).
  */
 export class Session {
-  /** Snapshot of the current session state. UI may read this for pending‑save flags etc. */
-  public snapshot: SessionState;
+  public phase: SessionPhase = 'Connecting';
+  private trackers = new Map<ComponentId, ChangeTracker<any>>();
 
-  constructor(private api: typeof GShockAPI) {
-    // initialise a minimal snapshot – will be updated during connect/close.
-    this.snapshot = {
-      phase: 'Disconnected',
-      pendingSaves: new Set<ComponentId>(),
-    } as SessionState;
+  constructor(
+    public readonly entryReason: EntryReason,
+    private readonly onChange: () => void,
+  ) {}
+
+  isLoaded(id: ComponentId): boolean {
+    return this.trackers.has(id);
   }
 
-  /** Establish the BLE connection and initialise the watch. */
-  async connect(entryReason: 'NORMAL' | 'CONTENT_SELECTOR' | 'RUN_ACTIONS' = 'NORMAL'): Promise<void> {
-    (this.snapshot as any).phase = 'Connecting';
-    await this.api.init();
-    (this.snapshot as any).phase = { ready: { entryReason } };
+  isDirty(id: ComponentId): boolean {
+    return this.trackers.get(id)?.dirty ?? false;
   }
 
-  /** Close the session – discards state and notifies listeners. */
-  close(reason = 'UserClosed', isError = false): void {
-    // No explicit disconnect method on GShockAPI; assume underlying connection is handled elsewhere.
-    (this.snapshot as any).phase = { closed: { reason, isError } };
+  get<T>(id: ComponentId): T | undefined {
+    return this.trackers.get(id)?.value;
   }
 
-  /** Register a hook that runs when the session is closed. */
-  registerCloseHook(fn: () => void): void {
-    if ((this.snapshot.phase as any).closed) {
-      fn();
-    }
+  pendingComponents(): ComponentId[] {
+    return [...this.trackers].filter(([, t]) => t.dirty).map(([id]) => id);
   }
 
-  /** Write helpers – each clears its pending flag after a successful write. */
-  async setAlarms(alarms: any[]): Promise<void> {
-    await this.api.setAlarms(alarms);
-    this.snapshot.pendingSaves.delete(ComponentId.ALARMS);
+  /** Values read from the watch. */
+  load<T>(id: ComponentId, value: T): void {
+    const tracker = this.trackers.get(id);
+    if (tracker) tracker.load(value);
+    else this.trackers.set(id, new ChangeTracker(value));
+    this.onChange();
   }
 
-  async setReminders(reminders: any[]): Promise<void> {
-    await this.api.setReminders(reminders);
-    this.snapshot.pendingSaves.delete(ComponentId.EVENTS);
+  /** User edit. Ignored until the screen's values have been loaded from the watch. */
+  edit<T>(id: ComponentId, value: T): void {
+    this.trackers.get(id)?.edit(value);
+    this.onChange();
   }
 
-  async setSettings(settings: any): Promise<void> {
-    await this.api.setSettings(settings);
-    this.snapshot.pendingSaves.delete(ComponentId.SETTINGS);
+  /** Values successfully written to the watch. */
+  commit<T>(id: ComponentId, value: T): void {
+    const tracker = this.trackers.get(id);
+    if (tracker) tracker.commit(value);
+    else this.trackers.set(id, new ChangeTracker(value));
+    this.onChange();
   }
 
-  async setTimer(timerValue: number): Promise<void> {
-    await this.api.setTimer(timerValue);
-    this.snapshot.pendingSaves.delete(ComponentId.TIMER);
-  }
-
-  async setExerciseProfile(profile: any): Promise<void> {
-    await this.api.setExerciseProfile(profile);
-    this.snapshot.pendingSaves.delete(ComponentId.HEALTH_PROFILE);
-  }
-
-  // Optional: timezone helper (used by time sync actions if needed)
-  async setTimezone(timeZone: string): Promise<void> {
-    // @ts-ignore – runtime provides this method on GShockAPI
-    await this.api.setTimezone(timeZone);
-    this.snapshot.pendingSaves.delete(ComponentId.SETTINGS);
-  }
-
-  async setEvent(eventIndex: number, updatedEvent: any): Promise<void> {
-    await this.api.setEvent(eventIndex, updatedEvent);
-    this.snapshot.pendingSaves.delete(ComponentId.EVENTS);
+  close(reason: string, isError: boolean): void {
+    this.phase = { closed: { reason, isError } };
+    this.trackers.clear();
   }
 }

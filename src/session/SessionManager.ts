@@ -1,78 +1,67 @@
-// SessionManager singleton implementation with automatic discarding of closed sessions
-import { Session } from './Session';
 import GShockAPI from '@/api/GShockAPI';
-import {
-  SessionState,
-  ComponentId,
-} from './types';
+import { connection } from '@api/Connection';
+import { cachedIO } from '@io/CachedIO';
+import { Session } from './Session';
+import { EntryReason } from './types';
 
 /**
- * Manages the lifecycle of a single Session.
- * A closed session is immediately discarded (set to null) as per user decision.
- * UI components can subscribe to state updates via `onStateChange`.
+ * Owns the single current Session. The session exists from the moment the user presses connect
+ * (so screens that mount during connection find it) until the phone disconnects.
+ * Exposes a subscribe/version pair for React's useSyncExternalStore.
  */
 class SessionManager {
   private current: Session | null = null;
-  private listeners: ((state: SessionState | null) => void)[] = [];
+  private version = 0;
+  private listeners = new Set<() => void>();
 
-  /** Create a new session, discarding any existing one. */
-  async createSession(entryReason: 'NORMAL' | 'CONTENT_SELECTOR' | 'RUN_ACTIONS' = 'NORMAL') {
-    if (this.current) {
-      this.current.close('Replaced', false);
-      this.current = null;
-    }
-    const session = new Session(GShockAPI);
-    await session.connect(entryReason as any);
-    this.current = session;
-    this.notify();
-    return session;
-  }
+  subscribe = (listener: () => void): (() => void) => {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  };
+
+  getVersion = (): number => this.version;
 
   getCurrentSession(): Session | null {
     return this.current;
   }
 
-  /** Subscribe to session state changes. Returns an unsubscribe function. */
-  onStateChange(fn: (state: SessionState | null) => void) {
-    this.listeners.push(fn);
-    fn(this.current ? this.current.snapshot : null);
-    return () => {
-      this.listeners = this.listeners.filter(l => l !== fn);
-    };
-  }
+  /** Connect to the watch and initialise it. Replaces any existing session. */
+  async createSession(entryReason: EntryReason = EntryReason.NORMAL): Promise<Session> {
+    this.closeCurrentSession('Replaced');
+    const session = new Session(entryReason, () => this.notify());
+    this.current = session;
+    this.notify();
 
-  markPendingSave(component: ComponentId) {
-    if (this.current) {
-      const s = this.current.snapshot as SessionState;
-      s.pendingSaves.add(component);
-      this.notify();
+    try {
+      await connection.start();
+      if (!connection.isConnected()) throw new Error('Watch not connected');
+      await GShockAPI.init();
+      if (this.current === session) {
+        session.phase = { ready: { entryReason } };
+        this.notify();
+      }
+      return session;
+    } catch (e) {
+      if (this.current === session) this.closeCurrentSession('ConnectFailed', true);
+      throw e;
     }
   }
 
-  clearPendingSave(component: ComponentId) {
-    if (this.current) {
-      const s = this.current.snapshot as SessionState;
-      s.pendingSaves.delete(component);
-      this.notify();
-    }
+  /** Discard the session and everything cached for it. Called on disconnect. */
+  closeCurrentSession(reason = 'UserClosed', isError = false): void {
+    const session = this.current;
+    if (!session) return;
+    this.current = null;
+    session.close(reason, isError);
+    cachedIO.clearCache();
+    this.notify();
   }
 
-  getPendingComponents(): ComponentId[] {
-    return this.current ? Array.from(this.current.snapshot.pendingSaves) : [];
-  }
-
-  /** Forcefully close and discard the current session. */
-  closeCurrentSession(reason = 'UserClosed', isError = false) {
-    if (this.current) {
-      this.current.close(reason, isError);
-      this.current = null;
-      this.notify();
-    }
-  }
-
-  private notify() {
-    const snapshot = this.current ? this.current.snapshot : null;
-    this.listeners.forEach(l => l(snapshot));
+  private notify(): void {
+    this.version++;
+    this.listeners.forEach(l => l());
   }
 }
 

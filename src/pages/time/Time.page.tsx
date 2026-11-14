@@ -10,10 +10,8 @@ import TimerInput from './TimerInput';
 import BatteryLevel from './BatteryLevel';
 import DigitalClock from '../components/DigitalClock';
 import GShockAPI from '@/api/GShockAPI';
-// Session handling imports
-import { sessionManager } from '@/session/SessionManager';
 import { ComponentId } from '@/session/types';
-import { ChangeTracker } from '@/utils/ChangeTracker';
+import { useSessionComponent } from '@/session/useSessionComponent';
 import { actionsContainer, SetTimeAction, SetTimerAction } from '@/actions/ActionsContainer';
 import { ConnectionContext } from '@/App';
 import { progressEvents } from '@/api/ProgressEvents';
@@ -108,7 +106,9 @@ const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ tim
     </PeachCard>
 );
 
-const TimerCard: React.FC<{ timerValue: { hours: number, minutes: number, seconds: number }, setTimerValue: React.Dispatch<React.SetStateAction<{ hours: number, minutes: number, seconds: number }>>, onSetTimer: () => void }> = ({ timerValue, setTimerValue, onSetTimer }) => (
+type TimerValue = { hours: number, minutes: number, seconds: number };
+
+const TimerCard: React.FC<{ timerValue: TimerValue, onTimerChange: (value: TimerValue) => void, dirty: boolean, onSetTimer: () => void }> = ({ timerValue, onTimerChange, dirty, onSetTimer }) => (
     <PeachCard sx={{ p: 1.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.8 }}>
             <TimerIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
@@ -117,9 +117,9 @@ const TimerCard: React.FC<{ timerValue: { hours: number, minutes: number, second
             </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-            <TimerInput initialValue={timerValue} onUpdate={setTimerValue} />
+            <TimerInput initialValue={timerValue} onUpdate={onTimerChange} />
             <Button
-                variant="contained" size="small" onClick={onSetTimer}
+                variant="contained" size="small" onClick={onSetTimer} disabled={!dirty}
                 startIcon={<SendIcon sx={{ fontSize: '0.9rem !important' }} />}
                 sx={{ borderRadius: 100, px: 2, height: 32, textTransform: 'none', fontWeight: 600, boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
             >
@@ -159,7 +159,8 @@ const TemperatureCard: React.FC<{ tempShown: { text: string, unit: string } }> =
 
 const Time: React.FC = () => {
     const { isConnected } = useContext(ConnectionContext);
-    const [timerValue, setTimerValue] = useState({ hours: 0, minutes: 0, seconds: 0 });
+    const { value: timerValue, dirty: timerDirty, edit: setTimerValue, load: loadTimer, commit: commitTimer } =
+        useSessionComponent<TimerValue>(ComponentId.TIMER, { hours: 0, minutes: 0, seconds: 0 });
     const [homeTime, setHomeTime] = useState<string>("");
     const [batteryLevel, setBatteryLevel] = useState<number>(0);
     const [temperature, setTemperature] = useState<number>(0);
@@ -167,17 +168,13 @@ const Time: React.FC = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-    // Session handling and ChangeTracker
-    const [session, setSession] = useState<any>(null);
-    const timerTracker = new ChangeTracker<number>(ComponentId.TIMER);
-
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
 
     const refreshWatchData = useCallback(async () => {
         if (!isConnected) return;
         try {
             const timerSeconds = await GShockAPI.getTimer();
-            setTimerValue({
+            loadTimer({
                 hours: Math.floor(timerSeconds / 3600),
                 minutes: Math.floor((timerSeconds % 3600) / 60),
                 seconds: timerSeconds % 60
@@ -200,7 +197,7 @@ const Time: React.FC = () => {
         } catch (error) {
             console.error("Watch refresh failed:", error);
         }
-    }, [isConnected]);
+    }, [isConnected, loadTimer]);
 
     useEffect(() => {
         if (isConnected) {
@@ -219,9 +216,6 @@ const Time: React.FC = () => {
     const handleSetTime = async () => {
         try {
             await actionsContainer.getAction(SetTimeAction).run();
-            setSnackbarMessage('Time synced');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
             progressEvents.onNext('NeedToUpdateUI');
         } catch (error) {
             setSnackbarMessage('Sync failed');
@@ -234,9 +228,7 @@ const Time: React.FC = () => {
         try {
             const timeInSeconds = timerValue.hours * 3600 + timerValue.minutes * 60 + timerValue.seconds;
             await actionsContainer.getAction(SetTimerAction).run(timeInSeconds);
-            setSnackbarMessage('Timer set');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
+            commitTimer(timerValue);
             progressEvents.onNext('NeedToUpdateUI');
         } catch (error) {
             setSnackbarMessage('Timer failed');
@@ -284,7 +276,8 @@ const Time: React.FC = () => {
 
                         <TimerCard
                             timerValue={timerValue}
-                            setTimerValue={setTimerValue}
+                            onTimerChange={setTimerValue}
+                            dirty={timerDirty}
                             onSetTimer={handleSetTimer}
                         />
 

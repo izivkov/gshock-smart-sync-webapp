@@ -1,6 +1,5 @@
 // Session related enums and types
 export type SessionPhase =
-  | 'Disconnected'
   | 'Connecting'
   | { ready: { entryReason: EntryReason } }
   | { closed: { reason: string; isError: boolean } };
@@ -25,14 +24,4 @@ export enum ComponentId {
   EVENTS = 'EVENTS',
   TIMER = 'TIMER',
   ACTIONS = 'ACTIONS',
-  HEALTH_PROFILE = 'HEALTH_PROFILE',
-}
-
-export interface SessionState {
-  phase: SessionPhase;
-  button?: ConnectionButton;
-  watch?: any; // placeholder for watch details
-  isSetupComplete?: boolean;
-  isRunningActions?: boolean;
-  pendingSaves: Set<ComponentId>;
 }

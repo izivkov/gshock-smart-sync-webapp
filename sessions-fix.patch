@@ -1,0 +1,1409 @@
+diff --git a/src/App.tsx b/src/App.tsx
+index a93cab3..14daa8e 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -9,6 +9,7 @@ import { connection } from '@api/Connection';
+ import { progressEvents, EventAction } from '@api/ProgressEvents';
+ import { watchInfo } from '@api/WatchInfo';
+ import GShockAPI from '@/api/GShockAPI';
++import { sessionManager } from '@/session/SessionManager';
+ import { ComponentRouter } from '@/utils/componentRouter';
+ import { actionsContainer, RunEnvironment } from './actions/ActionsContainer';
+ 
+@@ -152,6 +153,7 @@ export default function App() {
+   // Centralized connection management
+   useEffect(() => {
+     const handleDisconnect = () => {
++      sessionManager.closeCurrentSession('Disconnected');
+       setIsConnected(false);
+       watchInfo.reset();
+       router.push('/');
+diff --git a/src/api/session/Session.ts b/src/api/session/Session.ts
+deleted file mode 100644
+index d8c1503..0000000
+--- a/src/api/session/Session.ts
++++ /dev/null
+@@ -1,78 +0,0 @@
+-// Session class wrapping GShockAPI and exposing write methods
+-import GShockAPI from '@/api/GShockAPI';
+-import { SessionState, ComponentId } from './types';
+-
+-/**
+- * Represents a single BLE connection session. It forwards all write operations to the underlying GShockAPI instance.
+- * UI components obtain a Session from SessionManager and call these methods.
+- */
+-export class Session {
+-  /** Snapshot of the current session state. UI may read this for pending‑save flags etc. */
+-  public snapshot: SessionState;
+-
+-  constructor(private api: typeof GShockAPI) {
+-    // initialise a minimal snapshot – will be updated during connect/close.
+-    this.snapshot = {
+-      phase: 'Disconnected',
+-      pendingSaves: new Set<ComponentId>(),
+-    } as SessionState;
+-  }
+-
+-  /** Establish the BLE connection and initialise the watch. */
+-  async connect(entryReason: 'NORMAL' | 'CONTENT_SELECTOR' | 'RUN_ACTIONS' = 'NORMAL'): Promise<void> {
+-    (this.snapshot as any).phase = 'Connecting';
+-    await this.api.init();
+-    (this.snapshot as any).phase = { ready: { entryReason } };
+-  }
+-
+-  /** Close the session – discards state and notifies listeners. */
+-  close(reason = 'UserClosed', isError = false): void {
+-    // No explicit disconnect method on GShockAPI; assume underlying connection is handled elsewhere.
+-    (this.snapshot as any).phase = { closed: { reason, isError } };
+-  }
+-
+-  /** Register a hook that runs when the session is closed. */
+-  registerCloseHook(fn: () => void): void {
+-    if ((this.snapshot.phase as any).closed) {
+-      fn();
+-    }
+-  }
+-
+-  /** Write helpers – each clears its pending flag after a successful write. */
+-  async setAlarms(alarms: any[]): Promise<void> {
+-    await this.api.setAlarms(alarms);
+-    this.snapshot.pendingSaves.delete(ComponentId.ALARMS);
+-  }
+-
+-  async setReminders(reminders: any[]): Promise<void> {
+-    await this.api.setReminders(reminders);
+-    this.snapshot.pendingSaves.delete(ComponentId.EVENTS);
+-  }
+-
+-  async setSettings(settings: any): Promise<void> {
+-    await this.api.setSettings(settings);
+-    this.snapshot.pendingSaves.delete(ComponentId.SETTINGS);
+-  }
+-
+-  async setTimer(timerValue: number): Promise<void> {
+-    await this.api.setTimer(timerValue);
+-    this.snapshot.pendingSaves.delete(ComponentId.TIMER);
+-  }
+-
+-  async setExerciseProfile(profile: any): Promise<void> {
+-    await this.api.setExerciseProfile(profile);
+-    this.snapshot.pendingSaves.delete(ComponentId.HEALTH_PROFILE);
+-  }
+-
+-  // Optional: timezone helper (used by time sync actions if needed)
+-  async setTimezone(timeZone: string): Promise<void> {
+-    // @ts-ignore – runtime provides this method on GShockAPI
+-    await this.api.setTimezone(timeZone);
+-    this.snapshot.pendingSaves.delete(ComponentId.SETTINGS);
+-  }
+-
+-  async setEvent(eventIndex: number, updatedEvent: any): Promise<void> {
+-    await this.api.setEvent(eventIndex, updatedEvent);
+-    this.snapshot.pendingSaves.delete(ComponentId.EVENTS);
+-  }
+-}
+diff --git a/src/api/session/SessionManager.ts b/src/api/session/SessionManager.ts
+deleted file mode 100644
+index b781915..0000000
+--- a/src/api/session/SessionManager.ts
++++ /dev/null
+@@ -1,79 +0,0 @@
+-// SessionManager singleton implementation with automatic discarding of closed sessions
+-import { Session } from './Session';
+-import GShockAPI from '@/api/GShockAPI';
+-import {
+-  SessionState,
+-  ComponentId,
+-} from './types';
+-
+-/**
+- * Manages the lifecycle of a single Session.
+- * A closed session is immediately discarded (set to null) as per user decision.
+- * UI components can subscribe to state updates via `onStateChange`.
+- */
+-class SessionManager {
+-  private current: Session | null = null;
+-  private listeners: ((state: SessionState | null) => void)[] = [];
+-
+-  /** Create a new session, discarding any existing one. */
+-  async createSession(entryReason: 'NORMAL' | 'CONTENT_SELECTOR' | 'RUN_ACTIONS' = 'NORMAL') {
+-    if (this.current) {
+-      this.current.close('Replaced', false);
+-      this.current = null;
+-    }
+-    const session = new Session(GShockAPI);
+-    await session.connect(entryReason as any);
+-    this.current = session;
+-    this.notify();
+-    return session;
+-  }
+-
+-  getCurrentSession(): Session | null {
+-    return this.current;
+-  }
+-
+-  /** Subscribe to session state changes. Returns an unsubscribe function. */
+-  onStateChange(fn: (state: SessionState | null) => void) {
+-    this.listeners.push(fn);
+-    fn(this.current ? this.current.snapshot : null);
+-    return () => {
+-      this.listeners = this.listeners.filter(l => l !== fn);
+-    };
+-  }
+-
+-  markPendingSave(component: ComponentId) {
+-    if (this.current) {
+-      const s = this.current.snapshot as SessionState;
+-      s.pendingSaves.add(component);
+-      this.notify();
+-    }
+-  }
+-
+-  clearPendingSave(component: ComponentId) {
+-    if (this.current) {
+-      const s = this.current.snapshot as SessionState;
+-      s.pendingSaves.delete(component);
+-      this.notify();
+-    }
+-  }
+-
+-  getPendingComponents(): ComponentId[] {
+-    return this.current ? Array.from(this.current.snapshot.pendingSaves) : [];
+-  }
+-
+-  /** Forcefully close and discard the current session. */
+-  closeCurrentSession(reason = 'UserClosed', isError = false) {
+-    if (this.current) {
+-      this.current.close(reason, isError);
+-      this.current = null;
+-      this.notify();
+-    }
+-  }
+-
+-  private notify() {
+-    const snapshot = this.current ? this.current.snapshot : null;
+-    this.listeners.forEach(l => l(snapshot));
+-  }
+-}
+-
+-export const sessionManager = new SessionManager();
+diff --git a/src/api/session/types.ts b/src/api/session/types.ts
+deleted file mode 100644
+index 85dbb5f..0000000
+--- a/src/api/session/types.ts
++++ /dev/null
+@@ -1,38 +0,0 @@
+-// Session related enums and types
+-export type SessionPhase =
+-  | 'Disconnected'
+-  | 'Connecting'
+-  | { ready: { entryReason: EntryReason } }
+-  | { closed: { reason: string; isError: boolean } };
+-
+-export enum ConnectionButton {
+-  NORMAL = 'NORMAL',
+-  FROM_ACTION = 'FROM_ACTION',
+-  AUTOMATIC_SYNC = 'AUTOMATIC_SYNC',
+-  FIND = 'FIND',
+-  ALWAYS_CONNECTED = 'ALWAYS_CONNECTED',
+-}
+-
+-export enum EntryReason {
+-  NORMAL = 'NORMAL',
+-  CONTENT_SELECTOR = 'CONTENT_SELECTOR',
+-  RUN_ACTIONS = 'RUN_ACTIONS',
+-}
+-
+-export enum ComponentId {
+-  ALARMS = 'ALARMS',
+-  SETTINGS = 'SETTINGS',
+-  EVENTS = 'EVENTS',
+-  TIMER = 'TIMER',
+-  ACTIONS = 'ACTIONS',
+-  HEALTH_PROFILE = 'HEALTH_PROFILE',
+-}
+-
+-export interface SessionState {
+-  phase: SessionPhase;
+-  button?: ConnectionButton;
+-  watch?: any; // placeholder for watch details
+-  isSetupComplete?: boolean;
+-  isRunningActions?: boolean;
+-  pendingSaves: Set<ComponentId>;
+-}
+diff --git a/src/pages/alarms/Alarms.page.tsx b/src/pages/alarms/Alarms.page.tsx
+index 26a154a..8aeaf55 100644
+--- a/src/pages/alarms/Alarms.page.tsx
++++ b/src/pages/alarms/Alarms.page.tsx
+@@ -1,103 +1,59 @@
+-import React, { useEffect, useRef, useState } from 'react';
++import React, { useEffect, useState } from 'react';
+ import {
+     Box, Typography, Button, Snackbar, Alert, Stack, Divider, useTheme
+ } from '@mui/material';
+ import SendIcon from '@mui/icons-material/Send';
+ import AlarmCard from './AlarmCard';
+ import AppSwitch from '@components/AppSwitch';
+-import GShockAPI from '@/api/GShockAPI'; // only for initial read
+-import { sessionManager } from '@/session/SessionManager';
++import GShockAPI from '@/api/GShockAPI';
++import { actionsContainer, SetAlarmsAction } from '@/actions/ActionsContainer';
+ import { ComponentId } from '@/session/types';
+-import { ChangeTracker } from '@/utils/ChangeTracker';
++import { useSessionComponent } from '@/session/useSessionComponent';
+ import ScreenTitle from '../components/ScreenTitle';
+ 
+ const BOTTOM_NAV_HEIGHT = '80px';
+ 
++type AlarmData = { hour: number, minute: number, hasHourlyChime: boolean, enabled: boolean };
++
+ const Alarms: React.FC = () => {
+     const theme = useTheme();
+-    const initialized = useRef(false);
+-    const [alarms, setAlarms] = useState<{
+-        hour: number, minute: number, hasHourlyChime: boolean, enabled: boolean
+-    }[]>([
+-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
+-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
+-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
+-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
+-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
+-    ]);
+-    const [snackbarOpen, setSnackbarOpen] = useState(false);
+-    const [snackbarMessage, setSnackbarMessage] = useState('');
+-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+-    // Session handling and ChangeTracker
+-    const [session, setSession] = useState<any>(null);
+-    const tracker = new ChangeTracker<any[]>(ComponentId.ALARMS);
++    const { value: alarms, loaded, dirty, edit, load, commit } = useSessionComponent<AlarmData[]>(
++        ComponentId.ALARMS,
++        Array.from({ length: 5 }, () => ({ hour: 0, minute: 0, hasHourlyChime: false, enabled: false }))
++    );
++    const [error, setError] = useState<string | null>(null);
+ 
+     useEffect(() => {
+-        const cur = sessionManager.getCurrentSession();
+-        setSession(cur);
++        if (loaded) return; // already read in this session; keep any unsaved edits
++        let cancelled = false;
+         (async () => {
+-            if (!initialized.current) {
+-                initialized.current = true;
+-                try {
+-                    const newAlarms = await GShockAPI.getAlarms();
+-                    const limited = Array.isArray(newAlarms) ? newAlarms.slice(0, 5) : [];
+-                    setAlarms(limited);
+-                    tracker.setBaseline(limited);
+-                } catch (e) {
+-                    console.error('Failed to fetch alarms', e);
+-                }
++            try {
++                const fromWatch = await GShockAPI.getAlarms();
++                if (!cancelled) load(Array.isArray(fromWatch) ? fromWatch.slice(0, 5) : []);
++            } catch (e) {
++                console.error('Failed to fetch alarms', e);
+             }
+         })();
++        return () => { cancelled = true; };
+     }, []);
+ 
+-    const sendToPhone = async () => { /* placeholder */ }
+-
+     const sendToWatch = async () => {
+-        if (!session) {
+-            setSnackbarMessage('No active session');
+-            setSnackbarSeverity('error');
+-            setSnackbarOpen(true);
+-            return;
+-        }
+         try {
+-            await session.setAlarms(alarms);
+-            // after successful write, clear pending flag
+-            tracker.setBaseline(alarms);
+-            setSnackbarMessage('Alarms sent to watch');
+-            setSnackbarSeverity('success');
+-            setSnackbarOpen(true);
+-        } catch (error) {
+-            console.error('Failed to send alarms', error);
+-            setSnackbarMessage('Failed to send alarms');
+-            setSnackbarSeverity('error');
+-            setSnackbarOpen(true);
++            await actionsContainer.getAction(SetAlarmsAction).run(alarms);
++            commit(alarms);
++        } catch (e) {
++            console.error('Failed to send alarms', e);
++            setError('Failed to send alarms');
+         }
+-    }
++    };
+ 
+-    const onChange = (
+-        alarmnumber: 1 | 2 | 3 | 4 | 5,
+-        alarm: { hour: number, minute: number, hasHourlyChime: boolean, enabled: boolean }
+-    ) => {
+-        const newAlarms = [...alarms];
+-        newAlarms[alarmnumber - 1] = alarm;
+-        setAlarms(newAlarms);
+-        tracker.update(newAlarms);
+-    }
++    const onChange = (alarmnumber: 1 | 2 | 3 | 4 | 5, alarm: AlarmData) => {
++        edit(prev => prev.map((a, i) => (i === alarmnumber - 1 ? { ...a, ...alarm } : a)));
++    };
+ 
+-    const onSignalChange = async (checked: boolean) => {
+-        const newAlarms = alarms.map(a => ({ ...a, hasHourlyChime: checked }));
+-        setAlarms(newAlarms);
+-        tracker.update(newAlarms);
+-        // Optionally sync immediately
+-        if (session) {
+-            try {
+-                await session.setAlarms(newAlarms);
+-                tracker.setBaseline(newAlarms);
+-            } catch (e) {
+-                console.error('Failed to update signal status', e);
+-            }
+-        }
+-    }
++    const onSignalChange = (checked: boolean) => {
++        edit(prev => prev.map(a => ({ ...a, hasHourlyChime: checked })));
++    };
+ 
+     if (!alarms || alarms.length === 0) {
+         return <Typography variant="h6" sx={{ p: 4, textAlign: 'center' }}>No alarms found</Typography>;
+@@ -165,7 +121,7 @@ const Alarms: React.FC = () => {
+                         fullWidth
+                         onClick={sendToWatch}
+                         startIcon={<SendIcon />}
+-                        disabled={!sessionManager.getPendingComponents().includes(ComponentId.ALARMS)}
++                        disabled={!dirty}
+                         sx={{ borderRadius: 100, py: 1.2, fontWeight: 600, textTransform: 'none', boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
+                     >
+                         Send to Watch
+@@ -174,13 +130,13 @@ const Alarms: React.FC = () => {
+             </Box>
+ 
+             <Snackbar
+-                open={snackbarOpen}
++                open={error !== null}
+                 autoHideDuration={3000}
+-                onClose={() => setSnackbarOpen(false)}
++                onClose={() => setError(null)}
+                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+             >
+-                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} variant="filled" sx={{ width: '100%' }}>
+-                    {snackbarMessage}
++                <Alert onClose={() => setError(null)} severity="error" variant="filled" sx={{ width: '100%' }}>
++                    {error}
+                 </Alert>
+             </Snackbar>
+         </Box>
+diff --git a/src/pages/health/Health.page.tsx b/src/pages/health/Health.page.tsx
+index 716ce23..a545011 100644
+--- a/src/pages/health/Health.page.tsx
++++ b/src/pages/health/Health.page.tsx
+@@ -7,10 +7,8 @@ import ProfileDialog from './ProfileDialog';
+ import { StepCounterData } from '@model/StepCounterData';
+ import { ExerciseProfile, defaultExerciseProfile } from '@model/ExerciseProfile';
+ import { ConnectionContext } from '@/App';
++import GShockAPI from '@/api/GShockAPI';
+ import { watchInfo } from '@/api/WatchInfo';
+-import { sessionManager } from '@/session/SessionManager';
+-import { ComponentId } from '@/session/types';
+-import { ChangeTracker } from '@/utils/ChangeTracker';
+ import { actionsContainer } from '@/actions/ActionsContainer';
+ import { SetExerciseProfileAction } from '@/actions/SetExerciseProfileAction';
+ 
+@@ -18,9 +16,6 @@ const BOTTOM_NAV_HEIGHT = '80px';
+ 
+ const Health: React.FC = () => {
+     const { isConnected } = useContext(ConnectionContext);
+-    const [session] = useState(() => sessionManager.getCurrentSession());
+-    const profileTracker = new ChangeTracker<ExerciseProfile>(ComponentId.HEALTH_PROFILE);
+-    const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.HEALTH_PROFILE) ?? false;
+     const [stepData, setStepData] = useState<StepCounterData>(StepCounterData.unavailable());
+     const [profile, setProfile] = useState<ExerciseProfile>(defaultExerciseProfile());
+     const [showProfileDialog, setShowProfileDialog] = useState(false);
+@@ -56,10 +51,6 @@ const Health: React.FC = () => {
+         try {
+             await actionsContainer.getAction(SetExerciseProfileAction).run(updatedProfile);
+             setProfile(updatedProfile);
+-            profileTracker.setBaseline(updatedProfile);
+-            setSnackbarMessage('Exercise profile saved to watch.');
+-            setSnackbarSeverity('success');
+-            setSnackbarOpen(true);
+             return true;
+         } catch (error) {
+             console.error('Failed to save exercise profile:', error);
+@@ -100,7 +91,7 @@ const Health: React.FC = () => {
+                         <Button
+                             variant="contained"
+                             onClick={() => setShowProfileDialog(true)}
+-                            fullWidth disabled={!sessionManager.getPendingComponents().includes(ComponentId.HEALTH_PROFILE)}
++                            fullWidth
+                             sx={{
+                                 borderRadius: 100,
+                                 py: 1.5,
+diff --git a/src/pages/health/ProfileDialog.tsx b/src/pages/health/ProfileDialog.tsx
+index fe7defa..ffd1ca5 100644
+--- a/src/pages/health/ProfileDialog.tsx
++++ b/src/pages/health/ProfileDialog.tsx
+@@ -33,16 +33,18 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({
+     const [error, setError] = useState<string | null>(null);
+     const [saving, setSaving] = useState(false);
+ 
++    const [initial, setInitial] = useState({ stepGoal: '', height: '', weight: '' });
++    const dirty = stepGoalText !== initial.stepGoal || heightText !== initial.height || weightText !== initial.weight;
++
+     useEffect(() => {
+         if (open) {
+-            setStepGoalText(currentProfile.stepGoal.toString());
+-            if (imperialLocale) {
+-                setHeightText(Math.round(currentProfile.height / CM_PER_INCH).toString());
+-                setWeightText(Math.round(currentProfile.weight / KG_PER_POUND).toString());
+-            } else {
+-                setHeightText(Math.round(currentProfile.height).toString());
+-                setWeightText(Math.round(currentProfile.weight).toString());
+-            }
++            const stepGoal = currentProfile.stepGoal.toString();
++            const height = (imperialLocale ? Math.round(currentProfile.height / CM_PER_INCH) : Math.round(currentProfile.height)).toString();
++            const weight = (imperialLocale ? Math.round(currentProfile.weight / KG_PER_POUND) : Math.round(currentProfile.weight)).toString();
++            setStepGoalText(stepGoal);
++            setHeightText(height);
++            setWeightText(weight);
++            setInitial({ stepGoal, height, weight });
+             setError(null);
+         }
+     }, [open, currentProfile, imperialLocale]);
+@@ -175,7 +177,7 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({
+                 </Button>
+                 <Button
+                     onClick={handleSave}
+-                    disabled={saving}
++                    disabled={saving || !dirty}
+                     variant="contained"
+                     sx={{
+                         borderRadius: 100,
+diff --git a/src/pages/home/ConnectButton.tsx b/src/pages/home/ConnectButton.tsx
+index d8dc68c..899f0f6 100644
+--- a/src/pages/home/ConnectButton.tsx
++++ b/src/pages/home/ConnectButton.tsx
+@@ -1,7 +1,7 @@
+ import AppButton from "@components/AppButton";
+ import { connection } from "@api/Connection";
+ import React from "react";
+-import GShockAPI from "@/api/GShockAPI";
++import { sessionManager } from "@/session/SessionManager";
+ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Box } from "@mui/material";
+ 
+ const ConnectButton: React.FC = () => {
+@@ -23,8 +23,11 @@ const ConnectButton: React.FC = () => {
+             return;
+         }
+ 
+-        await connection.start();
+-        await GShockAPI.init();
++        try {
++            await sessionManager.createSession();
++        } catch (e) {
++            console.error("Failed to connect to watch:", e);
++        }
+     }
+ 
+     const handleCloseDialog = () => {
+diff --git a/src/pages/reminders/Period.tsx b/src/pages/reminders/Period.tsx
+index b50463f..043f042 100644
+--- a/src/pages/reminders/Period.tsx
++++ b/src/pages/reminders/Period.tsx
+@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
+ import { Dayjs } from 'dayjs';
+ import Event from '@/model/Event';
+ import { getPeriodFormatted } from './ReminderUtils';
+-import { start } from 'repl';
+ import { Typography } from '@mui/material';
+ 
+ interface DateDisplayProps {
+diff --git a/src/pages/reminders/ReminderData.ts b/src/pages/reminders/ReminderData.ts
+index 8850da7..e4e5bb1 100644
+--- a/src/pages/reminders/ReminderData.ts
++++ b/src/pages/reminders/ReminderData.ts
+@@ -1,4 +1,3 @@
+-import exp from "constants"
+ 
+ export type dayOfWeekType = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+ export type monthType = "JANUARY" | "FEBRUARY" | "MARCH" | "APRIL" | "MAY" | "JUNE" | "JULY" | "AUGUST" | "SEPTEMBER" | "OCTOBER" | "NOVEMBER" | "DECEMBER";
+diff --git a/src/pages/reminders/ReminderUtils.ts b/src/pages/reminders/ReminderUtils.ts
+index 19693aa..1d42643 100644
+--- a/src/pages/reminders/ReminderUtils.ts
++++ b/src/pages/reminders/ReminderUtils.ts
+@@ -1,5 +1,6 @@
+ import dayjs, { Dayjs } from "dayjs";
+-import { dayOfWeekType, monthType, repeatPeriodType } from "./ReminderData";
++import ReminderData, { dayOfWeekType, monthType, repeatPeriodType } from "./ReminderData";
++import { deepEqual } from "@/session/ChangeTracker";
+ 
+ export const toDayJsDate = (date: { year: number, month: string, day: number } | null): Dayjs => {
+     if (!date) {
+@@ -268,3 +269,22 @@ export const stringToRepeatPeriod = (repeatPeriodStr: string): repeatPeriodType
+ 
+ 
+ 
++
++/**
++ * Compares reminders by what is actually sent to the watch. Events read from the watch and
++ * the objects ReminderCard emits differ in shape (the card adds the UI-only `occurrences`,
++ * and a missing end date means "same as start"), so a plain deep comparison would never
++ * see a reverted edit as unchanged.
++ */
++const reminderSignature = (r: ReminderData) => ({
++    title: r.title,
++    enabled: !!r.enabled,
++    repeatPeriod: r.repeatPeriod,
++    startDate: r.startDate,
++    endDate: r.endDate ?? r.startDate,
++    daysOfWeek: [...(r.daysOfWeek ?? [])].sort(),
++    incompatible: !!r.incompatible,
++});
++
++export const remindersEqual = (a: ReminderData[], b: ReminderData[]): boolean =>
++    a.length === b.length && a.every((r, i) => deepEqual(reminderSignature(r), reminderSignature(b[i])));
+diff --git a/src/pages/reminders/Reminders.page.tsx b/src/pages/reminders/Reminders.page.tsx
+index cf4bb3a..f7943a9 100644
+--- a/src/pages/reminders/Reminders.page.tsx
++++ b/src/pages/reminders/Reminders.page.tsx
+@@ -8,10 +8,9 @@ import GShockAPI from '@/api/GShockAPI';
+ import { actionsContainer, SetRemindersAction } from '@/actions/ActionsContainer';
+ import ScreenTitle from '../components/ScreenTitle';
+ import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
+-// Session handling imports
+-import { sessionManager } from '@/session/SessionManager';
++import { remindersEqual } from './ReminderUtils';
+ import { ComponentId } from '@/session/types';
+-import { ChangeTracker } from '@/utils/ChangeTracker';
++import { useSessionComponent } from '@/session/useSessionComponent';
+ 
+ const BOTTOM_NAV_HEIGHT = '80px';
+ 
+@@ -29,57 +28,53 @@ const Reminders: React.FC = () => {
+     }
+ 
+     const initialReminders = Array.from({ length: 5 }, () => ({ ...reminderInit }));
+-    const [reminders, setReminders] = useState<ReminderData[]>(initialReminders);
+-    const [snackbarOpen, setSnackbarOpen] = useState(false);
+-    const [snackbarMessage, setSnackbarMessage] = useState('');
+-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+-    // Session handling and ChangeTracker
+-    const [session, setSession] = useState<any>(null);
+-    const tracker = new ChangeTracker<any[]>(ComponentId.EVENTS);
+-    const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.EVENTS) ?? false;
++    const { value: reminders, loaded, dirty, edit, load, commit } = useSessionComponent<ReminderData[]>(
++        ComponentId.EVENTS,
++        initialReminders,
++        remindersEqual
++    );
++    const [error, setError] = useState<string | null>(null);
++
++    const readFromWatch = async (): Promise<ReminderData[]> =>
++        (await GShockAPI.getEventsFromWatch()).slice(0, 5);
+ 
+     useEffect(() => {
+-        const cur = sessionManager.getCurrentSession();
+-        setSession(cur);
++        if (loaded) return; // already read in this session; keep any unsaved edits
++        let cancelled = false;
+         (async () => {
+             try {
+-                const newReminders = await GShockAPI.getEventsFromWatch();
+-                const limited = newReminders.slice(0, 5);
+-                setReminders(limited);
+-                tracker.setBaseline(limited);
+-            } catch (error) {
+-                console.error('Failed to fetch events:', error);
++                const fromWatch = await readFromWatch();
++                if (!cancelled) load(fromWatch);
++            } catch (e) {
++                console.error('Failed to fetch events:', e);
+             }
+         })();
++        return () => { cancelled = true; };
+     }, []);
+ 
+     const sendToWatch = async () => {
+         try {
+             await actionsContainer.getAction(SetRemindersAction).run(reminders);
+-            tracker.setBaseline(reminders);
+-            setSnackbarMessage('Events sent to watch');
+-            setSnackbarSeverity('success');
+-            setSnackbarOpen(true);
+-
+-            const newReminders = await GShockAPI.getEventsFromWatch();
+-            const limited = newReminders.slice(0,5);
+-            setReminders(limited);
+-            tracker.setBaseline(limited);
+-        } catch (error) {
+-            setSnackbarMessage('Failed to send events');
+-            setSnackbarSeverity('error');
+-            setSnackbarOpen(true);
++            commit(reminders);
++        } catch (e) {
++            console.error('Failed to send events:', e);
++            setError('Failed to send events');
++            return;
+         }
+-    }
+-
++        try {
++            commit(await readFromWatch()); // re-read what the watch actually stored
++        } catch (e) {
++            console.error('Failed to re-read events:', e);
++        }
++    };
+ 
+     const onChange = (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => {
+-        const newReminders = [...reminders];
+-        newReminders[number - 1] = reminder;
+-        setReminders(newReminders);
+-        tracker.update(newReminders);
+-    }
+-
++        edit(prev => {
++            const next = [...prev];
++            next[number - 1] = reminder;
++            return next;
++        });
++    };
+ 
+     return (
+         <Box sx={{
+@@ -135,7 +130,7 @@ const Reminders: React.FC = () => {
+                         variant="contained"
+                         fullWidth
+                         onClick={sendToWatch}
+-                        disabled={!sessionManager.getPendingComponents().includes(ComponentId.EVENTS)}
++                        disabled={!dirty}
+                         startIcon={<SendIcon />}
+                         sx={{ borderRadius: 100, py: 1.2, fontWeight: 600, textTransform: 'none', boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
+                     >
+@@ -145,18 +140,13 @@ const Reminders: React.FC = () => {
+             </Box>
+ 
+             <Snackbar
+-                open={snackbarOpen}
++                open={error !== null}
+                 autoHideDuration={3000}
+-                onClose={() => setSnackbarOpen(false)}
++                onClose={() => setError(null)}
+                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+             >
+-                <Alert
+-                    onClose={() => setSnackbarOpen(false)}
+-                    severity={snackbarSeverity}
+-                    variant="filled"
+-                    sx={{ width: '100%' }}
+-                >
+-                    {snackbarMessage}
++                <Alert onClose={() => setError(null)} severity="error" variant="filled" sx={{ width: '100%' }}>
++                    {error}
+                 </Alert>
+             </Snackbar>
+         </Box>
+diff --git a/src/pages/settings/Settings.page.tsx b/src/pages/settings/Settings.page.tsx
+index 2bba482..a0c4b84 100644
+--- a/src/pages/settings/Settings.page.tsx
++++ b/src/pages/settings/Settings.page.tsx
+@@ -1,4 +1,4 @@
+-import React, { useEffect, useRef, useState, useContext } from 'react';
++import React, { useEffect, useState, useContext } from 'react';
+ import {
+     Box,
+     Typography,
+@@ -35,9 +35,8 @@ import type { dateFormatType, languageType, lightDurationType, timeFormatType }
+ import { watchInfo } from '@/api/WatchInfo';
+ import { actionsContainer, SetSettingsAction } from '@/actions/ActionsContainer';
+ import { ConnectionContext } from '@/App';
+-import { sessionManager } from '@/session/SessionManager';
+ import { ComponentId } from '@/session/types';
+-import { ChangeTracker } from '@/utils/ChangeTracker';
++import { useSessionComponent } from '@/session/useSessionComponent';
+ import CircularProgress from '@mui/material/CircularProgress';
+ import { WatchFeatureManager } from '@/utils/WatchFeatureManager';
+ import ScreenTitle from '../components/ScreenTitle';
+@@ -160,19 +159,12 @@ const ModernSwitch: React.FC<ModernSwitchProps> = ({ checked, onChange }) => (
+ 
+ const Settings: React.FC = () => {
+     const theme = useTheme();
+-const [session, setSession] = useState<any>(sessionManager.getCurrentSession());
+-const settingsTracker = new ChangeTracker<SettingsData>(ComponentId.SETTINGS);
+-const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.SETTINGS) ?? false;
+-
+-
+-
+-    const initialized = useRef(false);
+     const { isConnected } = useContext(ConnectionContext);
+     const [snackbarOpen, setSnackbarOpen] = useState(false);
+     const [snackbarMessage, setSnackbarMessage] = useState('');
+-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
++    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('error');
+ 
+-    const [settings, setSettings] = useState<SettingsData>({
++    const { value: settings, loaded, dirty, edit, load, commit } = useSessionComponent<SettingsData>(ComponentId.SETTINGS, {
+         autoLight: true,
+         buttonTone: true,
+         dateFormat: "MM:DD",
+@@ -187,39 +179,34 @@ const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.SETTINGS) ??
+     });
+ 
+     useEffect(() => {
++        if (loaded) return; // already read in this session; keep any unsaved edits
++        let cancelled = false;
+         (async () => {
+-            if (!initialized.current) {
+-                initialized.current = true;
+-                try {
+-                    const newSettings = await GShockAPI.getSettings();
+-                    setSettings({
+-                        ...newSettings,
+-                        timeAdjustment: newSettings.timeAdjustment ?? true,
+-                        vibrate: newSettings.keyVibration ?? false,
+-                        fineAdjustment: newSettings.fineAdjustment ?? 0,
+-                        font: (newSettings.font as fontType) ?? 'Standard',
+-                    });
+-                } catch (e) {
+-                    console.error("Failed to fetch settings", e);
+-                }
++            try {
++                const newSettings = await GShockAPI.getSettings();
++                if (cancelled) return;
++                load({
++                    ...newSettings,
++                    timeAdjustment: newSettings.timeAdjustment ?? true,
++                    vibrate: newSettings.keyVibration ?? false,
++                    fineAdjustment: newSettings.fineAdjustment ?? 0,
++                    font: (newSettings.font as fontType) ?? 'Standard',
++                });
++            } catch (e) {
++                console.error("Failed to fetch settings", e);
+             }
+         })();
++        return () => { cancelled = true; };
+     }, []);
+ 
+     const updateSettings = (partial: Partial<SettingsData>) => {
+-        setSettings(prev => {
+-            const merged = { ...prev, ...partial };
+-            settingsTracker.update(merged);
+-            return merged;
+-        });
++        edit(prev => ({ ...prev, ...partial }));
+     };
++
+     const applySmartDefaults = async () => {
+         try {
+             const patch = await getSmartDefaultsForSettings(settings);
+-            setSettings((prev) => ({ ...prev, ...patch }));
+-            setSnackbarMessage('Applied Auto Fill');
+-            setSnackbarSeverity('success');
+-            setSnackbarOpen(true);
++            updateSettings(patch);
+         } catch {
+             setSnackbarMessage('Could not apply Auto Fill');
+             setSnackbarSeverity('error');
+@@ -229,12 +216,8 @@ const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.SETTINGS) ??
+ 
+     const onSave = async () => {
+         try {
+-await actionsContainer.getAction(SetSettingsAction).run(settings);
+-            // Reset pending flag after successful save
+-            settingsTracker.setBaseline(settings);
+-            setSnackbarMessage('Settings sent to watch');
+-            setSnackbarSeverity('success');
+-            setSnackbarOpen(true);
++            await actionsContainer.getAction(SetSettingsAction).run(settings);
++            commit(settings);
+         } catch (error) {
+             setSnackbarMessage('Failed to send settings');
+             setSnackbarSeverity('error');
+@@ -423,7 +406,11 @@ await actionsContainer.getAction(SetSettingsAction).run(settings);
+                         Auto Fill
+                     </Button>
+                     <Button
+-                        disabled={!sessionManager.getPendingComponents().includes(ComponentId.SETTINGS)}
++                        variant="contained"
++                        fullWidth
++                        onClick={onSave}
++                        disabled={!dirty}
++                        startIcon={<SendIcon />}
+                         sx={{
+                             bgcolor: '#8B5E3C',
+                             borderRadius: 100,
+diff --git a/src/pages/time/Time.page.tsx b/src/pages/time/Time.page.tsx
+index ae03259..2b59adc 100644
+--- a/src/pages/time/Time.page.tsx
++++ b/src/pages/time/Time.page.tsx
+@@ -10,10 +10,8 @@ import TimerInput from './TimerInput';
+ import BatteryLevel from './BatteryLevel';
+ import DigitalClock from '../components/DigitalClock';
+ import GShockAPI from '@/api/GShockAPI';
+-// Session handling imports
+-import { sessionManager } from '@/session/SessionManager';
+ import { ComponentId } from '@/session/types';
+-import { ChangeTracker } from '@/utils/ChangeTracker';
++import { useSessionComponent } from '@/session/useSessionComponent';
+ import { actionsContainer, SetTimeAction, SetTimerAction } from '@/actions/ActionsContainer';
+ import { ConnectionContext } from '@/App';
+ import { progressEvents } from '@/api/ProgressEvents';
+@@ -85,7 +83,7 @@ const useWatchName = () => {
+     };
+ };
+ 
+-const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ timeZone, onSync }) => (
++const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void, busy: boolean }> = ({ timeZone, onSync, busy }) => (
+     <PeachCard sx={{ p: 1.5 }}>
+         <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', mb: 0.5, display: 'block' }}>
+             Phone Time
+@@ -98,7 +96,7 @@ const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ tim
+                 </Typography>
+             </Box>
+             <Button
+-                variant="contained" size="small" onClick={onSync}
++                variant="contained" size="small" onClick={onSync} disabled={busy}
+                 startIcon={<SendIcon sx={{ fontSize: '0.9rem !important' }} />}
+                 sx={{ borderRadius: 100, px: 2, height: 32, textTransform: 'none', fontWeight: 600, boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
+             >
+@@ -108,7 +106,9 @@ const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ tim
+     </PeachCard>
+ );
+ 
+-const TimerCard: React.FC<{ timerValue: { hours: number, minutes: number, seconds: number }, setTimerValue: React.Dispatch<React.SetStateAction<{ hours: number, minutes: number, seconds: number }>>, onSetTimer: () => void }> = ({ timerValue, setTimerValue, onSetTimer }) => (
++type TimerValue = { hours: number, minutes: number, seconds: number };
++
++const TimerCard: React.FC<{ timerValue: TimerValue, onTimerChange: (value: TimerValue) => void, dirty: boolean, onSetTimer: () => void }> = ({ timerValue, onTimerChange, dirty, onSetTimer }) => (
+     <PeachCard sx={{ p: 1.5 }}>
+         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.8 }}>
+             <TimerIcon sx={{ fontSize: 16, color: '#8B5E3C' }} />
+@@ -117,9 +117,9 @@ const TimerCard: React.FC<{ timerValue: { hours: number, minutes: number, second
+             </Typography>
+         </Box>
+         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+-            <TimerInput initialValue={timerValue} onUpdate={setTimerValue} />
++            <TimerInput initialValue={timerValue} onUpdate={onTimerChange} />
+             <Button
+-                variant="contained" size="small" onClick={onSetTimer}
++                variant="contained" size="small" onClick={onSetTimer} disabled={!dirty}
+                 startIcon={<SendIcon sx={{ fontSize: '0.9rem !important' }} />}
+                 sx={{ borderRadius: 100, px: 2, height: 32, textTransform: 'none', fontWeight: 600, boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
+             >
+@@ -159,7 +159,9 @@ const TemperatureCard: React.FC<{ tempShown: { text: string, unit: string } }> =
+ 
+ const Time: React.FC = () => {
+     const { isConnected } = useContext(ConnectionContext);
+-    const [timerValue, setTimerValue] = useState({ hours: 0, minutes: 0, seconds: 0 });
++    const { value: timerValue, dirty: timerDirty, edit: setTimerValue, load: loadTimer, commit: commitTimer } =
++        useSessionComponent<TimerValue>(ComponentId.TIMER, { hours: 0, minutes: 0, seconds: 0 });
++    const [settingTime, setSettingTime] = useState(false);
+     const [homeTime, setHomeTime] = useState<string>("");
+     const [batteryLevel, setBatteryLevel] = useState<number>(0);
+     const [temperature, setTemperature] = useState<number>(0);
+@@ -167,17 +169,13 @@ const Time: React.FC = () => {
+     const [snackbarOpen, setSnackbarOpen] = useState(false);
+     const [snackbarMessage, setSnackbarMessage] = useState('');
+     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+-    // Session handling and ChangeTracker
+-    const [session, setSession] = useState<any>(null);
+-    const timerTracker = new ChangeTracker<number>(ComponentId.TIMER);
+-
+     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+ 
+     const refreshWatchData = useCallback(async () => {
+         if (!isConnected) return;
+         try {
+             const timerSeconds = await GShockAPI.getTimer();
+-            setTimerValue({
++            loadTimer({
+                 hours: Math.floor(timerSeconds / 3600),
+                 minutes: Math.floor((timerSeconds % 3600) / 60),
+                 seconds: timerSeconds % 60
+@@ -200,7 +198,7 @@ const Time: React.FC = () => {
+         } catch (error) {
+             console.error("Watch refresh failed:", error);
+         }
+-    }, [isConnected]);
++    }, [isConnected, loadTimer]);
+ 
+     useEffect(() => {
+         if (isConnected) {
+@@ -217,16 +215,17 @@ const Time: React.FC = () => {
+     }, [refreshWatchData]);
+ 
+     const handleSetTime = async () => {
++        if (settingTime) return;
++        setSettingTime(true);
+         try {
+             await actionsContainer.getAction(SetTimeAction).run();
+-            setSnackbarMessage('Time synced');
+-            setSnackbarSeverity('success');
+-            setSnackbarOpen(true);
+             progressEvents.onNext('NeedToUpdateUI');
+         } catch (error) {
+             setSnackbarMessage('Sync failed');
+             setSnackbarSeverity('error');
+             setSnackbarOpen(true);
++        } finally {
++            setSettingTime(false);
+         }
+     };
+ 
+@@ -234,9 +233,7 @@ const Time: React.FC = () => {
+         try {
+             const timeInSeconds = timerValue.hours * 3600 + timerValue.minutes * 60 + timerValue.seconds;
+             await actionsContainer.getAction(SetTimerAction).run(timeInSeconds);
+-            setSnackbarMessage('Timer set');
+-            setSnackbarSeverity('success');
+-            setSnackbarOpen(true);
++            commitTimer(timerValue);
+             progressEvents.onNext('NeedToUpdateUI');
+         } catch (error) {
+             setSnackbarMessage('Timer failed');
+@@ -280,11 +277,13 @@ const Time: React.FC = () => {
+                         <LocalTimeCard
+                             timeZone={timeZone}
+                             onSync={handleSetTime}
++                            busy={settingTime}
+                         />
+ 
+                         <TimerCard
+                             timerValue={timerValue}
+-                            setTimerValue={setTimerValue}
++                            onTimerChange={setTimerValue}
++                            dirty={timerDirty}
+                             onSetTimer={handleSetTimer}
+                         />
+ 
+diff --git a/src/session/ChangeTracker.ts b/src/session/ChangeTracker.ts
+new file mode 100644
+index 0000000..b10d25b
+--- /dev/null
++++ b/src/session/ChangeTracker.ts
+@@ -0,0 +1,55 @@
++/** Structural equality, independent of key order. */
++export function deepEqual(a: unknown, b: unknown): boolean {
++  if (a === b) return true;
++  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
++  if (Array.isArray(a) !== Array.isArray(b)) return false;
++  const ka = Object.keys(a);
++  const kb = Object.keys(b);
++  if (ka.length !== kb.length) return false;
++  return ka.every(k => k in b && deepEqual((a as any)[k], (b as any)[k]));
++}
++
++/**
++ * Holds the value being edited on a screen together with the baseline it is compared
++ * against (what the watch has). `dirty` is derived from the values themselves, so
++ * changing something and then changing it back makes the screen clean again.
++ * A screen whose edited values differ in shape from the watch's can pass its own `equals`.
++ */
++export class ChangeTracker<T> {
++  private baseline: T;
++  private working: T;
++
++  constructor(
++    initial: T,
++    private readonly equals: (a: T, b: T) => boolean = deepEqual,
++  ) {
++    this.baseline = structuredClone(initial);
++    this.working = initial;
++  }
++
++  get value(): T {
++    return this.working;
++  }
++
++  get dirty(): boolean {
++    return !this.equals(this.working, this.baseline);
++  }
++
++  /** User edit. */
++  edit(next: T): void {
++    this.working = next;
++  }
++
++  /** Values read from the watch. Unsaved edits are kept, but compared against the new baseline. */
++  load(fromWatch: T): void {
++    const hadEdits = this.dirty;
++    this.baseline = structuredClone(fromWatch);
++    if (!hadEdits) this.working = fromWatch;
++  }
++
++  /** Values just written to the watch: screen is clean again. */
++  commit(saved: T): void {
++    this.baseline = structuredClone(saved);
++    this.working = saved;
++  }
++}
+diff --git a/src/session/Session.ts b/src/session/Session.ts
+index 7a80ee1..bef0e23 100644
+--- a/src/session/Session.ts
++++ b/src/session/Session.ts
+@@ -1,78 +1,59 @@
+-// Session class wrapping GShockAPI and exposing write methods
+-import GShockAPI from '@/api/GShockAPI';
+-import { SessionState, ComponentId } from '@/session/types';
++import { ChangeTracker } from './ChangeTracker';
++import { ComponentId, EntryReason, SessionPhase } from './types';
+ 
+ /**
+- * Represents a single BLE connection session. It forwards all write operations to the underlying GShockAPI instance.
+- * UI components obtain a Session from SessionManager and call these methods.
++ * One BLE connection. Holds, per screen, the value being edited and its baseline, so unsaved
++ * changes survive switching screens and are dropped only when the session closes (disconnect).
+  */
+ export class Session {
+-  /** Snapshot of the current session state. UI may read this for pending‑save flags etc. */
+-  public snapshot: SessionState;
++  public phase: SessionPhase = 'Connecting';
++  private trackers = new Map<ComponentId, ChangeTracker<any>>();
+ 
+-  constructor(private api: typeof GShockAPI) {
+-    // initialise a minimal snapshot – will be updated during connect/close.
+-    this.snapshot = {
+-      phase: 'Disconnected',
+-      pendingSaves: new Set<ComponentId>(),
+-    } as SessionState;
+-  }
+-
+-  /** Establish the BLE connection and initialise the watch. */
+-  async connect(entryReason: 'NORMAL' | 'CONTENT_SELECTOR' | 'RUN_ACTIONS' = 'NORMAL'): Promise<void> {
+-    (this.snapshot as any).phase = 'Connecting';
+-    await this.api.init();
+-    (this.snapshot as any).phase = { ready: { entryReason } };
+-  }
+-
+-  /** Close the session – discards state and notifies listeners. */
+-  close(reason = 'UserClosed', isError = false): void {
+-    // No explicit disconnect method on GShockAPI; assume underlying connection is handled elsewhere.
+-    (this.snapshot as any).phase = { closed: { reason, isError } };
+-  }
++  constructor(
++    public readonly entryReason: EntryReason,
++    private readonly onChange: () => void,
++  ) {}
+ 
+-  /** Register a hook that runs when the session is closed. */
+-  registerCloseHook(fn: () => void): void {
+-    if ((this.snapshot.phase as any).closed) {
+-      fn();
+-    }
++  isLoaded(id: ComponentId): boolean {
++    return this.trackers.has(id);
+   }
+ 
+-  /** Write helpers – each clears its pending flag after a successful write. */
+-  async setAlarms(alarms: any[]): Promise<void> {
+-    await this.api.setAlarms(alarms);
+-    this.snapshot.pendingSaves.delete(ComponentId.ALARMS);
++  isDirty(id: ComponentId): boolean {
++    return this.trackers.get(id)?.dirty ?? false;
+   }
+ 
+-  async setReminders(reminders: any[]): Promise<void> {
+-    await this.api.setReminders(reminders);
+-    this.snapshot.pendingSaves.delete(ComponentId.EVENTS);
++  get<T>(id: ComponentId): T | undefined {
++    return this.trackers.get(id)?.value;
+   }
+ 
+-  async setSettings(settings: any): Promise<void> {
+-    await this.api.setSettings(settings);
+-    this.snapshot.pendingSaves.delete(ComponentId.SETTINGS);
++  pendingComponents(): ComponentId[] {
++    return [...this.trackers].filter(([, t]) => t.dirty).map(([id]) => id);
+   }
+ 
+-  async setTimer(timerValue: number): Promise<void> {
+-    await this.api.setTimer(timerValue);
+-    this.snapshot.pendingSaves.delete(ComponentId.TIMER);
++  /** Values read from the watch. */
++  load<T>(id: ComponentId, value: T, equals?: (a: T, b: T) => boolean): void {
++    const tracker = this.trackers.get(id);
++    if (tracker) tracker.load(value);
++    else this.trackers.set(id, new ChangeTracker(value, equals));
++    this.onChange();
+   }
+ 
+-  async setExerciseProfile(profile: any): Promise<void> {
+-    await this.api.setExerciseProfile(profile);
+-    this.snapshot.pendingSaves.delete(ComponentId.HEALTH_PROFILE);
++  /** User edit. Ignored until the screen's values have been loaded from the watch. */
++  edit<T>(id: ComponentId, value: T): void {
++    this.trackers.get(id)?.edit(value);
++    this.onChange();
+   }
+ 
+-  // Optional: timezone helper (used by time sync actions if needed)
+-  async setTimezone(timeZone: string): Promise<void> {
+-    // @ts-ignore – runtime provides this method on GShockAPI
+-    await this.api.setTimezone(timeZone);
+-    this.snapshot.pendingSaves.delete(ComponentId.SETTINGS);
++  /** Values successfully written to the watch. */
++  commit<T>(id: ComponentId, value: T, equals?: (a: T, b: T) => boolean): void {
++    const tracker = this.trackers.get(id);
++    if (tracker) tracker.commit(value);
++    else this.trackers.set(id, new ChangeTracker(value, equals));
++    this.onChange();
+   }
+ 
+-  async setEvent(eventIndex: number, updatedEvent: any): Promise<void> {
+-    await this.api.setEvent(eventIndex, updatedEvent);
+-    this.snapshot.pendingSaves.delete(ComponentId.EVENTS);
++  close(reason: string, isError: boolean): void {
++    this.phase = { closed: { reason, isError } };
++    this.trackers.clear();
+   }
+ }
+diff --git a/src/session/SessionManager.ts b/src/session/SessionManager.ts
+index b781915..ea2ec84 100644
+--- a/src/session/SessionManager.ts
++++ b/src/session/SessionManager.ts
+@@ -1,78 +1,67 @@
+-// SessionManager singleton implementation with automatic discarding of closed sessions
+-import { Session } from './Session';
+ import GShockAPI from '@/api/GShockAPI';
+-import {
+-  SessionState,
+-  ComponentId,
+-} from './types';
++import { connection } from '@api/Connection';
++import { cachedIO } from '@io/CachedIO';
++import { Session } from './Session';
++import { EntryReason } from './types';
+ 
+ /**
+- * Manages the lifecycle of a single Session.
+- * A closed session is immediately discarded (set to null) as per user decision.
+- * UI components can subscribe to state updates via `onStateChange`.
++ * Owns the single current Session. The session exists from the moment the user presses connect
++ * (so screens that mount during connection find it) until the phone disconnects.
++ * Exposes a subscribe/version pair for React's useSyncExternalStore.
+  */
+ class SessionManager {
+   private current: Session | null = null;
+-  private listeners: ((state: SessionState | null) => void)[] = [];
++  private version = 0;
++  private listeners = new Set<() => void>();
+ 
+-  /** Create a new session, discarding any existing one. */
+-  async createSession(entryReason: 'NORMAL' | 'CONTENT_SELECTOR' | 'RUN_ACTIONS' = 'NORMAL') {
+-    if (this.current) {
+-      this.current.close('Replaced', false);
+-      this.current = null;
+-    }
+-    const session = new Session(GShockAPI);
+-    await session.connect(entryReason as any);
+-    this.current = session;
+-    this.notify();
+-    return session;
+-  }
++  subscribe = (listener: () => void): (() => void) => {
++    this.listeners.add(listener);
++    return () => {
++      this.listeners.delete(listener);
++    };
++  };
++
++  getVersion = (): number => this.version;
+ 
+   getCurrentSession(): Session | null {
+     return this.current;
+   }
+ 
+-  /** Subscribe to session state changes. Returns an unsubscribe function. */
+-  onStateChange(fn: (state: SessionState | null) => void) {
+-    this.listeners.push(fn);
+-    fn(this.current ? this.current.snapshot : null);
+-    return () => {
+-      this.listeners = this.listeners.filter(l => l !== fn);
+-    };
+-  }
+-
+-  markPendingSave(component: ComponentId) {
+-    if (this.current) {
+-      const s = this.current.snapshot as SessionState;
+-      s.pendingSaves.add(component);
+-      this.notify();
+-    }
+-  }
++  /** Connect to the watch and initialise it. Replaces any existing session. */
++  async createSession(entryReason: EntryReason = EntryReason.NORMAL): Promise<Session> {
++    this.closeCurrentSession('Replaced');
++    const session = new Session(entryReason, () => this.notify());
++    this.current = session;
++    this.notify();
+ 
+-  clearPendingSave(component: ComponentId) {
+-    if (this.current) {
+-      const s = this.current.snapshot as SessionState;
+-      s.pendingSaves.delete(component);
+-      this.notify();
++    try {
++      await connection.start();
++      if (!connection.isConnected()) throw new Error('Watch not connected');
++      await GShockAPI.init();
++      if (this.current === session) {
++        session.phase = { ready: { entryReason } };
++        this.notify();
++      }
++      return session;
++    } catch (e) {
++      if (this.current === session) this.closeCurrentSession('ConnectFailed', true);
++      throw e;
+     }
+   }
+ 
+-  getPendingComponents(): ComponentId[] {
+-    return this.current ? Array.from(this.current.snapshot.pendingSaves) : [];
+-  }
+-
+-  /** Forcefully close and discard the current session. */
+-  closeCurrentSession(reason = 'UserClosed', isError = false) {
+-    if (this.current) {
+-      this.current.close(reason, isError);
+-      this.current = null;
+-      this.notify();
+-    }
++  /** Discard the session and everything cached for it. Called on disconnect. */
++  closeCurrentSession(reason = 'UserClosed', isError = false): void {
++    const session = this.current;
++    if (!session) return;
++    this.current = null;
++    session.close(reason, isError);
++    cachedIO.clearCache();
++    this.notify();
+   }
+ 
+-  private notify() {
+-    const snapshot = this.current ? this.current.snapshot : null;
+-    this.listeners.forEach(l => l(snapshot));
++  private notify(): void {
++    this.version++;
++    this.listeners.forEach(l => l());
+   }
+ }
+ 
+diff --git a/src/session/types.ts b/src/session/types.ts
+index 85dbb5f..c949cab 100644
+--- a/src/session/types.ts
++++ b/src/session/types.ts
+@@ -1,6 +1,5 @@
+ // Session related enums and types
+ export type SessionPhase =
+-  | 'Disconnected'
+   | 'Connecting'
+   | { ready: { entryReason: EntryReason } }
+   | { closed: { reason: string; isError: boolean } };
+@@ -25,14 +24,4 @@ export enum ComponentId {
+   EVENTS = 'EVENTS',
+   TIMER = 'TIMER',
+   ACTIONS = 'ACTIONS',
+-  HEALTH_PROFILE = 'HEALTH_PROFILE',
+-}
+-
+-export interface SessionState {
+-  phase: SessionPhase;
+-  button?: ConnectionButton;
+-  watch?: any; // placeholder for watch details
+-  isSetupComplete?: boolean;
+-  isRunningActions?: boolean;
+-  pendingSaves: Set<ComponentId>;
+ }
+diff --git a/src/session/useSessionComponent.ts b/src/session/useSessionComponent.ts
+new file mode 100644
+index 0000000..24f5b17
+--- /dev/null
++++ b/src/session/useSessionComponent.ts
+@@ -0,0 +1,45 @@
++import { useCallback, useRef, useSyncExternalStore } from 'react';
++import { sessionManager } from './SessionManager';
++import { ComponentId } from './types';
++
++type Update<T> = T | ((prev: T) => T);
++
++/**
++ * Session-backed state for one screen.
++ *  - value:  current (possibly unsaved) value; `initial` until loaded from the watch
++ *  - dirty:  differs from what the watch has -> enable the Send/Save button
++ *  - loaded: values were already read in this session (don't re-read, it would drop edits)
++ *  - edit:   user changed something
++ *  - load:   values read from the watch (keeps unsaved edits, re-baselines)
++ *  - commit: values written to the watch (clean again)
++ * `equals` (optional) overrides the default deep comparison between edited value and baseline.
++ */
++export function useSessionComponent<T>(id: ComponentId, initial: T, equals?: (a: T, b: T) => boolean) {
++  useSyncExternalStore(sessionManager.subscribe, sessionManager.getVersion);
++
++  const initialRef = useRef(initial);
++  const equalsRef = useRef(equals);
++  equalsRef.current = equals;
++  const session = sessionManager.getCurrentSession();
++  const loaded = session?.isLoaded(id) ?? false;
++  const value = loaded ? (session!.get<T>(id) as T) : initialRef.current;
++  const dirty = session?.isDirty(id) ?? false;
++
++  const edit = useCallback((next: Update<T>) => {
++    const s = sessionManager.getCurrentSession();
++    if (!s) return;
++    const prev = s.get<T>(id);
++    if (prev === undefined) return;
++    s.edit(id, typeof next === 'function' ? (next as (p: T) => T)(prev) : next);
++  }, [id]);
++
++  const load = useCallback((fromWatch: T) => {
++    sessionManager.getCurrentSession()?.load(id, fromWatch, equalsRef.current);
++  }, [id]);
++
++  const commit = useCallback((saved: T) => {
++    sessionManager.getCurrentSession()?.commit(id, saved, equalsRef.current);
++  }, [id]);
++
++  return { value, loaded, dirty, edit, load, commit };
++}
+diff --git a/src/utils/ChangeTracker.ts b/src/utils/ChangeTracker.ts
+deleted file mode 100644
+index efb1014..0000000
+--- a/src/utils/ChangeTracker.ts
++++ /dev/null
+@@ -1,36 +0,0 @@
+-// Utility to track changes for a component and mark pending saves in SessionManager
+-import { ComponentId } from '@/session/types';
+-import { sessionManager } from '@/session/SessionManager';
+-
+-/**
+- * ChangeTracker compares a current value with a baseline snapshot.
+- * When the values differ, it marks the component as having pending saves
+- * via `sessionManager.markPendingSave`. When they match, the pending flag is cleared.
+- *
+- * `T` should be a serializable type; the default equality check uses a deep JSON comparison.
+- */
+-export class ChangeTracker<T> {
+-  private baseline: T | null = null;
+-
+-  constructor(
+-    private componentId: ComponentId,
+-    private equalsFn: (a: T, b: T) => boolean = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+-  ) {}
+-
+-  /** Set the baseline state (e.g., after a successful write) */
+-  setBaseline(baseline: T): void {
+-    // clone to avoid external mutation side‑effects
+-    this.baseline = structuredClone(baseline) as T;
+-    // baseline matches current, so clear pending flag
+-    sessionManager.clearPendingSave(this.componentId);
+-  }
+-
+-  /** Compare the current value against the baseline and update pending‑save flag */
+-  update(current: T): void {
+-    if (this.baseline && this.equalsFn(current, this.baseline)) {
+-      sessionManager.clearPendingSave(this.componentId);
+-    } else {
+-      sessionManager.markPendingSave(this.componentId);
+-    }
+-  }
+-}

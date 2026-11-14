@@ -33,16 +33,18 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({
     const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
 
+    const [initial, setInitial] = useState({ stepGoal: '', height: '', weight: '' });
+    const dirty = stepGoalText !== initial.stepGoal || heightText !== initial.height || weightText !== initial.weight;
+
     useEffect(() => {
         if (open) {
-            setStepGoalText(currentProfile.stepGoal.toString());
-            if (imperialLocale) {
-                setHeightText(Math.round(currentProfile.height / CM_PER_INCH).toString());
-                setWeightText(Math.round(currentProfile.weight / KG_PER_POUND).toString());
-            } else {
-                setHeightText(Math.round(currentProfile.height).toString());
-                setWeightText(Math.round(currentProfile.weight).toString());
-            }
+            const stepGoal = currentProfile.stepGoal.toString();
+            const height = (imperialLocale ? Math.round(currentProfile.height / CM_PER_INCH) : Math.round(currentProfile.height)).toString();
+            const weight = (imperialLocale ? Math.round(currentProfile.weight / KG_PER_POUND) : Math.round(currentProfile.weight)).toString();
+            setStepGoalText(stepGoal);
+            setHeightText(height);
+            setWeightText(weight);
+            setInitial({ stepGoal, height, weight });
             setError(null);
         }
     }, [open, currentProfile, imperialLocale]);
@@ -175,7 +177,7 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({
                 </Button>
                 <Button
                     onClick={handleSave}
-                    disabled={saving}
+                    disabled={saving || !dirty}
                     variant="contained"
                     sx={{
                         borderRadius: 100,

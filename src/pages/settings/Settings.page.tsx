@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
     Box,
     Typography,
@@ -35,9 +35,8 @@ import type { dateFormatType, languageType, lightDurationType, timeFormatType } 
 import { watchInfo } from '@/api/WatchInfo';
 import { actionsContainer, SetSettingsAction } from '@/actions/ActionsContainer';
 import { ConnectionContext } from '@/App';
-import { sessionManager } from '@/session/SessionManager';
 import { ComponentId } from '@/session/types';
-import { ChangeTracker } from '@/utils/ChangeTracker';
+import { useSessionComponent } from '@/session/useSessionComponent';
 import CircularProgress from '@mui/material/CircularProgress';
 import { WatchFeatureManager } from '@/utils/WatchFeatureManager';
 import ScreenTitle from '../components/ScreenTitle';
@@ -160,19 +159,12 @@ const ModernSwitch: React.FC<ModernSwitchProps> = ({ checked, onChange }) => (
 
 const Settings: React.FC = () => {
     const theme = useTheme();
-const [session, setSession] = useState<any>(sessionManager.getCurrentSession());
-const settingsTracker = new ChangeTracker<SettingsData>(ComponentId.SETTINGS);
-const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.SETTINGS) ?? false;
-
-
-
-    const initialized = useRef(false);
     const { isConnected } = useContext(ConnectionContext);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('error');
 
-    const [settings, setSettings] = useState<SettingsData>({
+    const { value: settings, loaded, dirty, edit, load, commit } = useSessionComponent<SettingsData>(ComponentId.SETTINGS, {
         autoLight: true,
         buttonTone: true,
         dateFormat: "MM:DD",
@@ -187,39 +179,34 @@ const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.SETTINGS) ?? 
     });
 
     useEffect(() => {
+        if (loaded) return; // already read in this session; keep any unsaved edits
+        let cancelled = false;
         (async () => {
-            if (!initialized.current) {
-                initialized.current = true;
-                try {
-                    const newSettings = await GShockAPI.getSettings();
-                    setSettings({
-                        ...newSettings,
-                        timeAdjustment: newSettings.timeAdjustment ?? true,
-                        vibrate: newSettings.keyVibration ?? false,
-                        fineAdjustment: newSettings.fineAdjustment ?? 0,
-                        font: (newSettings.font as fontType) ?? 'Standard',
-                    });
-                } catch (e) {
-                    console.error("Failed to fetch settings", e);
-                }
+            try {
+                const newSettings = await GShockAPI.getSettings();
+                if (cancelled) return;
+                load({
+                    ...newSettings,
+                    timeAdjustment: newSettings.timeAdjustment ?? true,
+                    vibrate: newSettings.keyVibration ?? false,
+                    fineAdjustment: newSettings.fineAdjustment ?? 0,
+                    font: (newSettings.font as fontType) ?? 'Standard',
+                });
+            } catch (e) {
+                console.error("Failed to fetch settings", e);
             }
         })();
+        return () => { cancelled = true; };
     }, []);
 
     const updateSettings = (partial: Partial<SettingsData>) => {
-        setSettings(prev => {
-            const merged = { ...prev, ...partial };
-            settingsTracker.update(merged);
-            return merged;
-        });
+        edit(prev => ({ ...prev, ...partial }));
     };
+
     const applySmartDefaults = async () => {
         try {
             const patch = await getSmartDefaultsForSettings(settings);
-            setSettings((prev) => ({ ...prev, ...patch }));
-            setSnackbarMessage('Applied Auto Fill');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
+            updateSettings(patch);
         } catch {
             setSnackbarMessage('Could not apply Auto Fill');
             setSnackbarSeverity('error');
@@ -229,12 +216,8 @@ const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.SETTINGS) ?? 
 
     const onSave = async () => {
         try {
-await actionsContainer.getAction(SetSettingsAction).run(settings);
-            // Reset pending flag after successful save
-            settingsTracker.setBaseline(settings);
-            setSnackbarMessage('Settings sent to watch');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
+            await actionsContainer.getAction(SetSettingsAction).run(settings);
+            commit(settings);
         } catch (error) {
             setSnackbarMessage('Failed to send settings');
             setSnackbarSeverity('error');
@@ -423,7 +406,11 @@ await actionsContainer.getAction(SetSettingsAction).run(settings);
                         Auto Fill
                     </Button>
                     <Button
-                        disabled={!sessionManager.getPendingComponents().includes(ComponentId.SETTINGS)}
+                        variant="contained"
+                        fullWidth
+                        onClick={onSave}
+                        disabled={!dirty}
+                        startIcon={<SendIcon />}
                         sx={{
                             bgcolor: '#8B5E3C',
                             borderRadius: 100,

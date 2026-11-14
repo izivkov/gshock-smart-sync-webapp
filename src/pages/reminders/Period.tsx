@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Dayjs } from 'dayjs';
 import Event from '@/model/Event';
 import { getPeriodFormatted } from './ReminderUtils';
-import { start } from 'repl';
 import { Typography } from '@mui/material';
 
 interface DateDisplayProps {

@@ -1,103 +1,59 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box, Typography, Button, Snackbar, Alert, Stack, Divider, useTheme
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import AlarmCard from './AlarmCard';
 import AppSwitch from '@components/AppSwitch';
-import GShockAPI from '@/api/GShockAPI'; // only for initial read
-import { sessionManager } from '@/session/SessionManager';
+import GShockAPI from '@/api/GShockAPI';
+import { actionsContainer, SetAlarmsAction } from '@/actions/ActionsContainer';
 import { ComponentId } from '@/session/types';
-import { ChangeTracker } from '@/utils/ChangeTracker';
+import { useSessionComponent } from '@/session/useSessionComponent';
 import ScreenTitle from '../components/ScreenTitle';
 
 const BOTTOM_NAV_HEIGHT = '80px';
 
+type AlarmData = { hour: number, minute: number, hasHourlyChime: boolean, enabled: boolean };
+
 const Alarms: React.FC = () => {
     const theme = useTheme();
-    const initialized = useRef(false);
-    const [alarms, setAlarms] = useState<{
-        hour: number, minute: number, hasHourlyChime: boolean, enabled: boolean
-    }[]>([
-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
-        { hour: 0, minute: 0, hasHourlyChime: false, enabled: false },
-    ]);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-    // Session handling and ChangeTracker
-    const [session, setSession] = useState<any>(null);
-    const tracker = new ChangeTracker<any[]>(ComponentId.ALARMS);
+    const { value: alarms, loaded, dirty, edit, load, commit } = useSessionComponent<AlarmData[]>(
+        ComponentId.ALARMS,
+        Array.from({ length: 5 }, () => ({ hour: 0, minute: 0, hasHourlyChime: false, enabled: false }))
+    );
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const cur = sessionManager.getCurrentSession();
-        setSession(cur);
+        if (loaded) return; // already read in this session; keep any unsaved edits
+        let cancelled = false;
         (async () => {
-            if (!initialized.current) {
-                initialized.current = true;
-                try {
-                    const newAlarms = await GShockAPI.getAlarms();
-                    const limited = Array.isArray(newAlarms) ? newAlarms.slice(0, 5) : [];
-                    setAlarms(limited);
-                    tracker.setBaseline(limited);
-                } catch (e) {
-                    console.error('Failed to fetch alarms', e);
-                }
+            try {
+                const fromWatch = await GShockAPI.getAlarms();
+                if (!cancelled) load(Array.isArray(fromWatch) ? fromWatch.slice(0, 5) : []);
+            } catch (e) {
+                console.error('Failed to fetch alarms', e);
             }
         })();
+        return () => { cancelled = true; };
     }, []);
 
-    const sendToPhone = async () => { /* placeholder */ }
-
     const sendToWatch = async () => {
-        if (!session) {
-            setSnackbarMessage('No active session');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
-            return;
-        }
         try {
-            await session.setAlarms(alarms);
-            // after successful write, clear pending flag
-            tracker.setBaseline(alarms);
-            setSnackbarMessage('Alarms sent to watch');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
-        } catch (error) {
-            console.error('Failed to send alarms', error);
-            setSnackbarMessage('Failed to send alarms');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
+            await actionsContainer.getAction(SetAlarmsAction).run(alarms);
+            commit(alarms);
+        } catch (e) {
+            console.error('Failed to send alarms', e);
+            setError('Failed to send alarms');
         }
-    }
+    };
 
-    const onChange = (
-        alarmnumber: 1 | 2 | 3 | 4 | 5,
-        alarm: { hour: number, minute: number, hasHourlyChime: boolean, enabled: boolean }
-    ) => {
-        const newAlarms = [...alarms];
-        newAlarms[alarmnumber - 1] = alarm;
-        setAlarms(newAlarms);
-        tracker.update(newAlarms);
-    }
+    const onChange = (alarmnumber: 1 | 2 | 3 | 4 | 5, alarm: AlarmData) => {
+        edit(prev => prev.map((a, i) => (i === alarmnumber - 1 ? { ...a, ...alarm } : a)));
+    };
 
-    const onSignalChange = async (checked: boolean) => {
-        const newAlarms = alarms.map(a => ({ ...a, hasHourlyChime: checked }));
-        setAlarms(newAlarms);
-        tracker.update(newAlarms);
-        // Optionally sync immediately
-        if (session) {
-            try {
-                await session.setAlarms(newAlarms);
-                tracker.setBaseline(newAlarms);
-            } catch (e) {
-                console.error('Failed to update signal status', e);
-            }
-        }
-    }
+    const onSignalChange = (checked: boolean) => {
+        edit(prev => prev.map(a => ({ ...a, hasHourlyChime: checked })));
+    };
 
     if (!alarms || alarms.length === 0) {
         return <Typography variant="h6" sx={{ p: 4, textAlign: 'center' }}>No alarms found</Typography>;
@@ -165,7 +121,7 @@ const Alarms: React.FC = () => {
                         fullWidth
                         onClick={sendToWatch}
                         startIcon={<SendIcon />}
-                        disabled={!sessionManager.getPendingComponents().includes(ComponentId.ALARMS)}
+                        disabled={!dirty}
                         sx={{ borderRadius: 100, py: 1.2, fontWeight: 600, textTransform: 'none', boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
                     >
                         Send to Watch
@@ -174,13 +130,13 @@ const Alarms: React.FC = () => {
             </Box>
 
             <Snackbar
-                open={snackbarOpen}
+                open={error !== null}
                 autoHideDuration={3000}
-                onClose={() => setSnackbarOpen(false)}
+                onClose={() => setError(null)}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} variant="filled" sx={{ width: '100%' }}>
-                    {snackbarMessage}
+                <Alert onClose={() => setError(null)} severity="error" variant="filled" sx={{ width: '100%' }}>
+                    {error}
                 </Alert>
             </Snackbar>
         </Box>

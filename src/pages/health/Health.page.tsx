@@ -7,10 +7,8 @@ import ProfileDialog from './ProfileDialog';
 import { StepCounterData } from '@model/StepCounterData';
 import { ExerciseProfile, defaultExerciseProfile } from '@model/ExerciseProfile';
 import { ConnectionContext } from '@/App';
+import GShockAPI from '@/api/GShockAPI';
 import { watchInfo } from '@/api/WatchInfo';
-import { sessionManager } from '@/session/SessionManager';
-import { ComponentId } from '@/session/types';
-import { ChangeTracker } from '@/utils/ChangeTracker';
 import { actionsContainer } from '@/actions/ActionsContainer';
 import { SetExerciseProfileAction } from '@/actions/SetExerciseProfileAction';
 
@@ -18,9 +16,6 @@ const BOTTOM_NAV_HEIGHT = '80px';
 
 const Health: React.FC = () => {
     const { isConnected } = useContext(ConnectionContext);
-    const [session] = useState(() => sessionManager.getCurrentSession());
-    const profileTracker = new ChangeTracker<ExerciseProfile>(ComponentId.HEALTH_PROFILE);
-    const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.HEALTH_PROFILE) ?? false;
     const [stepData, setStepData] = useState<StepCounterData>(StepCounterData.unavailable());
     const [profile, setProfile] = useState<ExerciseProfile>(defaultExerciseProfile());
     const [showProfileDialog, setShowProfileDialog] = useState(false);
@@ -56,10 +51,6 @@ const Health: React.FC = () => {
         try {
             await actionsContainer.getAction(SetExerciseProfileAction).run(updatedProfile);
             setProfile(updatedProfile);
-            profileTracker.setBaseline(updatedProfile);
-            setSnackbarMessage('Exercise profile saved to watch.');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
             return true;
         } catch (error) {
             console.error('Failed to save exercise profile:', error);
@@ -100,7 +91,7 @@ const Health: React.FC = () => {
                         <Button
                             variant="contained"
                             onClick={() => setShowProfileDialog(true)}
-                            fullWidth disabled={!sessionManager.getPendingComponents().includes(ComponentId.HEALTH_PROFILE)}
+                            fullWidth
                             sx={{
                                 borderRadius: 100,
                                 py: 1.5,

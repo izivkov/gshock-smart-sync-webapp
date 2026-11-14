@@ -9,6 +9,7 @@ import { connection } from '@api/Connection';
 import { progressEvents, EventAction } from '@api/ProgressEvents';
 import { watchInfo } from '@api/WatchInfo';
 import GShockAPI from '@/api/GShockAPI';
+import { sessionManager } from '@/session/SessionManager';
 import { ComponentRouter } from '@/utils/componentRouter';
 import { actionsContainer, RunEnvironment } from './actions/ActionsContainer';
 
@@ -152,6 +153,7 @@ export default function App() {
   // Centralized connection management
   useEffect(() => {
     const handleDisconnect = () => {
+      sessionManager.closeCurrentSession('Disconnected');
       setIsConnected(false);
       watchInfo.reset();
       router.push('/');

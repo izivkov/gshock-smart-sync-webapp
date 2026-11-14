@@ -8,10 +8,8 @@ import GShockAPI from '@/api/GShockAPI';
 import { actionsContainer, SetRemindersAction } from '@/actions/ActionsContainer';
 import ScreenTitle from '../components/ScreenTitle';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
-// Session handling imports
-import { sessionManager } from '@/session/SessionManager';
 import { ComponentId } from '@/session/types';
-import { ChangeTracker } from '@/utils/ChangeTracker';
+import { useSessionComponent } from '@/session/useSessionComponent';
 
 const BOTTOM_NAV_HEIGHT = '80px';
 
@@ -29,57 +27,52 @@ const Reminders: React.FC = () => {
     }
 
     const initialReminders = Array.from({ length: 5 }, () => ({ ...reminderInit }));
-    const [reminders, setReminders] = useState<ReminderData[]>(initialReminders);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-    // Session handling and ChangeTracker
-    const [session, setSession] = useState<any>(null);
-    const tracker = new ChangeTracker<any[]>(ComponentId.EVENTS);
-    const isPending = session?.snapshot?.pendingSaves?.has(ComponentId.EVENTS) ?? false;
+    const { value: reminders, loaded, dirty, edit, load, commit } = useSessionComponent<ReminderData[]>(
+        ComponentId.EVENTS,
+        initialReminders
+    );
+    const [error, setError] = useState<string | null>(null);
+
+    const readFromWatch = async (): Promise<ReminderData[]> =>
+        (await GShockAPI.getEventsFromWatch()).slice(0, 5);
 
     useEffect(() => {
-        const cur = sessionManager.getCurrentSession();
-        setSession(cur);
+        if (loaded) return; // already read in this session; keep any unsaved edits
+        let cancelled = false;
         (async () => {
             try {
-                const newReminders = await GShockAPI.getEventsFromWatch();
-                const limited = newReminders.slice(0, 5);
-                setReminders(limited);
-                tracker.setBaseline(limited);
-            } catch (error) {
-                console.error('Failed to fetch events:', error);
+                const fromWatch = await readFromWatch();
+                if (!cancelled) load(fromWatch);
+            } catch (e) {
+                console.error('Failed to fetch events:', e);
             }
         })();
+        return () => { cancelled = true; };
     }, []);
 
     const sendToWatch = async () => {
         try {
             await actionsContainer.getAction(SetRemindersAction).run(reminders);
-            tracker.setBaseline(reminders);
-            setSnackbarMessage('Events sent to watch');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
-
-            const newReminders = await GShockAPI.getEventsFromWatch();
-            const limited = newReminders.slice(0,5);
-            setReminders(limited);
-            tracker.setBaseline(limited);
-        } catch (error) {
-            setSnackbarMessage('Failed to send events');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
+            commit(reminders);
+        } catch (e) {
+            console.error('Failed to send events:', e);
+            setError('Failed to send events');
+            return;
         }
-    }
-
+        try {
+            commit(await readFromWatch()); // re-read what the watch actually stored
+        } catch (e) {
+            console.error('Failed to re-read events:', e);
+        }
+    };
 
     const onChange = (reminder: ReminderData, number: 1 | 2 | 3 | 4 | 5) => {
-        const newReminders = [...reminders];
-        newReminders[number - 1] = reminder;
-        setReminders(newReminders);
-        tracker.update(newReminders);
-    }
-
+        edit(prev => {
+            const next = [...prev];
+            next[number - 1] = reminder;
+            return next;
+        });
+    };
 
     return (
         <Box sx={{
@@ -135,7 +128,7 @@ const Reminders: React.FC = () => {
                         variant="contained"
                         fullWidth
                         onClick={sendToWatch}
-                        disabled={!sessionManager.getPendingComponents().includes(ComponentId.EVENTS)}
+                        disabled={!dirty}
                         startIcon={<SendIcon />}
                         sx={{ borderRadius: 100, py: 1.2, fontWeight: 600, textTransform: 'none', boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
                     >
@@ -145,18 +138,13 @@ const Reminders: React.FC = () => {
             </Box>
 
             <Snackbar
-                open={snackbarOpen}
+                open={error !== null}
                 autoHideDuration={3000}
-                onClose={() => setSnackbarOpen(false)}
+                onClose={() => setError(null)}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert
-                    onClose={() => setSnackbarOpen(false)}
-                    severity={snackbarSeverity}
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {snackbarMessage}
+                <Alert onClose={() => setError(null)} severity="error" variant="filled" sx={{ width: '100%' }}>
+                    {error}
                 </Alert>
             </Snackbar>
         </Box>
