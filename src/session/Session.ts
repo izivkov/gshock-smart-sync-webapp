@@ -31,10 +31,10 @@ export class Session {
   }
 
   /** Values read from the watch. */
-  load<T>(id: ComponentId, value: T): void {
+  load<T>(id: ComponentId, value: T, equals?: (a: T, b: T) => boolean): void {
     const tracker = this.trackers.get(id);
     if (tracker) tracker.load(value);
-    else this.trackers.set(id, new ChangeTracker(value));
+    else this.trackers.set(id, new ChangeTracker(value, equals));
     this.onChange();
   }
 
@@ -45,10 +45,10 @@ export class Session {
   }
 
   /** Values successfully written to the watch. */
-  commit<T>(id: ComponentId, value: T): void {
+  commit<T>(id: ComponentId, value: T, equals?: (a: T, b: T) => boolean): void {
     const tracker = this.trackers.get(id);
     if (tracker) tracker.commit(value);
-    else this.trackers.set(id, new ChangeTracker(value));
+    else this.trackers.set(id, new ChangeTracker(value, equals));
     this.onChange();
   }
 

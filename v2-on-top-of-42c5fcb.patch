@@ -1,0 +1,208 @@
+diff --git a/src/pages/reminders/ReminderUtils.ts b/src/pages/reminders/ReminderUtils.ts
+index 19693aa..1d42643 100644
+--- a/src/pages/reminders/ReminderUtils.ts
++++ b/src/pages/reminders/ReminderUtils.ts
+@@ -1,5 +1,6 @@
+ import dayjs, { Dayjs } from "dayjs";
+-import { dayOfWeekType, monthType, repeatPeriodType } from "./ReminderData";
++import ReminderData, { dayOfWeekType, monthType, repeatPeriodType } from "./ReminderData";
++import { deepEqual } from "@/session/ChangeTracker";
+ 
+ export const toDayJsDate = (date: { year: number, month: string, day: number } | null): Dayjs => {
+     if (!date) {
+@@ -268,3 +269,22 @@ export const stringToRepeatPeriod = (repeatPeriodStr: string): repeatPeriodType
+ 
+ 
+ 
++
++/**
++ * Compares reminders by what is actually sent to the watch. Events read from the watch and
++ * the objects ReminderCard emits differ in shape (the card adds the UI-only `occurrences`,
++ * and a missing end date means "same as start"), so a plain deep comparison would never
++ * see a reverted edit as unchanged.
++ */
++const reminderSignature = (r: ReminderData) => ({
++    title: r.title,
++    enabled: !!r.enabled,
++    repeatPeriod: r.repeatPeriod,
++    startDate: r.startDate,
++    endDate: r.endDate ?? r.startDate,
++    daysOfWeek: [...(r.daysOfWeek ?? [])].sort(),
++    incompatible: !!r.incompatible,
++});
++
++export const remindersEqual = (a: ReminderData[], b: ReminderData[]): boolean =>
++    a.length === b.length && a.every((r, i) => deepEqual(reminderSignature(r), reminderSignature(b[i])));
+diff --git a/src/pages/reminders/Reminders.page.tsx b/src/pages/reminders/Reminders.page.tsx
+index aa4bdd8..f7943a9 100644
+--- a/src/pages/reminders/Reminders.page.tsx
++++ b/src/pages/reminders/Reminders.page.tsx
+@@ -8,6 +8,7 @@ import GShockAPI from '@/api/GShockAPI';
+ import { actionsContainer, SetRemindersAction } from '@/actions/ActionsContainer';
+ import ScreenTitle from '../components/ScreenTitle';
+ import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
++import { remindersEqual } from './ReminderUtils';
+ import { ComponentId } from '@/session/types';
+ import { useSessionComponent } from '@/session/useSessionComponent';
+ 
+@@ -29,7 +30,8 @@ const Reminders: React.FC = () => {
+     const initialReminders = Array.from({ length: 5 }, () => ({ ...reminderInit }));
+     const { value: reminders, loaded, dirty, edit, load, commit } = useSessionComponent<ReminderData[]>(
+         ComponentId.EVENTS,
+-        initialReminders
++        initialReminders,
++        remindersEqual
+     );
+     const [error, setError] = useState<string | null>(null);
+ 
+diff --git a/src/pages/time/Time.page.tsx b/src/pages/time/Time.page.tsx
+index 80120bc..2b59adc 100644
+--- a/src/pages/time/Time.page.tsx
++++ b/src/pages/time/Time.page.tsx
+@@ -83,7 +83,7 @@ const useWatchName = () => {
+     };
+ };
+ 
+-const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ timeZone, onSync }) => (
++const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void, busy: boolean }> = ({ timeZone, onSync, busy }) => (
+     <PeachCard sx={{ p: 1.5 }}>
+         <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', mb: 0.5, display: 'block' }}>
+             Phone Time
+@@ -96,7 +96,7 @@ const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ tim
+                 </Typography>
+             </Box>
+             <Button
+-                variant="contained" size="small" onClick={onSync}
++                variant="contained" size="small" onClick={onSync} disabled={busy}
+                 startIcon={<SendIcon sx={{ fontSize: '0.9rem !important' }} />}
+                 sx={{ borderRadius: 100, px: 2, height: 32, textTransform: 'none', fontWeight: 600, boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
+             >
+@@ -161,6 +161,7 @@ const Time: React.FC = () => {
+     const { isConnected } = useContext(ConnectionContext);
+     const { value: timerValue, dirty: timerDirty, edit: setTimerValue, load: loadTimer, commit: commitTimer } =
+         useSessionComponent<TimerValue>(ComponentId.TIMER, { hours: 0, minutes: 0, seconds: 0 });
++    const [settingTime, setSettingTime] = useState(false);
+     const [homeTime, setHomeTime] = useState<string>("");
+     const [batteryLevel, setBatteryLevel] = useState<number>(0);
+     const [temperature, setTemperature] = useState<number>(0);
+@@ -214,6 +215,8 @@ const Time: React.FC = () => {
+     }, [refreshWatchData]);
+ 
+     const handleSetTime = async () => {
++        if (settingTime) return;
++        setSettingTime(true);
+         try {
+             await actionsContainer.getAction(SetTimeAction).run();
+             progressEvents.onNext('NeedToUpdateUI');
+@@ -221,6 +224,8 @@ const Time: React.FC = () => {
+             setSnackbarMessage('Sync failed');
+             setSnackbarSeverity('error');
+             setSnackbarOpen(true);
++        } finally {
++            setSettingTime(false);
+         }
+     };
+ 
+@@ -272,6 +277,7 @@ const Time: React.FC = () => {
+                         <LocalTimeCard
+                             timeZone={timeZone}
+                             onSync={handleSetTime}
++                            busy={settingTime}
+                         />
+ 
+                         <TimerCard
+diff --git a/src/session/ChangeTracker.ts b/src/session/ChangeTracker.ts
+index e7578a8..b10d25b 100644
+--- a/src/session/ChangeTracker.ts
++++ b/src/session/ChangeTracker.ts
+@@ -13,12 +13,16 @@ export function deepEqual(a: unknown, b: unknown): boolean {
+  * Holds the value being edited on a screen together with the baseline it is compared
+  * against (what the watch has). `dirty` is derived from the values themselves, so
+  * changing something and then changing it back makes the screen clean again.
++ * A screen whose edited values differ in shape from the watch's can pass its own `equals`.
+  */
+ export class ChangeTracker<T> {
+   private baseline: T;
+   private working: T;
+ 
+-  constructor(initial: T) {
++  constructor(
++    initial: T,
++    private readonly equals: (a: T, b: T) => boolean = deepEqual,
++  ) {
+     this.baseline = structuredClone(initial);
+     this.working = initial;
+   }
+@@ -28,7 +32,7 @@ export class ChangeTracker<T> {
+   }
+ 
+   get dirty(): boolean {
+-    return !deepEqual(this.working, this.baseline);
++    return !this.equals(this.working, this.baseline);
+   }
+ 
+   /** User edit. */
+diff --git a/src/session/Session.ts b/src/session/Session.ts
+index b19af3f..bef0e23 100644
+--- a/src/session/Session.ts
++++ b/src/session/Session.ts
+@@ -31,10 +31,10 @@ export class Session {
+   }
+ 
+   /** Values read from the watch. */
+-  load<T>(id: ComponentId, value: T): void {
++  load<T>(id: ComponentId, value: T, equals?: (a: T, b: T) => boolean): void {
+     const tracker = this.trackers.get(id);
+     if (tracker) tracker.load(value);
+-    else this.trackers.set(id, new ChangeTracker(value));
++    else this.trackers.set(id, new ChangeTracker(value, equals));
+     this.onChange();
+   }
+ 
+@@ -45,10 +45,10 @@ export class Session {
+   }
+ 
+   /** Values successfully written to the watch. */
+-  commit<T>(id: ComponentId, value: T): void {
++  commit<T>(id: ComponentId, value: T, equals?: (a: T, b: T) => boolean): void {
+     const tracker = this.trackers.get(id);
+     if (tracker) tracker.commit(value);
+-    else this.trackers.set(id, new ChangeTracker(value));
++    else this.trackers.set(id, new ChangeTracker(value, equals));
+     this.onChange();
+   }
+ 
+diff --git a/src/session/useSessionComponent.ts b/src/session/useSessionComponent.ts
+index 8c82119..24f5b17 100644
+--- a/src/session/useSessionComponent.ts
++++ b/src/session/useSessionComponent.ts
+@@ -12,11 +12,14 @@ type Update<T> = T | ((prev: T) => T);
+  *  - edit:   user changed something
+  *  - load:   values read from the watch (keeps unsaved edits, re-baselines)
+  *  - commit: values written to the watch (clean again)
++ * `equals` (optional) overrides the default deep comparison between edited value and baseline.
+  */
+-export function useSessionComponent<T>(id: ComponentId, initial: T) {
++export function useSessionComponent<T>(id: ComponentId, initial: T, equals?: (a: T, b: T) => boolean) {
+   useSyncExternalStore(sessionManager.subscribe, sessionManager.getVersion);
+ 
+   const initialRef = useRef(initial);
++  const equalsRef = useRef(equals);
++  equalsRef.current = equals;
+   const session = sessionManager.getCurrentSession();
+   const loaded = session?.isLoaded(id) ?? false;
+   const value = loaded ? (session!.get<T>(id) as T) : initialRef.current;
+@@ -31,11 +34,11 @@ export function useSessionComponent<T>(id: ComponentId, initial: T) {
+   }, [id]);
+ 
+   const load = useCallback((fromWatch: T) => {
+-    sessionManager.getCurrentSession()?.load(id, fromWatch);
++    sessionManager.getCurrentSession()?.load(id, fromWatch, equalsRef.current);
+   }, [id]);
+ 
+   const commit = useCallback((saved: T) => {
+-    sessionManager.getCurrentSession()?.commit(id, saved);
++    sessionManager.getCurrentSession()?.commit(id, saved, equalsRef.current);
+   }, [id]);
+ 
+   return { value, loaded, dirty, edit, load, commit };

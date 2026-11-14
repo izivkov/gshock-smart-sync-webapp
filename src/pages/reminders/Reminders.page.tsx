@@ -8,6 +8,7 @@ import GShockAPI from '@/api/GShockAPI';
 import { actionsContainer, SetRemindersAction } from '@/actions/ActionsContainer';
 import ScreenTitle from '../components/ScreenTitle';
 import ReminderData, { monthType, repeatPeriodType } from './ReminderData';
+import { remindersEqual } from './ReminderUtils';
 import { ComponentId } from '@/session/types';
 import { useSessionComponent } from '@/session/useSessionComponent';
 
@@ -29,7 +30,8 @@ const Reminders: React.FC = () => {
     const initialReminders = Array.from({ length: 5 }, () => ({ ...reminderInit }));
     const { value: reminders, loaded, dirty, edit, load, commit } = useSessionComponent<ReminderData[]>(
         ComponentId.EVENTS,
-        initialReminders
+        initialReminders,
+        remindersEqual
     );
     const [error, setError] = useState<string | null>(null);
 

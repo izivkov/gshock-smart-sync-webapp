@@ -13,12 +13,16 @@ export function deepEqual(a: unknown, b: unknown): boolean {
  * Holds the value being edited on a screen together with the baseline it is compared
  * against (what the watch has). `dirty` is derived from the values themselves, so
  * changing something and then changing it back makes the screen clean again.
+ * A screen whose edited values differ in shape from the watch's can pass its own `equals`.
  */
 export class ChangeTracker<T> {
   private baseline: T;
   private working: T;
 
-  constructor(initial: T) {
+  constructor(
+    initial: T,
+    private readonly equals: (a: T, b: T) => boolean = deepEqual,
+  ) {
     this.baseline = structuredClone(initial);
     this.working = initial;
   }
@@ -28,7 +32,7 @@ export class ChangeTracker<T> {
   }
 
   get dirty(): boolean {
-    return !deepEqual(this.working, this.baseline);
+    return !this.equals(this.working, this.baseline);
   }
 
   /** User edit. */

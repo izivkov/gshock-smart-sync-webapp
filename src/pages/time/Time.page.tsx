@@ -83,7 +83,7 @@ const useWatchName = () => {
     };
 };
 
-const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ timeZone, onSync }) => (
+const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void, busy: boolean }> = ({ timeZone, onSync, busy }) => (
     <PeachCard sx={{ p: 1.5 }}>
         <Typography variant="caption" sx={{ fontWeight: 700, color: '#8B5E3C', textTransform: 'uppercase', mb: 0.5, display: 'block' }}>
             Phone Time
@@ -96,7 +96,7 @@ const LocalTimeCard: React.FC<{ timeZone: string, onSync: () => void }> = ({ tim
                 </Typography>
             </Box>
             <Button
-                variant="contained" size="small" onClick={onSync}
+                variant="contained" size="small" onClick={onSync} disabled={busy}
                 startIcon={<SendIcon sx={{ fontSize: '0.9rem !important' }} />}
                 sx={{ borderRadius: 100, px: 2, height: 32, textTransform: 'none', fontWeight: 600, boxShadow: '0 2px 8px rgba(139, 94, 60, 0.25)' }}
             >
@@ -161,6 +161,7 @@ const Time: React.FC = () => {
     const { isConnected } = useContext(ConnectionContext);
     const { value: timerValue, dirty: timerDirty, edit: setTimerValue, load: loadTimer, commit: commitTimer } =
         useSessionComponent<TimerValue>(ComponentId.TIMER, { hours: 0, minutes: 0, seconds: 0 });
+    const [settingTime, setSettingTime] = useState(false);
     const [homeTime, setHomeTime] = useState<string>("");
     const [batteryLevel, setBatteryLevel] = useState<number>(0);
     const [temperature, setTemperature] = useState<number>(0);
@@ -214,6 +215,8 @@ const Time: React.FC = () => {
     }, [refreshWatchData]);
 
     const handleSetTime = async () => {
+        if (settingTime) return;
+        setSettingTime(true);
         try {
             await actionsContainer.getAction(SetTimeAction).run();
             progressEvents.onNext('NeedToUpdateUI');
@@ -221,6 +224,8 @@ const Time: React.FC = () => {
             setSnackbarMessage('Sync failed');
             setSnackbarSeverity('error');
             setSnackbarOpen(true);
+        } finally {
+            setSettingTime(false);
         }
     };
 
@@ -272,6 +277,7 @@ const Time: React.FC = () => {
                         <LocalTimeCard
                             timeZone={timeZone}
                             onSync={handleSetTime}
+                            busy={settingTime}
                         />
 
                         <TimerCard

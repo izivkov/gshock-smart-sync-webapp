@@ -1,5 +1,6 @@
 import dayjs, { Dayjs } from "dayjs";
-import { dayOfWeekType, monthType, repeatPeriodType } from "./ReminderData";
+import ReminderData, { dayOfWeekType, monthType, repeatPeriodType } from "./ReminderData";
+import { deepEqual } from "@/session/ChangeTracker";
 
 export const toDayJsDate = (date: { year: number, month: string, day: number } | null): Dayjs => {
     if (!date) {
@@ -268,3 +269,22 @@ export const stringToRepeatPeriod = (repeatPeriodStr: string): repeatPeriodType 
 
 
 
+
+/**
+ * Compares reminders by what is actually sent to the watch. Events read from the watch and
+ * the objects ReminderCard emits differ in shape (the card adds the UI-only `occurrences`,
+ * and a missing end date means "same as start"), so a plain deep comparison would never
+ * see a reverted edit as unchanged.
+ */
+const reminderSignature = (r: ReminderData) => ({
+    title: r.title,
+    enabled: !!r.enabled,
+    repeatPeriod: r.repeatPeriod,
+    startDate: r.startDate,
+    endDate: r.endDate ?? r.startDate,
+    daysOfWeek: [...(r.daysOfWeek ?? [])].sort(),
+    incompatible: !!r.incompatible,
+});
+
+export const remindersEqual = (a: ReminderData[], b: ReminderData[]): boolean =>
+    a.length === b.length && a.every((r, i) => deepEqual(reminderSignature(r), reminderSignature(b[i])));

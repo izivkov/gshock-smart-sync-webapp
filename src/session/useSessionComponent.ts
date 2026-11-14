@@ -12,11 +12,14 @@ type Update<T> = T | ((prev: T) => T);
  *  - edit:   user changed something
  *  - load:   values read from the watch (keeps unsaved edits, re-baselines)
  *  - commit: values written to the watch (clean again)
+ * `equals` (optional) overrides the default deep comparison between edited value and baseline.
  */
-export function useSessionComponent<T>(id: ComponentId, initial: T) {
+export function useSessionComponent<T>(id: ComponentId, initial: T, equals?: (a: T, b: T) => boolean) {
   useSyncExternalStore(sessionManager.subscribe, sessionManager.getVersion);
 
   const initialRef = useRef(initial);
+  const equalsRef = useRef(equals);
+  equalsRef.current = equals;
   const session = sessionManager.getCurrentSession();
   const loaded = session?.isLoaded(id) ?? false;
   const value = loaded ? (session!.get<T>(id) as T) : initialRef.current;
@@ -31,11 +34,11 @@ export function useSessionComponent<T>(id: ComponentId, initial: T) {
   }, [id]);
 
   const load = useCallback((fromWatch: T) => {
-    sessionManager.getCurrentSession()?.load(id, fromWatch);
+    sessionManager.getCurrentSession()?.load(id, fromWatch, equalsRef.current);
   }, [id]);
 
   const commit = useCallback((saved: T) => {
-    sessionManager.getCurrentSession()?.commit(id, saved);
+    sessionManager.getCurrentSession()?.commit(id, saved, equalsRef.current);
   }, [id]);
 
   return { value, loaded, dirty, edit, load, commit };
