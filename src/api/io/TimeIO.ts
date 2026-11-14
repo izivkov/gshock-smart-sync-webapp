@@ -3,6 +3,7 @@ import { watchInfo } from "@/api/WatchInfo";
 import DstWatchStateIO from "@io/DstWatchStateIO";
 import DstForWorldCitiesIO from "@io/DstForWorldCitiesIO";
 import WorldCitiesIO, { WorldCitiesIOFunctional } from "@io/WorldCitiesIO";
+import HomeTimeIO from "@io/HomeTimeIO";
 import { CasioConstants } from "@api/CasioConstants";
 import Utils from "../utils/Utils";
 import { findTimeZone, getStandardAndSummerOffsets } from "./CasioTimeZoneHelper";
@@ -96,6 +97,14 @@ const TimeIO = {
 
         if (watchInfo.hasWorldCities) {
             await this.writeWorldCities();
+        } else if (watchInfo.hasHomeTime) {
+            await this.writeHomeTimes();
+        }
+    },
+
+    async writeHomeTimes(): Promise<void> {
+        for (let i = 0; i < watchInfo.worldCitiesCount; i++) {
+            await this.readAndWrite((slot: number) => HomeTimeIO.requestRaw(slot), i);
         }
     },
 
@@ -132,7 +141,7 @@ const TimeIO = {
     },
 
     async writeWorldCities(): Promise<void> {
-        const worldCities = [
+        const cityWrites = [
             { function: this.getWorldCitiesWithTZ, param: 0 },
             { function: this.getWorldCities, param: 1 },
             { function: this.getWorldCities, param: 2 },
@@ -142,7 +151,7 @@ const TimeIO = {
         ];
 
         for (let i = 0; i < watchInfo.worldCitiesCount; i++) {
-            await this.readAndWrite(worldCities[i].function, worldCities[i].param);
+            await this.readAndWrite(cityWrites[i].function, cityWrites[i].param);
         }
     },
 

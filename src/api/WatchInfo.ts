@@ -46,7 +46,6 @@ export interface ModelInfo {
     shortLightDuration?: lightDurationType;
     longLightDuration?: lightDurationType;
     weekLanguageSupported?: boolean;
-    worldCities?: boolean;
     hasBatteryLevel?: boolean;
     hasTemperature?: boolean;
     batteryLevelLowerLimit?: number;
@@ -85,7 +84,6 @@ const DEFAULT_MODEL_INFO: Required<ModelInfo> = {
     shortLightDuration: "1.5s",
     longLightDuration: "3s",
     weekLanguageSupported: true,
-    worldCities: true,
     hasBatteryLevel: true,
     hasTemperature: true,
     batteryLevelLowerLimit: 9,
@@ -198,7 +196,7 @@ const modelList: ModelInfo[] = [
         model: WATCH_MODEL.ABL_100,
         hasAutoLight: false, hasReminders: false,
         hasTemperature: false, hasBatteryLevel: false,
-        worldCities: false, hasHomeTime: false,
+        hasWorldCities: false, hasHomeTime: false,
         hasStepCounter: true,
         hasExerciseProfile: true,
         hasDateFormat: false,
@@ -208,7 +206,7 @@ const modelList: ModelInfo[] = [
         model: WATCH_MODEL.BSA_B100,
         hasAutoLight: false, hasReminders: false,
         hasTemperature: false, hasBatteryLevel: false,
-        worldCities: false, hasHomeTime: false,
+        hasWorldCities: false, hasHomeTime: false,
         hasStepCounter: true,
         hasExerciseProfile: true,
         hasDateFormat: false,
@@ -218,7 +216,7 @@ const modelList: ModelInfo[] = [
         model: WATCH_MODEL.F_B100,
         hasAutoLight: false, hasReminders: false,
         hasTemperature: false, hasBatteryLevel: false,
-        worldCities: false, hasHomeTime: false,
+        hasWorldCities: false, hasHomeTime: false,
         hasStepCounter: true,
         hasExerciseProfile: true,
         hasDateFormat: false,
@@ -246,18 +244,18 @@ const modelList: ModelInfo[] = [
     {
         model: WATCH_MODEL.GBD,
         hasAutoLight: true, hasReminders: false,
-        worldCities: false, hasTemperature: false,
+        hasWorldCities: false, hasTemperature: false,
     },
     {
         model: WATCH_MODEL.GBD_800,
         hasAutoLight: true, hasReminders: false,
         hasTemperature: false, hasBatteryLevel: false,
-        worldCities: false, hasHomeTime: false,
+        hasWorldCities: false, hasHomeTime: false,
     },
     {
         model: WATCH_MODEL.EQB,
         hasAutoLight: true, hasReminders: false,
-        worldCities: false, hasTemperature: false,
+        hasWorldCities: false, hasTemperature: false,
     },
     {
         model: WATCH_MODEL.ECB,
@@ -430,7 +428,6 @@ class WatchInfo {
     get shortLightDuration() { return this.state.shortLightDuration; }
     get longLightDuration() { return this.state.longLightDuration; }
     get weekLanguageSupported() { return this.state.weekLanguageSupported; }
-    get worldCities() { return this.state.worldCities; }
     get hasBatteryLevel() { return this.state.hasBatteryLevel; }
     get hasTemperature() { return this.state.hasTemperature; }
     get batteryLevelLowerLimit() { return this.state.batteryLevelLowerLimit; }
