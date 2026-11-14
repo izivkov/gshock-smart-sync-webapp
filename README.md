@@ -99,10 +99,11 @@ We provide scripts for automated deployment to a remote server (e.g., Raspberry 
 
 ### Documentation
 - **[RELEASE_NOTES.md](./RELEASE_NOTES.md)** - Latest changes and security updates.
-- **[QUICK-START.md](./QUICK-START.md)** - Step-by-step setup guide.
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - In-depth technical reference.
-- **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** - Quick 3-step overview.
-- **[WEB_BLE_BROWSERS.md](./WEB_BLE_BROWSERS.md)** - Web Bluetooth browsers for iPhone, iPad, and other platforms, with App Store links and pairing steps.
+- **[QUICK-START.md](.docs/QUICK-START.md)** - Step-by-step setup guide.
+- **[DEPLOYMENT.md](.docs/DEPLOYMENT.md)** - In-depth technical reference.
+- **[DEPLOYMENT-SUMMARY.md](.docs/DEPLOYMENT-SUMMARY.md)** - Quick 3-step overview.
+- **[SESSIONS.md](.docs/SESSIONS.md)** - Show how the app uses a session to manage its screens.
+- **[WEB_BLE_BROWSERS.md](.docs/WEB_BLE_BROWSERS.md)** - Web Bluetooth browsers for iPhone, iPad, and other platforms, with App Store links and pairing steps.
 
 ---
 
